@@ -1,0 +1,36 @@
+services:
+  api:
+    build: .
+    container_name: ai-gym-api
+    restart: unless-stopped
+    ports:
+      - "4010:4010"
+    environment:
+      PORT: 4010
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/ai_gym
+      CLAUDE_API_KEY: ${CLAUDE_API_KEY}
+      CLAUDE_API_BASE: ${CLAUDE_API_BASE:-https://api.anthropic.com}
+      CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-sonnet-4-6}
+      TZ: Asia/Shanghai
+    networks: [ai-gym]
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:17-alpine
+    container_name: ai-gym-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ai_gym
+    volumes: [ai-gym-db:/var/lib/postgresql/data]
+    networks: [ai-gym]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ai_gym"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+networks:
+  ai-gym:
+volumes:
+  ai-gym-db:

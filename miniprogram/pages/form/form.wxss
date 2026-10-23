@@ -1,0 +1,18 @@
+.page { padding: 24rpx 24rpx 120rpx; }
+.sec { margin-bottom: 36rpx; }
+.sec-t { font-size: 28rpx; color: #6b5f58; margin-bottom: 16rpx; font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.chip {
+  padding: 14rpx 28rpx; border-radius: 999rpx; font-size: 26rpx;
+  background: #fff; border: 2rpx solid #e5ddd6; color: #241D1B;
+}
+.chip-on { background: #A5492B; border-color: #A5492B; color: #fff; }
+.notes {
+  width: 100%; box-sizing: border-box; min-height: 120rpx;
+  padding: 20rpx; background: #fff; border: 2rpx solid #e5ddd6; border-radius: 16rpx; font-size: 26rpx;
+}
+.submit {
+  margin-top: 20rpx; background: #241D1B; color: #fff; border-radius: 16rpx;
+  font-size: 30rpx; padding: 8rpx 0;
+}
+.submit[disabled] { opacity: 0.6; }

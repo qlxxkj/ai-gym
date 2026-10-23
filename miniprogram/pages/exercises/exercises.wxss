@@ -1,0 +1,30 @@
+.page { padding: 24rpx; }
+.search {
+  background: #fff; border: 2rpx solid #e5ddd6; border-radius: 16rpx;
+  padding: 20rpx; font-size: 28rpx; margin-bottom: 20rpx;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 12rpx; margin-bottom: 20rpx; }
+.chip {
+  padding: 10rpx 24rpx; border-radius: 999rpx; font-size: 24rpx;
+  background: #fff; border: 2rpx solid #e5ddd6; color: #241D1B;
+}
+.chip-on { background: #A5492B; border-color: #A5492B; color: #fff; }
+
+.list { display: flex; flex-direction: column; gap: 12rpx; }
+.ex { background: #fff; border-radius: 16rpx; padding: 24rpx; }
+.ex-name { font-size: 28rpx; font-weight: 600; }
+.ex-meta { font-size: 22rpx; color: #8a7d75; margin-top: 6rpx; }
+.none { text-align: center; padding: 60rpx; color: #8a7d75; font-size: 26rpx; }
+
+.sheet-mask {
+  position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4); z-index: 99;
+  display: flex; align-items: flex-end;
+}
+.sheet {
+  width: 100%; background: #fff; border-radius: 32rpx 32rpx 0 0;
+  padding: 36rpx 32rpx 60rpx;
+}
+.sheet-t { font-size: 34rpx; font-weight: 700; margin-bottom: 20rpx; }
+.sheet-row { font-size: 26rpx; color: #241D1B; margin-bottom: 12rpx; }
+.lb { display: inline-block; width: 140rpx; color: #8a7d75; }

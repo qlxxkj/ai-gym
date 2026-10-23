@@ -1,0 +1,36 @@
+.page { padding: 24rpx; }
+.empty { text-align: center; padding: 120rpx 0; }
+.empty-t { font-size: 32rpx; font-weight: 600; margin-bottom: 12rpx; }
+.empty-s { font-size: 26rpx; color: #8a7d75; }
+
+.head { background: #241D1B; color: #fff; border-radius: 20rpx; padding: 28rpx; margin-bottom: 20rpx; }
+.head-t { font-size: 30rpx; font-weight: 600; }
+.head-date { font-size: 24rpx; color: #c9b8ae; margin-top: 8rpx; }
+
+.rest-panel {
+  background: #A5492B; color: #fff; border-radius: 20rpx;
+  padding: 24rpx; margin-bottom: 20rpx; text-align: center;
+}
+.rest-t { font-size: 24rpx; opacity: 0.8; }
+.rest-num { font-size: 72rpx; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rest-bar { height: 8rpx; background: rgba(255,255,255,0.3); border-radius: 4rpx; margin-top: 12rpx; overflow: hidden; }
+.rest-fill { height: 100%; background: #fff; transition: width 1s linear; }
+
+.done-panel {
+  background: #2e7d32; color: #fff; border-radius: 20rpx;
+  padding: 28rpx; text-align: center; font-size: 28rpx; margin-bottom: 20rpx;
+}
+
+.ex { background: #fff; border-radius: 20rpx; padding: 24rpx; margin-bottom: 16rpx; }
+.ex-name { font-size: 30rpx; font-weight: 600; margin-bottom: 8rpx; }
+.ex-note { font-size: 22rpx; color: #8a7d75; margin-bottom: 12rpx; }
+.set-row {
+  display: flex; align-items: center; padding: 16rpx 0;
+  border-top: 2rpx solid #f0e9e2;
+}
+.set-lb { font-size: 26rpx; font-weight: 500; min-width: 100rpx; }
+.set-detail { font-size: 24rpx; color: #5c504a; flex: 1; }
+.set-check {
+  font-size: 24rpx; color: #A5492B; border: 2rpx solid #A5492B;
+  padding: 8rpx 20rpx; border-radius: 999rpx;
+}
