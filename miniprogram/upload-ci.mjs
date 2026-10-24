@@ -4,15 +4,47 @@
 
 import ci from "miniprogram-ci";
 import { readFileSync } from "node:fs";
+import crypto from "node:crypto";
+
+// 把 secret 里的密钥规整成合法 PEM。
+// OpenSSL 3（GitHub Actions 的 node 内置）对密钥解析很严格：粘贴 secret 时换行被压没、
+// 或 PKCS1/PKCS8 混用，会报 "DECODER routines::unsupported" / "asn1 ... too long"。
+// 这里不靠补换行的运气：剥出 base64 正文 → 按识别出的类型解析成 KeyObject →
+// 统一重导出成干净 PKCS8 PEM。兼容：整段 PEM（丢没丢换行都行）/ 裸 base64 / base64 编码后的 PEM。
+function normalizeKey(raw) {
+  let k = String(raw).trim();
+  // secret 存成一行 base64 时，先解码还原成 PEM 文本
+  if (!k.includes("BEGIN") && /^[A-Za-z0-9+/\s=]+$/.test(k)) {
+    try {
+      const dec = Buffer.from(k.replace(/\s/g, ""), "base64").toString("utf8");
+      if (dec.includes("BEGIN")) k = dec;
+    } catch {}
+  }
+  // 定位 begin/end 标记，容忍换行被压没、marker 内空格也没了的脏数据
+  const begin = k.match(/-----\s*BEGIN([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
+  const end = k.match(/-----\s*END([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
+  if (!begin || !end) throw new Error("密钥里没找到 PEM 段（-----BEGIN ... PRIVATE KEY-----）");
+  const label = (begin[1] || "").replace(/\s+/g, " ").trim(); // "RSA"(PKCS1) 或 ""(PKCS8)
+  const bIdx = k.indexOf(begin[0]);
+  const eIdx = k.indexOf(end[0]);
+  const body = k.slice(bIdx + begin[0].length, eIdx).replace(/\s+/g, "");
+  const isPkcs1 = /^RSA$/.test(label);
+  const ko = crypto.createPrivateKey({
+    key: Buffer.from(body, "base64"),
+    format: "der",
+    type: isPkcs1 ? "pkcs1" : "pkcs8",
+  });
+  return ko.export({ type: "pkcs8", format: "pem" });
+}
 
 // appid 优先取 secret（WX_APPID），没有则回退读 project.config.json。
 // project.config.json 里的 appid 保留给微信开发者工具本地调试用。
 const cfgAppid = JSON.parse(readFileSync("project.config.json", "utf8")).appid;
 const appid = process.env.WX_APPID || cfgAppid;
 const version = JSON.parse(readFileSync("package.json", "utf8")).version;
-const key = process.env.WX_CI_UPLOAD_KEY;
+const rawKey = process.env.WX_CI_UPLOAD_KEY;
 
-if (!key) {
+if (!rawKey) {
   console.error("缺少 WX_CI_UPLOAD_KEY（在 GitHub Secrets 里配置）");
   process.exit(1);
 }
@@ -20,6 +52,14 @@ if (!appid || appid === "填你的AppID") {
   console.error(`缺少 appid：project.config.json 里是占位值，且没配 WX_APPID secret`);
   process.exit(1);
 }
+let key;
+try {
+  key = normalizeKey(rawKey);
+} catch (e) {
+  console.error("WX_CI_UPLOAD_KEY 格式无法解析：", e.message);
+  process.exit(1);
+}
+console.log("密钥规整完成，PEM 头:", key.split("\n")[0]);
 
 const project = new ci.Project({
   appid,
