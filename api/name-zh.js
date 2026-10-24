@@ -722,6 +722,121 @@ const MODS = {
   "inverted rows": "反握划船",
 };
 
+// 兜底词：前面都没匹配上的散词，尽量翻成自然中文（避免整条落「基础训练」）
+const FALLBACKS = {
+  run: "跑",
+  running: "跑",
+  jog: "慢跑",
+  jogging: "慢跑",
+  crawl: "爬",
+  crawls: "爬",
+  crawling: "爬",
+  skip: "绳跳",
+  skipping: "绳跳",
+  "jump rope": "绳跳",
+  "rope": "绳",
+  "balance": "平衡",
+  "board": "板",
+  "boards": "板",
+  "plank": "平板",
+  "shrug": "耸肩",
+  "shrugs": "耸肩",
+  "boomerang": "回力镖",
+  "assault": "突袭",
+  "backwards": "向后",
+  "backward": "向后",
+  "forward": "向前",
+  "muscle up": "肌肉上拉",
+  "muscleup": "肌肉上拉",
+  "muscle up v. 2": "肌肉上拉",
+  "swing": "摆荡",
+  "boxing": "拳击",
+  "boxer": "拳击",
+  "boxers": "拳击",
+  "jab": "直拳",
+  "hooks": "勾拳",
+  "hook": "勾拳",
+  "cross": "摆拳",
+  "uppercut": "上勾拳",
+  "uppercuts": "上勾拳",
+  "upper cut": "上勾拳",
+  "punch": "击打",
+  "punches": "击打",
+  "strongman": "大力士",
+  "walk": "走",
+  "walking": "走",
+  "shuffler": "滑步",
+  "shuffles": "滑步",
+  "shuffle": "滑步",
+  "shuffling": "滑步",
+  "roll": "滚",
+  "rolls": "滚",
+  "duck": "闪避",
+  "ducking": "闪避",
+  "corkscrew": "螺旋",
+  "meditation": "静坐",
+  "cocoons": "蜷",
+  "corkscrew": "螺旋",
+  "faber": "蝴蝶",
+  "elevator": "升降",
+  "frogger": "蛙跳",
+  "briskly": "快速",
+  "thomas": "托马斯",
+  "diagonal": "斜向",
+  "stones": "重物",
+  "stones": "重物",
+  "stone": "重物",
+  "test": "测验",
+  "clinch": "缠斗",
+  "bottoms-up": "倒置",
+  "bottoms up": "倒置",
+  "chaturanga": "俯卧撑",
+  "dandasana": "体式",
+  "cluster": "连击",
+  "hopping": "跳",
+  "pendulum": "钟摆",
+  "hundred": "百次",
+  "inline skating": "直排轮滑",
+  "skating": "轮滑",
+  "l sit": "坐",
+  "lever": "杠杆",
+  "stepper": "台阶",
+  "headbanger": "甩头",
+  "mermaid": "美人鱼",
+  "otis": "奥蒂斯",
+  "prancing": "腾跳",
+  "prisoner": "囚徒",
+  "get up": "起身",
+  "rocking": "前后摇",
+  "rollover": "翻滚",
+  "rowing": "划船",
+  "rowing machine": "划船机",
+  "saw": "拉锯",
+  "sciatic": "坐骨",
+  "nerve": "神经",
+  "glide": "滑动",
+  "floss": "松解",
+  "seal": "封体",
+  "sideways": "侧向",
+  "sit": "坐",
+  "skater": "滑冰",
+  "skips": "绳跳",
+  "spell caster": "施法",
+  "sphinx": "狮式",
+  "sprint": "冲刺",
+  "sprints": "冲刺",
+  "stair": "台阶",
+  "sun": "太阳",
+  "salutation": "致敬",
+  "swan": "天鹅",
+  "dive": "俯冲",
+  "teaser": "高踢",
+  "vinyasa": "流式",
+  "wind": "疾",
+  "wipers": "摆动",
+  "body-up": "躯干抬",
+};
+
 // 补充词：常见但未归入四大类、需要单独成词的词（贪心匹配时优先级最低）
 const WORDS = {
   "mat": "垫",
@@ -1041,7 +1156,7 @@ function fallbackWord(w) {
   const lower = w.toLowerCase();
   // 数字、版本号、纯字母代号直接丢（不显示）
   if (/^v?\.?\d/.test(lower)) return "";
-  if (["v","f","i","s","w","z","l","t","b","r","k","m","x","h","g","d","p","n","c","q","u","e","o","a","y"].includes(lower)) return "";
+  if (/^[a-z]{1,2}$/.test(lower)) return ""; // 一两个字母的代号（v、w、f 等）不显示
   if (["side","pov","the","and","of","to","in","on","at","for","with","or","from","out","off","up","down","through","between","under","over","around","against","into","as","is","by","do","a","an"].includes(lower)) return "";
   // 兜底：用部位兜底成「{部位}训练」，彻底不出现英文
   const PART_HINT={
@@ -1071,16 +1186,17 @@ function fallbackWord(w) {
 }
 
 function splitWords(name) {
-  let s = name.replace(/\s*\(.*?\)/g, "").replace(/\s+v\.?\d+/g, "").replace(/\bside\s+pov\b/gi, "");
+  // 版本号 v2.1 → 直接删（保留「v」字母）；45 degree → 数字保留（显示为「45度」）
+  // 连字符拆成空格（body-up → body up），括号内容直接删（openGym 标注变体，中文名不需要）
+  let s = name.replace(/\s*\(.*?\)/g, "").replace(/\sv\.?\d+(?:\.\d+)*/g, "").replace(/\bside\s+pov\b/gi, "");
   s = s.toLowerCase().replace(/°/g, "度").replace(/-/g, " ").replace(/[^a-z0-9度 ]/g, " ");
   const digits = [];
   s = s.replace(/[0-9]+/g, (m) => { digits.push(m); return ' __D__ '; });
-  let out = s.split(/\s+/).filter(Boolean).map((w) => (w === '__D__' ? digits.shift() : w));
-  return s.split(/\s+/).filter(Boolean);
+  return s.split(/\s+/).filter(Boolean).map((w) => (w === '__D__' ? digits.shift() : w));
 }
 
 function lookup(word) {
-  for (const T of [GEAR, PARTS, MOVES, MODS, WORDS]) {
+  for (const T of [GEAR, PARTS, MOVES, MODS, WORDS, FALLBACKS]) {
     if (T[word]) return T[word];
   }
   return fallbackWord(word);
@@ -1097,7 +1213,7 @@ function translateZh(name) {
     let matched = null;
     for (const len of [3, 2, 1]) {
       const chunk = words.slice(i, i + len).join(" ");
-      for (const T of [GEAR, PARTS, MOVES, MODS, WORDS]) {
+      for (const T of [GEAR, PARTS, MOVES, MODS, WORDS, FALLBACKS]) {
         if (T[chunk]) { matched = { zh: T[chunk], len }; break; }
       }
       if (matched) break;

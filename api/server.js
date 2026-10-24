@@ -19,8 +19,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// 动作名中文化：openGym 是英文库，用组合翻译器（命名片段词典）翻成中文，
-// 翻不出有效词就 fallback 英文原名（前端 name_zh 恒有值）。
+// 动作名中文化：优先用离线预生成的 name_zh（可被中文搜索命中），
+// 库里没有的才现场用组合翻译器翻（命名片段词典），翻不出 fallback 英文原名。
 function zhName(name) {
   return translateZh(name) || name;
 }
@@ -52,13 +52,41 @@ async function ensureUser(openid) {
 }
 
 // ---------- 动作库 ----------
+// 启动：幂等补 name_zh 列，并灌离线生成的中文（中文搜索靠它匹配）
+pool.query(`ALTER TABLE exercises ADD COLUMN IF NOT EXISTS name_zh text DEFAULT ''`).catch((e) => console.error("migrate name_zh:", e));
+// 离线中文名（gen-zh.js 生成）灌库：Postgres 单条 SQL 占位符上限 65535，但每块参数数也别太大，200 条/块稳妥
+{
+  const zhRows = require("./exercises-zh.js");
+  const CHUNK = 200;
+  for (let i = 0; i < zhRows.length; i += CHUNK) {
+    const chunk = zhRows.slice(i, i + CHUNK);
+    const names = chunk.map((r) => r.name);
+    const flat = chunk.flatMap((r) => [r.name, r.zh]);
+    pool
+      .query(
+        "UPDATE exercises e SET name_zh = v.zh FROM (VALUES " +
+          names.map((_, j) => `($${j * 2 + 1}, $${j * 2 + 2})`).join(",") +
+          ") AS v(name, zh) WHERE e.name = v.name AND e.name_zh = ''",
+        flat
+      )
+      .catch((e) => console.error("seed name_zh:", e));
+  }
+}
+
 app.get("/exercises", async (req, res) => {
   const { q, muscle, equipment, cat, limit = 50, offset = 0 } = req.query;
   const where = [];
   const args = [];
   if (q) {
     args.push(`%${q}%`);
-    where.push(`(name ILIKE $${args.length} OR muscle ILIKE $${args.length})`);
+    const qi = args.length; // 占位符引用统一用 qi，避免插值串里美元符号被意外展开
+    // 中文搜索：命中 name_zh 或 name；英文搜索：命中 name 或 muscle（肌群）
+    const isCjk = /[\u4e00-\u9fff]/.test(q);
+    where.push(
+      isCjk
+        ? `(name ILIKE $${qi} OR name_zh ILIKE $${qi})`
+        : `(name ILIKE $${qi} OR muscle ILIKE $${qi})`
+    );
   }
   if (muscle) {
     args.push(muscle);
@@ -81,11 +109,11 @@ app.get("/exercises", async (req, res) => {
     LIMIT $${args.length - 1} OFFSET $${args.length}`;
   const r = await pool.query(sql, args);
   const base = mediaBase();
-  // 补中文显示名 + 图片/动画 URL（由 id 推导，openGym 约定 {id}.webp / {id}.mp4）
+  // 中文名取库里 name_zh（含搜索命中的），缺失才现场翻译；图片/动画 URL 由 id 推导（openGym 约定 {id}.webp / {id}.mp4）
   res.json(
     r.rows.map((x) => ({
       ...x,
-      name_zh: zhName(x.name),
+      name_zh: x.name_zh || zhName(x.name),
       img_url: `${base}/media/still/${x.id}.webp`,
       clip_url: `${base}/media/clip/${x.id}.mp4`,
     }))
