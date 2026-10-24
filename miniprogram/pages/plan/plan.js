@@ -1,26 +1,17 @@
 const api = require("../../api");
 const config = require("../../config");
 
-// 给 AI 计划里的动作补图片/视频/中文名（用 openGym id 拼 media URL，名字回查动作库）
-const exCache = {}; // id -> exercise（含 name_zh）
-async function enrichPlan(full) {
+// 给 AI 计划里的动作补图片/视频/中文名（用 openGym id 拼 media URL，名字查本地字典）
+const exdict = require("../../exdict");
+
+function enrichPlan(full) {
   if (!full || !full.plan_data) return full;
-  const days = full.plan_data.days || [];
-  const ids = [...new Set(days.flatMap((d) => (d.exercises || []).map((e) => e.id)))];
-  const need = ids.filter((id) => !exCache[id]);
-  if (need.length) {
-    try {
-      const r = await api.exercises({ limit: 500 });
-      (r || []).forEach((x) => (exCache[x.id] = x));
-    } catch {}
-  }
   const cur = JSON.parse(JSON.stringify(full)); // 深拷贝避免污染 storage
   (cur.plan_data.days || []).forEach((d) => {
     (d.exercises || []).forEach((e) => {
-      const ex = exCache[e.id];
       e.img_url = config.mediaStill(e.id);
       e.clip_url = config.mediaClip(e.id);
-      e.name_zh = ex ? ex.name_zh : e.name;
+      e.name_zh = exdict.nameZh(e.id) || e.name;
     });
   });
   return cur;
@@ -41,7 +32,17 @@ Page({
   },
 
   onShow() {
+    // 备动作中文字典：本地命中则瞬时；首次后台拉，不阻塞渲染，到位后回写中文名
+    exdict.load(() => this.applyZhNames());
     this.load();
+  },
+
+  // 后台字典到位后回写当前计划动作的中文名
+  applyZhNames() {
+    const cur = this.data.current;
+    if (!cur) return;
+    const patched = enrichPlan(cur); // 用最新 exCache 重算 name_zh
+    this.setData({ current: patched });
   },
 
   async load() {
@@ -51,7 +52,8 @@ Page({
       const cur = wx.getStorageSync("currentPlanId");
       const current = plans.find((p) => p.id === cur) || plans[0] || null;
       if (current) wx.setStorageSync("currentPlanId", current.id);
-      const full = current ? await enrichPlan(await api.plan(current.id)) : null;
+      // enrichPlan 现在是同步的（中文名取自本地字典），不再串行等 500 条动作
+      const full = current ? enrichPlan(await api.plan(current.id)) : null;
       this.setData({ plans, current: full, openDay: -1, pending: false });
       if (full && full.sup_review) {
         this.setData({ reviewText: JSON.stringify(full.sup_review, null, 2), showReviewPanel: true });
@@ -66,7 +68,7 @@ Page({
 
   async openPlan(e) {
     const id = e.currentTarget.dataset.id;
-    const p = await enrichPlan(await api.plan(id));
+    const p = enrichPlan(await api.plan(id));
     wx.setStorageSync("currentPlanId", id);
     this.setData({
       current: p,

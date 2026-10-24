@@ -1,14 +1,5 @@
 const api = require("../../api");
-
-// 动作 id → 中文名（后端 name-zh 翻译好的）
-const exZhCache = {};
-async function ensureExZh() {
-  if (Object.keys(exZhCache).length) return;
-  try {
-    const list = await api.exercises({ limit: 500 });
-    (list || []).forEach((x) => (exZhCache[x.id] = x.name_zh));
-  } catch {}
-}
+const exdict = require("../../exdict");
 
 function todayStr() {
   const d = new Date();
@@ -45,7 +36,19 @@ Page({
   timer: null,
 
   onShow() {
+    // 备动作中文字典：本地命中瞬时；首次后台拉不阻塞，到位后刷新中文名
+    exdict.load(() => this.refreshZhNames());
     this.load();
+  },
+
+  // 后台字典到位后，把当前动作列表的中文名补上
+  refreshZhNames() {
+    if (!this.data.exercises.length) return;
+    const list = this.data.exercises.map((ex) => ({
+      ...ex,
+      name_zh: exdict.nameZh(ex.id) || ex.name,
+    }));
+    this.setData({ exercises: list });
   },
 
   onUnload() {
@@ -78,7 +81,6 @@ Page({
       return;
     }
     try {
-      await ensureExZh(); // 先拉一次动作中文映射（全局缓存，只拉一次）
       const days = (plan.plan_data || {}).days || [];
       // 按今天是周几选 day：day 编号 1..N，周一=1
       const dayNo = (new Date().getDay() + 6) % 7 + 1;
@@ -113,8 +115,8 @@ Page({
 
       const exercises = ((day && day.exercises) || []).map((ex) => ({
         ...ex,
-        // 动作名用后端 name_zh（拉不到就先显示英文原名，拉到后刷新）
-        name_zh: exZhCache[ex.id] || ex.name,
+        // 动作名查本地字典，还没有就先用英文原名占位，后台字典到位后 refreshZhNames 补上
+        name_zh: exdict.nameZh(ex.id) || ex.name,
         setStates: ex.sets.map((_, i) => doneSets[ex.id + ":" + (i + 1)] || false),
       }));
       this.setData({
