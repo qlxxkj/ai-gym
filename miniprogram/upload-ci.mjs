@@ -5,12 +5,19 @@
 import ci from "miniprogram-ci";
 import { readFileSync } from "node:fs";
 
-const appid = JSON.parse(readFileSync("project.config.json", "utf8")).appid;
+// appid 优先取 secret（WX_APPID），没有则回退读 project.config.json。
+// project.config.json 里的 appid 保留给微信开发者工具本地调试用。
+const cfgAppid = JSON.parse(readFileSync("project.config.json", "utf8")).appid;
+const appid = process.env.WX_APPID || cfgAppid;
 const version = JSON.parse(readFileSync("package.json", "utf8")).version;
 const key = process.env.WX_CI_UPLOAD_KEY;
 
 if (!key) {
   console.error("缺少 WX_CI_UPLOAD_KEY（在 GitHub Secrets 里配置）");
+  process.exit(1);
+}
+if (!appid || appid === "填你的AppID") {
+  console.error(`缺少 appid：project.config.json 里是占位值，且没配 WX_APPID secret`);
   process.exit(1);
 }
 
