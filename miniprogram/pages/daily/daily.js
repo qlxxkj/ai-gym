@@ -1,4 +1,5 @@
 const api = require("../../api");
+const config = require("../../config");
 const exdict = require("../../exdict");
 
 function todayStr() {
@@ -117,6 +118,8 @@ Page({
         ...ex,
         // 动作名查本地字典，还没有就先用英文原名占位，后台字典到位后 refreshZhNames 补上
         name_zh: exdict.nameZh(ex.id) || ex.name,
+        img_url: config.mediaStill(ex.id),
+        clip_url: config.mediaClip(ex.id),
         setStates: ex.sets.map((_, i) => doneSets[ex.id + ":" + (i + 1)] || false),
       }));
       this.setData({

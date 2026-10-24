@@ -24,6 +24,12 @@
 
 /* 动作卡片 */
 .ex { padding: 28rpx; }
+.ex-video {
+  width: 100%; height: 320rpx;
+  border-radius: 24rpx; overflow: hidden;
+  background: #F4F0EA; margin-bottom: 20rpx;
+  display: block;
+}
 .ex-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8rpx; }
 .ex-name { font-size: 30rpx; font-weight: 600; }
 .ex-count { font-size: 22rpx; color: #A2968D; }
