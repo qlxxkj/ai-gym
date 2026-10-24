@@ -9,8 +9,6 @@ services:
       PORT: 4010
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/ai_gym
       CLAUDE_API_KEY: ${CLAUDE_API_KEY}
-      WX_APPID: ${WX_APPID:-}
-      WX_SECRET: ${WX_SECRET:-}
       CLAUDE_API_BASE: ${CLAUDE_API_BASE:-https://api.anthropic.com}
       CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-sonnet-4-6}
       TZ: Asia/Shanghai

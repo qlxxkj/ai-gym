@@ -71,9 +71,13 @@ Page({
       });
       wx.hideLoading();
       this.setData({ generating: false });
-      // 存完整计划到本地，"今天"页直接用缓存，不依赖登录编号拉服务器
-      const full = await api.plan(r.id).catch(() => null);
-      if (full) wx.setStorageSync("cachedPlan", full);
+      // generate 返回里已带完整计划数据（r.plan），直接存本地，"今天"页读缓存展示，
+      // 不再二次拉 /plans/:id（那步依赖登录编号，编号不一致会 404 导致缓存写不上）
+      wx.setStorageSync("cachedPlan", {
+        id: r.id,
+        title: (r.plan && r.plan.title) || "",
+        plan_data: r.plan,
+      });
       wx.setStorageSync("currentPlanId", r.id);
       // plan 是 tabBar 页，必须用 switchTab（reLaunch 跳 tabBar 页在部分基础库上无效）
       wx.switchTab({ url: "/pages/plan/plan" });

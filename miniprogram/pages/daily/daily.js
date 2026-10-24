@@ -79,30 +79,38 @@ Page({
     }
     try {
       await ensureExZh(); // 先拉一次动作中文映射（全局缓存，只拉一次）
-      const days = plan.plan_data.days || [];
+      const days = (plan.plan_data || {}).days || [];
       // 按今天是周几选 day：day 编号 1..N，周一=1
       const dayNo = (new Date().getDay() + 6) % 7 + 1;
       let idx = days.findIndex((d) => d.day === dayNo);
       if (idx < 0) idx = 0; // 没有对应天就用第一天
       const day = days[idx];
 
-      const sess = await api.sessions(planId).then((r) =>
-        r.find((s) => s.session_date === this.data.today)
-      );
-      let session = sess;
-      if (!session) {
-        session = await api.createSession({
-          plan_id: planId,
-          session_date: this.data.today,
-        });
-      }
-      const sessionId = session && session.id ? session.id : null;
-
+      // 打卡记录依赖登录编号，单独 try：失败只影响"已完成"状态，不能把计划本身清掉
+      let sessionId = null;
       let doneSets = {};
-      if (sessionId) {
-        const rows = await api.sessionSets(sessionId).catch(() => []);
-        doneSets = toObj(rows.map((r) => r.exercise_id + ":" + r.set_no));
+      try {
+        const sess = await api.sessions(planId).catch(() => []);
+        const found = (Array.isArray(sess) ? sess : []).find(
+          (s) => s.session_date === this.data.today
+        );
+        if (found) {
+          sessionId = found.id;
+        } else {
+          const created = await api.createSession({
+            plan_id: planId,
+            session_date: this.data.today,
+          });
+          sessionId = created && created.id ? created.id : null;
+        }
+        if (sessionId) {
+          const rows = await api.sessionSets(sessionId).catch(() => []);
+          doneSets = toObj(rows.map((r) => r.exercise_id + ":" + r.set_no));
+        }
+      } catch (se) {
+        console.error("打卡记录加载失败（不影响计划展示）:", se);
       }
+
       const exercises = ((day && day.exercises) || []).map((ex) => ({
         ...ex,
         // 动作名用后端 name_zh（拉不到就先显示英文原名，拉到后刷新）
@@ -121,7 +129,8 @@ Page({
       });
     } catch (e) {
       console.error(e);
-      this.setData({ loading: false, plan: null });
+      // 计划主体已拿到（缓存或服务器），展示环节出错不清空 plan，只关 loading
+      this.setData({ loading: false });
     }
   },
 
