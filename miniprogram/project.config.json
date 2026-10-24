@@ -1,0 +1,15 @@
+{
+  "description": "AI 健身教练小程序",
+  "appid": "填你的AppID",
+  "compileType": "miniprogram",
+  "libVersion": "3.0.0",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "minified": true,
+    "postcss": true,
+    "urlCheck": false
+  },
+  "editorSetting": {},
+  "miniprogramRoot": "."
+}

@@ -1,0 +1,53 @@
+# 推送到 main 时自动上传「开发版」到微信小程序后台
+# 用法：
+#   1. 生成 private.key（微信开发者工具 -> 详情 -> 本地设置，或 mp 后台 -> 开发 -> 开发管理 -> 开发密钥）
+#   2. 把 private.key 上传为 GitHub 仓库的 Secret：MP_PRIVATE_KEY（base64 存字符串内容，见下方说明）
+#   3. 配置其它 Secrets：MP_APPID / MP_KEY_PWD（生成私有号时设的口令）/ MP_UPLOAD_VERSION / MP_UPLOAD_DESC
+name: upload-dev
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # private.key 内容以 base64 形式存成 secret（避免多行/换行问题）
+      - name: Restore private.key
+        run: |
+          echo "${{ secrets.MP_PRIVATE_KEY }}" | base64 -d > ./private.key
+          chmod 600 private.key
+
+      - name: npm install miniprogram-ci
+        run: npm i miniprogram-ci
+
+      - name: Upload dev build
+        env:
+          MP_APPID: ${{ secrets.MP_APPID }}
+          MP_KEY_PWD: ${{ secrets.MP_KEY_PWD }}
+        run: |
+          node -e '
+          const ci = require("miniprogram-ci");
+          (async () => {
+            const p = await ci.upload({
+              projectPath: "miniprogram",
+              privateKeyPath: "private.key",
+              version: process.env.MP_UPV || "0.0.1",
+              robot: 1,
+              desc: process.env.MP_DESC || "auto upload dev build",
+              ignores: ["node_modules/**"],
+            });
+            console.log("upload task id:", p.taskId);
+          })().catch(e => { console.error(e); process.exit(1); });
+          '
