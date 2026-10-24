@@ -27,7 +27,15 @@
       </view>
       <view wx:if="{{openDay === day.day}}">
         <view class="ex" wx:for="{{day.exercises}}" wx:for-item="ex" wx:key="id">
-          <view class="ex-name">{{ex.name}}</view>
+          <view class="ex-top">
+            <video wx:if="{{ex.clip_url}}" class="ex-media" src="{{ex.clip_url}}" loop="{{true}}"
+              controls="{{false}}" autoplay="{{true}}" muted="{{true}}" show-center-play-btn="{{false}}"></video>
+            <image wx:elif="{{ex.img_url}}" class="ex-media" src="{{ex.img_url}}" mode="aspectFill"></image>
+            <view class="ex-names">
+              <view class="ex-name">{{ex.name_zh}}</view>
+              <view class="ex-en">{{ex.name}}</view>
+            </view>
+          </view>
           <view class="ex-set" wx:for="{{ex.sets}}" wx:for-item="st" wx:key="index">
             第 {{index + 1}} 组 · {{st.reps}} 次 · 休 {{st.rest_seconds}}s
           </view>

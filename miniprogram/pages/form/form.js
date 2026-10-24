@@ -1,5 +1,24 @@
 const api = require("../../api");
 
+// 前端用中文展示，但 openGym 动作库的 equipment/muscle 字段是英文。
+// 提交前把中文映射成 DB 里的英文值，否则 ILIKE 匹配不到素材 → 计划空。
+const EQUIP_EN = {
+  自重: "body weight",
+  哑铃: "dumbbell",
+  杠铃: "barbell",
+  器械: "leverage machine",
+  弹力带: "band",
+};
+const MUSCLE_EN = {
+  胸: "chest",
+  背: "upper back",
+  腿: "quadriceps",
+  肩: "shoulders",
+  手臂: "biceps",
+  核心: "core",
+  臀: "glutes",
+};
+
 Page({
   data: {
     goals: ["增肌", "减脂", "力量", "体能", "塑形"],
@@ -19,7 +38,7 @@ Page({
   },
 
   pick(e) {
-    const [field, i] = e.currentTarget.dataset;
+    const { field, i } = e.currentTarget.dataset; // 对象解构，别写成数组解构 [field,i]（那是 key 名不是值）
     this.setData({ [field]: Number(i) });
   },
 
@@ -36,7 +55,8 @@ Page({
 
   async submit() {
     const d = this.data;
-    const focus = Object.keys(d.focusChecked).filter((k) => d.focusChecked[k]);
+    const focus = Object.keys(d.focusChecked).filter((k) => d.focusChecked[k]).map((m) => MUSCLE_EN[m] || m);
+    const equip = EQUIP_EN[d.equipments[d.equipIndex]] || d.equipments[d.equipIndex];
     this.setData({ generating: true });
     wx.showLoading({ title: "AI 制定计划中..." });
     try {
@@ -45,7 +65,7 @@ Page({
         level: d.levels[d.levelIndex],
         days_per_week: d.freqs[d.freqIndex],
         time_per_session: d.times[d.timeIndex],
-        equipment: d.equipments[d.equipIndex],
+        equipment: equip,
         focus,
         notes: d.notes,
       });

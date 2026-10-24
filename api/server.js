@@ -2,9 +2,33 @@ const express = require("express");
 const crypto = require("crypto");
 const { Pool } = require("pg");
 const { generatePlan, revisePlan, weeklyReview } = require("./claude.js");
+const { translateZh } = require("./name-zh.js");
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
+
+// 动作图片/动画：openGym media 通过 volume 挂到容器内 /media（still/*.webp + clip/*.mp4）。
+// edge 把 /media/* 反代到 :4010，由这里伺服。
+// 动作图片/动画：openGym media 通过 volume 挂到容器内 /media（still/*.webp + clip/*.mp4）。
+// edge 把 /media/* 反代到 :4010，由这里伺服。mp4 需要 range 请求（视频拖动）。
+app.use("/media", express.static("/media", { maxAge: "1y", immutable: true }));
+app.use((req, res, next) => {
+  if (req.path.startsWith("/media/")) {
+    res.setHeader("Accept-Ranges", "bytes");
+  }
+  next();
+});
+
+// 动作名中文化：openGym 是英文库，用组合翻译器（命名片段词典）翻成中文，
+// 翻不出有效词就 fallback 英文原名（前端 name_zh 恒有值）。
+function zhName(name) {
+  return translateZh(name) || name;
+}
+
+function mediaBase() {
+  // 小程序合法域名是 https://gym.70kj.vip，media 也挂它下面
+  return process.env.MEDIA_BASE || "https://gym.70kj.vip";
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -56,7 +80,16 @@ app.get("/exercises", async (req, res) => {
     ORDER BY name
     LIMIT $${args.length - 1} OFFSET $${args.length}`;
   const r = await pool.query(sql, args);
-  res.json(r.rows);
+  const base = mediaBase();
+  // 补中文显示名 + 图片/动画 URL（由 id 推导，openGym 约定 {id}.webp / {id}.mp4）
+  res.json(
+    r.rows.map((x) => ({
+      ...x,
+      name_zh: zhName(x.name),
+      img_url: `${base}/media/still/${x.id}.webp`,
+      clip_url: `${base}/media/clip/${x.id}.mp4`,
+    }))
+  );
 });
 
 // ---------- 计划 ----------

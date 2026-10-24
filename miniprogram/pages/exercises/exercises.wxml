@@ -8,15 +8,29 @@
 
   <view class="list">
     <view class="ex" wx:for="{{list}}" wx:key="id" data-ex="{{item}}" bindtap="showDetail">
-      <view class="ex-name">{{item.name}}</view>
-      <view class="ex-meta">{{item.equipment}} · {{item.muscle}} · {{item.cat}}</view>
+      <view class="ex-img" wx:if="{{item.img_url}}">
+        <image src="{{item.img_url}}" mode="aspectFill" lazy-load="{{true}}"
+          binderror="onImgErr" data-id="{{item.id}}" />
+      </view>
+      <view class="ex-body">
+        <view class="ex-name">{{item.name_zh}}</view>
+        <view class="ex-en">{{item.name}}</view>
+        <view class="ex-meta">{{item.equipment}} · {{item.muscle}} · {{item.cat}}</view>
+      </view>
     </view>
     <view class="none" wx:if="{{!loading && !list.length}}">没有匹配动作</view>
   </view>
 
   <view class="sheet-mask" wx:if="{{detail}}" bindtap="showDetail" data-ex="">
     <view class="sheet" catchtap="">
-      <view class="sheet-t">{{detail.name}}</view>
+      <view class="sheet-t">{{detail.name_zh}}</view>
+      <view class="sheet-en">{{detail.name}}</view>
+      <video wx:if="{{detail.clip_url && !clipErr[detail.id]}}" class="sheet-video"
+        src="{{detail.clip_url}}" loop="{{true}}" controls="{{false}}"
+        autoplay="{{true}}" muted="{{true}}" show-center-play-btn="{{false}}"
+        binderror="onClipErr" data-id="{{detail.id}}" />
+      <image wx:elif="{{detail.img_url && !imgErr[detail.id]}}" class="sheet-img"
+        src="{{detail.img_url}}" mode="aspectFit" />
       <view class="sheet-row"><text class="lb">器材</text>{{detail.equipment}}</view>
       <view class="sheet-row"><text class="lb">主肌群</text>{{detail.muscle}}</view>
       <view class="sheet-row"><text class="lb">辅助肌群</text>{{detail.muscles}}</view>

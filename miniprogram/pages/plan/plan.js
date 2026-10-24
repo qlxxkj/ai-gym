@@ -1,4 +1,30 @@
 const api = require("../../api");
+const config = require("../../config");
+
+// 给 AI 计划里的动作补图片/视频/中文名（用 openGym id 拼 media URL，名字回查动作库）
+const exCache = {}; // id -> exercise（含 name_zh）
+async function enrichPlan(full) {
+  if (!full || !full.plan_data) return full;
+  const days = full.plan_data.days || [];
+  const ids = [...new Set(days.flatMap((d) => (d.exercises || []).map((e) => e.id)))];
+  const need = ids.filter((id) => !exCache[id]);
+  if (need.length) {
+    try {
+      const r = await api.exercises({ limit: 500 });
+      (r || []).forEach((x) => (exCache[x.id] = x));
+    } catch {}
+  }
+  const cur = JSON.parse(JSON.stringify(full)); // 深拷贝避免污染 storage
+  (cur.plan_data.days || []).forEach((d) => {
+    (d.exercises || []).forEach((e) => {
+      const ex = exCache[e.id];
+      e.img_url = config.mediaStill(e.id);
+      e.clip_url = config.mediaClip(e.id);
+      e.name_zh = ex ? ex.name_zh : e.name;
+    });
+  });
+  return cur;
+}
 
 Page({
   data: {
@@ -22,7 +48,7 @@ Page({
       const cur = wx.getStorageSync("currentPlanId");
       const current = plans.find((p) => p.id === cur) || plans[0] || null;
       if (current) wx.setStorageSync("currentPlanId", current.id);
-      const full = current ? await api.plan(current.id) : null;
+      const full = current ? await enrichPlan(await api.plan(current.id)) : null;
       this.setData({ plans, current: full, openDay: -1 });
       if (full && full.sup_review) {
         this.setData({ reviewText: JSON.stringify(full.sup_review, null, 2), showReviewPanel: true });
@@ -34,7 +60,7 @@ Page({
 
   async openPlan(e) {
     const id = e.currentTarget.dataset.id;
-    const p = await api.plan(id);
+    const p = await enrichPlan(await api.plan(id));
     wx.setStorageSync("currentPlanId", id);
     this.setData({
       current: p,

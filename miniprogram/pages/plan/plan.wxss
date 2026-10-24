@@ -19,7 +19,15 @@
 .day-lb { font-size: 30rpx; font-weight: 600; }
 .day-arrow { font-size: 24rpx; color: #A5492B; }
 .ex { margin-top: 20rpx; padding-top: 20rpx; border-top: 2rpx solid #f0e9e2; }
-.ex-name { font-size: 28rpx; font-weight: 600; margin-bottom: 8rpx; }
+.ex-top { display: flex; align-items: center; gap: 20rpx; margin-bottom: 12rpx; }
+.ex-media {
+  width: 120rpx; height: 120rpx; border-radius: 12rpx; overflow: hidden;
+  background: #000; flex-shrink: 0;
+}
+.ex-media image { width: 100%; height: 100%; }
+.ex-names { flex: 1; min-width: 0; }
+.ex-name { font-size: 28rpx; font-weight: 600; }
+.ex-en { font-size: 22rpx; color: #9b8f88; margin-top: 2rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ex-set { font-size: 24rpx; color: #5c504a; margin-bottom: 4rpx; }
 .ex-note { font-size: 22rpx; color: #8a7d75; margin-top: 6rpx; }
 

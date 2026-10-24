@@ -11,9 +11,19 @@
 .chip-on { background: #A5492B; border-color: #A5492B; color: #fff; }
 
 .list { display: flex; flex-direction: column; gap: 12rpx; }
-.ex { background: #fff; border-radius: 16rpx; padding: 24rpx; }
-.ex-name { font-size: 28rpx; font-weight: 600; }
-.ex-meta { font-size: 22rpx; color: #8a7d75; margin-top: 6rpx; }
+.ex {
+  background: #fff; border-radius: 16rpx; padding: 24rpx;
+  display: flex; align-items: center; gap: 20rpx;
+}
+.ex-img {
+  width: 120rpx; height: 120rpx; border-radius: 12rpx; overflow: hidden;
+  background: #f2ece5; flex-shrink: 0;
+}
+.ex-img image { width: 100%; height: 100%; }
+.ex-body { flex: 1; min-width: 0; }
+.ex-name { font-size: 30rpx; font-weight: 600; }
+.ex-en { font-size: 22rpx; color: #9b8f88; margin-top: 2rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ex-meta { font-size: 22rpx; color: #8a7d75; margin-top: 8rpx; }
 .none { text-align: center; padding: 60rpx; color: #8a7d75; font-size: 26rpx; }
 
 .sheet-mask {
@@ -25,6 +35,15 @@
   width: 100%; background: #fff; border-radius: 32rpx 32rpx 0 0;
   padding: 36rpx 32rpx 60rpx;
 }
-.sheet-t { font-size: 34rpx; font-weight: 700; margin-bottom: 20rpx; }
+.sheet-t { font-size: 34rpx; font-weight: 700; }
+.sheet-en { font-size: 24rpx; color: #9b8f88; margin-top: 4rpx; margin-bottom: 16rpx; }
+.sheet-video {
+  width: 100%; height: 380rpx; background: #000; border-radius: 16rpx;
+  margin: 16rpx 0;
+}
+.sheet-img {
+  width: 100%; height: 380rpx; background: #000; border-radius: 16rpx;
+  margin: 16rpx 0;
+}
 .sheet-row { font-size: 26rpx; color: #241D1B; margin-bottom: 12rpx; }
 .lb { display: inline-block; width: 140rpx; color: #8a7d75; }
