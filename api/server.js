@@ -36,7 +36,9 @@ const pool = new Pool({
 });
 
 // ---------- 鉴权：微信 openid 由小程序端登录换取后传入 ----------
-// MVP：X-Openid 头。后续可换成 JWT。
+// X-Openid 头。配置了 WX_APPID/WX_SECRET 时走 wx.js 的 code2session 校验，
+// 否则测试期直接放行（写死编号也这样，不校验）。
+const { code2Session, hasCredentials } = require("./wx.js");
 function reqOpenid(req, res, next) {
   const openid = req.get("X-Openid");
   if (!openid) return res.status(401).json({ error: "missing X-Openid" });
@@ -118,6 +120,21 @@ app.get("/exercises", async (req, res) => {
       clip_url: `${base}/media/clip/${x.id}.mp4`,
     }))
   );
+});
+
+// ---------- 微信登录 ----------
+// POST /wx/login  body { code } → { openid }。小程序 wx.login() 拿 code 发来换。
+// 没配 WX_APPID/WX_SECRET 时返回 503，小程序端降级用本地写死编号。
+app.post("/wx/login", async (req, res) => {
+  const code = (req.body || {}).code;
+  if (!code) return res.status(400).json({ error: "missing code" });
+  if (!hasCredentials()) return res.status(503).json({ error: "wx credentials not configured" });
+  try {
+    const s = await code2Session(code);
+    res.json({ openid: s.openid });
+  } catch (e) {
+    res.status(502).json({ error: "code2session failed", detail: String(e.message || e) });
+  }
 });
 
 // ---------- 计划 ----------
