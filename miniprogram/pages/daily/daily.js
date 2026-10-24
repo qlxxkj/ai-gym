@@ -53,9 +53,11 @@ Page({
   },
 
   async load() {
-    // 取本人名下最新一份计划：/plans 按更新时间倒序，直接试第一份
-    const plans = await api.plans().catch(() => []);
-    const planId = plans && plans[0] ? plans[0].id : null;
+    // 拉本人名下全部计划（按更新时间倒序）；「当前计划」优先用本地存的编号，
+    // 没有或已不在名下才退回最新一份，并写回，保证「计划」页和「今天」页看的是同一份
+    const plans = (await api.plans().catch(() => [])) || [];
+    let planId = wx.getStorageSync("currentPlanId");
+    if (!plans.some((p) => p.id === planId)) planId = plans.length ? plans[0].id : null;
     if (planId) wx.setStorageSync("currentPlanId", planId);
     if (!planId) {
       this.setData({ loading: false, plan: null });
