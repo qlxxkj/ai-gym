@@ -53,15 +53,10 @@ Page({
   },
 
   async load() {
-    let planId = wx.getStorageSync("currentPlanId");
-    // 本地没存过计划编号（老版本生成的、缓存被清）就拉列表用最新一份，补写回
-    try {
-      if (!planId) {
-        const plans = await api.plans().catch(() => []);
-        planId = plans && plans[0] ? plans[0].id : null;
-        if (planId) wx.setStorageSync("currentPlanId", planId);
-      }
-    } catch {}
+    // 取本人名下最新一份计划：/plans 按更新时间倒序，直接试第一份
+    const plans = await api.plans().catch(() => []);
+    const planId = plans && plans[0] ? plans[0].id : null;
+    if (planId) wx.setStorageSync("currentPlanId", planId);
     if (!planId) {
       this.setData({ loading: false, plan: null });
       return;
