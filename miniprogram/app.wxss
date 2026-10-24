@@ -1,0 +1,91 @@
+/* ===== 全局设计系统（简约暖灰） =====
+   色板：
+   主文字   #1C1715
+   次文字   #6E625B
+   浅文字   #A2968D
+   分隔线   #EAE3DC
+   卡片背景 #FFFFFF
+   页面背景 #F4F0EA
+   强调色   #B0532E（陶土橙，唯一强调色）
+   强调底色 #F7E7DE
+   深色块   #1C1715
+   成功     #3F7D4E
+   圆角：卡片 28rpx / 圆角块 20rpx / 胶囊 999rpx
+   留白：页面左右 32rpx，卡片内 32rpx，块间距 24rpx
+   字号层级：
+   大标题 40rpx/700、标题 32rpx/600、正文 28rpx、辅助 24rpx、说明 22rpx
+*/
+page {
+  background: #F4F0EA;
+  color: #1C1715;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+/* 页面通用容器 */
+.page { padding: 32rpx 32rpx 160rpx; }
+
+/* 卡片 */
+.card {
+  background: #fff;
+  border-radius: 28rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+}
+
+/* 段落标题 */
+.sec-t {
+  font-size: 24rpx;
+  color: #A2968D;
+  letter-spacing: 4rpx;
+  margin-bottom: 20rpx;
+}
+
+/* 胶囊选项 */
+.chips { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.chip {
+  padding: 16rpx 32rpx;
+  border-radius: 999rpx;
+  font-size: 26rpx;
+  background: #fff;
+  border: 2rpx solid #EAE3DC;
+  color: #6E625B;
+  transition: all 0.15s;
+}
+.chip-on {
+  background: #B0532E;
+  border-color: #B0532E;
+  color: #fff;
+}
+
+/* 主按钮 */
+.btn {
+  width: 100%;
+  box-sizing: border-box;
+  background: #1C1715;
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  padding: 26rpx 0;
+}
+.btn[disabled] { opacity: 0.5; }
+.btn-accent { background: #B0532E; }
+.btn-ghost { background: #fff; color: #1C1715; border: 2rpx solid #EAE3DC; }
+
+/* 空状态 */
+.empty { text-align: center; padding: 140rpx 0; }
+.empty-t { font-size: 32rpx; font-weight: 600; margin-bottom: 12rpx; }
+.empty-s { font-size: 26rpx; color: #A2968D; line-height: 1.6; }
+
+/* 加载中文 */
+.loading {
+  text-align: center; padding: 120rpx 0;
+  font-size: 26rpx; color: #A2968D;
+}
+
+/* 提示条 */
+.toast-line {
+  background: #F7E7DE; color: #B0532E;
+  border-radius: 16rpx; padding: 20rpx 24rpx;
+  font-size: 24rpx; margin-bottom: 16rpx;
+}

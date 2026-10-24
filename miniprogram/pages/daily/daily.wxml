@@ -2,43 +2,46 @@
   <block wx:if="{{!plan}}">
     <view class="empty">
       <view class="empty-t" wx:if="{{!loading}}">还没有计划</view>
-      <view class="empty-t" wx:else>加载中...</view>
-      <view class="empty-s" wx:if="{{!loading}}">先创建一份 AI 训练计划</view>
+      <view class="empty-t" wx:else>加载中…</view>
+      <view class="empty-s" wx:if="{{!loading}}">先去「需求」页生成一份计划</view>
     </view>
   </block>
 
   <block wx:else>
-    <view class="head">
-      <view class="head-t">{{dayLabel}} · {{plan.title}}</view>
-      <view class="head-date">{{today}}</view>
+    <view class="hero">
+      <view class="hero-t">{{dayLabel}}</view>
+      <view class="hero-s">{{today}} · {{plan.title}}</view>
     </view>
 
-    <view class="rest-panel" wx:if="{{restLeft > 0}}">
+    <view class="card rest-panel" wx:if="{{restLeft > 0}}">
       <view class="rest-t">组间休息</view>
-      <view class="rest-num">{{restLeft}}s</view>
+      <view class="rest-num">{{restLeft}}</view>
       <view class="rest-bar">
         <view class="rest-fill" style="width: {{restLeft / restTotal * 100}}%"></view>
       </view>
     </view>
 
     <view class="done-panel" wx:if="{{allDone}}" bindtap="markAllDone">
-      今日所有组已完成，点击打卡
+      全部完成，点击打卡
     </view>
 
-    <view class="ex" wx:for="{{exercises}}" wx:for-item="ex" wx:for-index="exidx" wx:key="id">
-      <view class="ex-name">{{ex.name}}</view>
+    <view class="card ex" wx:for="{{exercises}}" wx:for-item="ex" wx:for-index="exidx" wx:key="id">
+      <view class="ex-head">
+        <view class="ex-name">{{ex.name_zh}}</view>
+        <view class="ex-count">{{ex.sets.length}} 组</view>
+      </view>
       <view class="ex-note" wx:if="{{ex.note}}">{{ex.note}}</view>
-      <block wx:for="{{ex.sets}}" wx:for-item="st" wx:for-index="setidx">
-        <view class="set-row">
+      <view class="set-list">
+        <view class="set-row" wx:for="{{ex.sets}}" wx:for-item="st" wx:for-index="setidx">
           <view class="set-lb">第 {{setidx + 1}} 组</view>
-          <view class="set-detail">{{st.reps}} 次 · 休 {{st.rest_seconds}}s</view>
+          <view class="set-detail">{{st.reps}} 次 · 休 {{st.rest_seconds}} 秒</view>
           <view class="set-check {{ex.setStates[setidx] ? 'on' : ''}}"
             data-exidx="{{exidx}}" data-setidx="{{setidx}}"
             bindtap="toggleSet">
-            {{ex.setStates[setidx] ? '✓ 完成' : '完成'}}
+            {{ex.setStates[setidx] ? '✓' : '○'}}
           </view>
         </view>
-      </block>
+      </view>
     </view>
   </block>
 </view>

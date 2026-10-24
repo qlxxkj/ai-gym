@@ -65,6 +65,7 @@ function planPrompt(user, exercises) {
       "tips": [string]
     }`,
     "规则: 休息日 exercises 为空数组; 每个训练日 4-6 个动作; 每个动作 3-4 组; 新手用较轻重量多次数。",
+    "语言: title、summary、days[].label、days[].exercises[].note、weekly_goals、tips 必须全部用简体中文, 不要出现任何英文单词。",
   ].join("\n");
 }
 
@@ -82,6 +83,7 @@ function revisePrompt(plan, adjustments, exercises) {
     JSON.stringify(exercises),
     "",
     "输出修改后的完整计划，严格 JSON，格式同原计划（title/summary/rest_seconds/days/weekly_goals/tips），days 里的动作 id 只能来自上面允许列表。",
+    "语言: 所有文本字段（title/summary/label/note/weekly_goals/tips）必须用简体中文, 不要出现任何英文单词。",
   ].join("\n");
 }
 

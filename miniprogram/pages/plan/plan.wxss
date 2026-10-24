@@ -1,48 +1,55 @@
-.page { padding: 24rpx; }
-.empty { text-align: center; padding: 120rpx 0; }
-.empty-t { font-size: 32rpx; font-weight: 600; margin-bottom: 12rpx; }
-.empty-s { font-size: 26rpx; color: #8a7d75; margin-bottom: 32rpx; }
-.go { background: #A5492B; color: #fff; border-radius: 12rpx; font-size: 28rpx; }
+/* 计划页：统一设计系统（见 app.wxss），本页只写差异 */
 
-.list { display: flex; flex-direction: column; gap: 16rpx; }
-.card { background: #fff; border-radius: 20rpx; padding: 28rpx; }
-.card-title { font-size: 32rpx; font-weight: 600; margin-bottom: 8rpx; }
-.card-meta { font-size: 24rpx; color: #8a7d75; }
+/* 大标题区 */
+.hero { margin-bottom: 32rpx; }
+.hero-t { font-size: 44rpx; font-weight: 700; letter-spacing: 1rpx; }
+.hero-s { font-size: 26rpx; color: #6E625B; margin-top: 14rpx; line-height: 1.7; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 12rpx; margin-top: 24rpx; }
+.tag {
+  font-size: 22rpx; color: #B0532E;
+  background: #F7E7DE; border-radius: 999rpx;
+  padding: 8rpx 20rpx;
+}
 
-.head { background: #fff; border-radius: 20rpx; padding: 28rpx; margin-bottom: 20rpx; }
-.head-t { font-size: 36rpx; font-weight: 700; margin-bottom: 8rpx; }
-.head-s { font-size: 26rpx; color: #5c504a; line-height: 1.5; margin-bottom: 8rpx; }
-.head-goal { font-size: 24rpx; color: #A5492B; }
+/* 计划列表（多计划时） */
+.card { padding: 28rpx 32rpx; }
+.card-title { font-size: 32rpx; font-weight: 600; }
+.card-meta { font-size: 24rpx; color: #A2968D; margin-top: 8rpx; }
 
-.day { background: #fff; border-radius: 20rpx; padding: 24rpx; margin-bottom: 16rpx; }
-.day-head { display: flex; align-items: center; justify-content: space-between; }
-.day-lb { font-size: 30rpx; font-weight: 600; }
-.day-arrow { font-size: 24rpx; color: #A5492B; }
-.ex { margin-top: 20rpx; padding-top: 20rpx; border-top: 2rpx solid #f0e9e2; }
+/* 天数 */
+.day-head { display: flex; align-items: center; gap: 16rpx; }
+.day-lb { font-size: 30rpx; font-weight: 700; }
+.day-label { font-size: 24rpx; color: #A2968D; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.day-arrow { font-size: 24rpx; color: #B0532E; }
+.day-body { margin-top: 24rpx; }
+
+/* 动作卡片 */
+.ex { padding: 20rpx 0; border-top: 2rpx solid #EAE3DC; }
+.ex:first-child { border-top: none; }
 .ex-top { display: flex; align-items: center; gap: 20rpx; margin-bottom: 12rpx; }
 .ex-media {
-  width: 120rpx; height: 120rpx; border-radius: 12rpx; overflow: hidden;
-  background: #000; flex-shrink: 0;
+  width: 108rpx; height: 108rpx;
+  border-radius: 20rpx; overflow: hidden;
+  background: #F4F0EA; flex-shrink: 0;
 }
 .ex-media image { width: 100%; height: 100%; }
-.ex-names { flex: 1; min-width: 0; }
-.ex-name { font-size: 28rpx; font-weight: 600; }
-.ex-en { font-size: 22rpx; color: #9b8f88; margin-top: 2rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ex-set { font-size: 24rpx; color: #5c504a; margin-bottom: 4rpx; }
-.ex-note { font-size: 22rpx; color: #8a7d75; margin-top: 6rpx; }
+.ex-name { font-size: 30rpx; font-weight: 600; }
+.ex-set { font-size: 24rpx; color: #6E625B; margin-bottom: 4rpx; }
+.ex-note { font-size: 22rpx; color: #A2968D; margin-top: 8rpx; line-height: 1.6; }
 
-.tips { background: #fff; border-radius: 20rpx; padding: 24rpx; margin-bottom: 20rpx; }
-.tips-t { font-size: 28rpx; font-weight: 600; margin-bottom: 12rpx; }
-.tip { font-size: 24rpx; color: #5c504a; line-height: 1.6; margin-bottom: 8rpx; }
+/* 教练提示 */
+.tip { font-size: 26rpx; color: #6E625B; line-height: 1.8; margin-bottom: 10rpx; }
+.tip:last-child { margin-bottom: 0; }
 
-.review-block { background: #fff; border-radius: 20rpx; padding: 24rpx; margin-bottom: 20rpx; }
-.review-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
-.review-t { font-size: 28rpx; font-weight: 600; color: #A5492B; }
-.review-close { font-size: 24rpx; color: #8a7d75; }
-.review-pre { font-size: 22rpx; color: #5c504a; white-space: pre-wrap; word-break: break-all; margin-bottom: 16rpx; }
-.review-apply { background: #A5492B; color: #fff; border-radius: 12rpx; font-size: 26rpx; margin-top: 8rpx; }
+/* 复盘 */
+.review-head { display: flex; justify-content: space-between; align-items: center; }
+.review-close { font-size: 24rpx; color: #A2968D; }
+.review-pre {
+  font-size: 24rpx; color: #6E625B;
+  white-space: pre-wrap; word-break: break-all;
+  margin: 12rpx 0 16rpx; line-height: 1.8;
+  max-height: 600rpx; overflow: auto;
+}
 
-.actions { display: flex; flex-direction: column; gap: 16rpx; margin-top: 12rpx; }
-.btn { background: #241D1B; color: #fff; border-radius: 16rpx; font-size: 28rpx; }
-.btn-ghost { background: #fff; color: #241D1B; border: 2rpx solid #e5ddd6; }
-.btn[disabled] { opacity: 0.6; }
+/* 底部按钮 */
+.actions { display: flex; flex-direction: column; gap: 16rpx; margin-top: 8rpx; }

@@ -1,6 +1,6 @@
 <view class="page">
   <block wx:if="{{pending}}">
-    <view class="loading">正在加载计划，请稍候…</view>
+    <view class="loading">正在加载计划…</view>
   </block>
   <block wx:elif="{{loadErr}}">
     <view class="empty">
@@ -8,69 +8,73 @@
       <view class="empty-s">{{loadErr}}</view>
     </view>
   </block>
+
   <block wx:elif="{{!current}}">
     <view class="empty" wx:if="{{!plans.length}}">
       <view class="empty-t">还没有训练计划</view>
-      <view class="empty-s">先去「需求」页填写目标，让 AI 为你定制</view>
-      <button class="go" bindtap="goForm">去填写需求</button>
+      <view class="empty-s">去「需求」页填写目标，让 AI 为你定制</view>
+      <button class="btn btn-accent" style="width:280rpx;margin:32rpx auto 0" bindtap="goForm">去填写需求</button>
     </view>
-    <view class="list" wx:else>
+    <block wx:else>
+      <view class="hero-t">我的计划</view>
       <view class="card" wx:for="{{plans}}" wx:key="id" data-id="{{item.id}}" bindtap="openPlan">
         <view class="card-title">{{item.title}}</view>
-        <view class="card-meta">目标：{{item.goal}} · v{{item.version}}</view>
+        <view class="card-meta">目标 {{item.goal}} · 第 {{item.version}} 版</view>
       </view>
-    </view>
+    </block>
   </block>
 
   <block wx:else>
-    <view class="head">
-      <view class="head-t">{{current.title}}</view>
-      <view class="head-s">{{current.plan_data.summary}}</view>
-      <view class="head-goal">目标：{{current.goal}} · 组间休息 {{current.plan_data.rest_seconds}}s · v{{current.version}}</view>
+    <view class="hero">
+      <view class="hero-t">{{current.title}}</view>
+      <view class="hero-s">{{current.plan_data.summary}}</view>
+      <view class="hero-meta">
+        <text class="tag">{{current.goal}}</text>
+        <text class="tag">组间休息 {{current.plan_data.rest_seconds}} 秒</text>
+        <text class="tag">第 {{current.version}} 版</text>
+      </view>
     </view>
 
-    <view class="day" wx:for="{{current.plan_data.days}}" wx:for-item="day" wx:key="day">
+    <view class="card day" wx:for="{{current.plan_data.days}}" wx:for-item="day" wx:key="day">
       <view class="day-head" data-d="{{day.day}}" bindtap="toggleDay">
-        <view class="day-lb">第 {{day.day}} 天 · {{day.label}}</view>
+        <view class="day-lb">第 {{day.day}} 天</view>
+        <view class="day-label">{{day.label}}</view>
         <view class="day-arrow">{{openDay === day.day ? '收起' : '展开'}}</view>
       </view>
-      <view wx:if="{{openDay === day.day}}">
+      <view class="day-body" wx:if="{{openDay === day.day}}">
         <view class="ex" wx:for="{{day.exercises}}" wx:for-item="ex" wx:key="id">
           <view class="ex-top">
             <video wx:if="{{ex.clip_url}}" class="ex-media" src="{{ex.clip_url}}" loop="{{true}}"
               controls="{{false}}" autoplay="{{true}}" muted="{{true}}" show-center-play-btn="{{false}}"></video>
             <image wx:elif="{{ex.img_url}}" class="ex-media" src="{{ex.img_url}}" mode="aspectFill"></image>
-            <view class="ex-names">
-              <view class="ex-name">{{ex.name_zh}}</view>
-              <view class="ex-en">{{ex.name}}</view>
-            </view>
+            <view class="ex-name">{{ex.name_zh}}</view>
           </view>
           <view class="ex-set" wx:for="{{ex.sets}}" wx:for-item="st" wx:key="index">
-            第 {{index + 1}} 组 · {{st.reps}} 次 · 休 {{st.rest_seconds}}s
+            第 {{index + 1}} 组 · {{st.reps}} 次 · 休 {{st.rest_seconds}} 秒
           </view>
           <view class="ex-note" wx:if="{{ex.note}}">{{ex.note}}</view>
         </view>
       </view>
     </view>
 
-    <view class="tips" wx:if="{{current.plan_data.tips.length}}">
-      <view class="tips-t">教练提示</view>
+    <view class="card tips" wx:if="{{current.plan_data.tips.length}}">
+      <view class="sec-t">教练提示</view>
       <view class="tip" wx:for="{{current.plan_data.tips}}" wx:key="*this">{{item}}</view>
     </view>
 
-    <view class="review-block" wx:if="{{showReviewPanel}}">
+    <view class="card review" wx:if="{{showReviewPanel}}">
       <view class="review-head">
-        <view class="review-t">本周 AI 复盘</view>
+        <view class="sec-t" style="margin-bottom:8rpx">本周 AI 复盘</view>
         <view class="review-close" bindtap="dismissReview">关闭</view>
       </view>
       <view class="review-pre">{{reviewText}}</view>
-      <button class="btn review-apply" disabled="{{applying}}" bindtap="applyReview">
-        {{applying ? '应用中...' : '采纳建议并更新计划'}}
+      <button class="btn btn-accent" style="margin-top:8rpx" disabled="{{applying}}" bindtap="applyReview">
+        {{applying ? '应用中…' : '采纳建议并更新计划'}}
       </button>
     </view>
 
     <view class="actions">
-      <button class="btn" bindtap="doReview" disabled="{{reviewing}}">{{reviewing ? '复盘中...' : 'AI 周复盘'}}</button>
+      <button class="btn btn-accent" bindtap="doReview" disabled="{{reviewing}}">{{reviewing ? '复盘中…' : 'AI 周复盘'}}</button>
       <button class="btn btn-ghost" bindtap="doRevise" disabled="{{revising}}">让 AI 调整计划</button>
     </view>
   </block>

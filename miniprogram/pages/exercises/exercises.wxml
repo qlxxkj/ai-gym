@@ -1,41 +1,51 @@
 <view class="page">
-  <input class="search" placeholder="搜索动作，如 squat" value="{{q}}" bindinput="onSearch" confirm-type="search" />
+  <view class="hero-t">动作库</view>
+  <view class="hero-s">查动作、看示范</view>
+
+  <view class="search-card card">
+    <input class="search" placeholder="搜索动作，如 深蹲 / 卧推" value="{{q}}" bindinput="onSearch" confirm-type="search" />
+  </view>
+
   <view class="chips">
     <view wx:for="{{muscles}}" wx:key="*this"
       class="chip {{muscle === item ? 'chip-on' : ''}}"
-      data-m="{{item}}" bindtap="pickMuscle">{{item}}</view>
+      data-m="{{item}}" bindtap="pickMuscle">{{muscleZh[item]}}</view>
   </view>
 
   <view class="list">
-    <view class="ex" wx:for="{{list}}" wx:key="id" data-ex="{{item}}" bindtap="showDetail">
-      <view class="ex-img" wx:if="{{item.img_url}}">
-        <image src="{{item.img_url}}" mode="aspectFill" lazy-load="{{true}}"
-          binderror="onImgErr" data-id="{{item.id}}" />
-      </view>
-      <view class="ex-body">
-        <view class="ex-name">{{item.name_zh}}</view>
-        <view class="ex-en">{{item.name}}</view>
-        <view class="ex-meta">{{item.equipment}} · {{item.muscle}} · {{item.cat}}</view>
+    <view class="card ex" wx:for="{{list}}" wx:key="id" data-ex="{{item}}" bindtap="showDetail">
+      <view class="ex-top">
+        <view class="ex-img" wx:if="{{item.img_url}}">
+          <image src="{{item.img_url}}" mode="aspectFill" lazy-load="{{true}}"
+            binderror="onImgErr" data-id="{{item.id}}" />
+        </view>
+        <view class="ex-body">
+          <view class="ex-name">{{item.name_zh}}</view>
+          <view class="ex-meta">{{item.equipment_zh}} · {{item.muscle_zh}} · {{item.cat_zh}}</view>
+        </view>
       </view>
     </view>
     <view class="none" wx:if="{{!loading && !list.length}}">没有匹配动作</view>
   </view>
 
-  <view class="sheet-mask" wx:if="{{detail}}" bindtap="showDetail" data-ex="">
+  <view class="sheet-mask" wx:if="{{detail}}" bindtap="closeSheet">
     <view class="sheet" catchtap="">
       <view class="sheet-t">{{detail.name_zh}}</view>
-      <view class="sheet-en">{{detail.name}}</view>
-      <video wx:if="{{detail.clip_url && !clipErr[detail.id]}}" class="sheet-video"
-        src="{{detail.clip_url}}" loop="{{true}}" controls="{{false}}"
-        autoplay="{{true}}" muted="{{true}}" show-center-play-btn="{{false}}"
-        binderror="onClipErr" data-id="{{detail.id}}" />
-      <image wx:elif="{{detail.img_url && !imgErr[detail.id]}}" class="sheet-img"
-        src="{{detail.img_url}}" mode="aspectFit" />
-      <view class="sheet-row"><text class="lb">器材</text>{{detail.equipment}}</view>
-      <view class="sheet-row"><text class="lb">主肌群</text>{{detail.muscle}}</view>
-      <view class="sheet-row"><text class="lb">辅助肌群</text>{{detail.muscles}}</view>
-      <view class="sheet-row"><text class="lb">部位</text>{{detail.bodypart}}</view>
-      <view class="sheet-row"><text class="lb">类型</text>{{detail.cat}} / {{detail.target}}</view>
+      <view class="sheet-video-wrap" wx:if="{{detail.clip_url && !clipErr[detail.id]}}">
+        <video class="sheet-video"
+          src="{{detail.clip_url}}" loop="{{true}}" controls="{{false}}"
+          autoplay="{{true}}" muted="{{true}}" show-center-play-btn="{{false}}"
+          binderror="onClipErr" data-id="{{detail.id}}" />
+      </view>
+      <view class="sheet-video-wrap" wx:elif="{{detail.img_url && !imgErr[detail.id]}}">
+        <image class="sheet-img" src="{{detail.img_url}}" mode="aspectFit" />
+      </view>
+      <view class="sheet-grid">
+        <view class="sheet-cell"><view class="cell-lb">器材</view><view class="cell-val">{{detail.equipment_zh}}</view></view>
+        <view class="sheet-cell"><view class="cell-lb">主肌群</view><view class="cell-val">{{detail.muscle_zh}}</view></view>
+        <view class="sheet-cell"><view class="cell-lb">辅助肌群</view><view class="cell-val">{{detail.muscles_zh}}</view></view>
+      </view>
+      <button class="btn btn-accent" style="margin-top:28rpx" bindtap="closeSheet">关闭</button>
     </view>
   </view>
 </view>

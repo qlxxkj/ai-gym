@@ -1,36 +1,51 @@
-.page { padding: 24rpx; }
-.empty { text-align: center; padding: 120rpx 0; }
-.empty-t { font-size: 32rpx; font-weight: 600; margin-bottom: 12rpx; }
-.empty-s { font-size: 26rpx; color: #8a7d75; }
+/* 今天页：统一设计系统（见 app.wxss），本页只写差异 */
 
-.head { background: #241D1B; color: #fff; border-radius: 20rpx; padding: 28rpx; margin-bottom: 20rpx; }
-.head-t { font-size: 30rpx; font-weight: 600; }
-.head-date { font-size: 24rpx; color: #c9b8ae; margin-top: 8rpx; }
+.hero { margin-bottom: 32rpx; }
+.hero-t { font-size: 44rpx; font-weight: 700; letter-spacing: 1rpx; }
+.hero-s { font-size: 26rpx; color: #A2968D; margin-top: 10rpx; }
 
+/* 休息倒计时 */
 .rest-panel {
-  background: #A5492B; color: #fff; border-radius: 20rpx;
-  padding: 24rpx; margin-bottom: 20rpx; text-align: center;
+  background: #1C1715; color: #fff;
+  border-radius: 28rpx; padding: 32rpx;
+  text-align: center; margin-bottom: 24rpx;
 }
-.rest-t { font-size: 24rpx; opacity: 0.8; }
-.rest-num { font-size: 72rpx; font-weight: 700; font-variant-numeric: tabular-nums; }
-.rest-bar { height: 8rpx; background: rgba(255,255,255,0.3); border-radius: 4rpx; margin-top: 12rpx; overflow: hidden; }
-.rest-fill { height: 100%; background: #fff; transition: width 1s linear; }
+.rest-t { font-size: 24rpx; opacity: 0.7; letter-spacing: 4rpx; }
+.rest-num { font-size: 80rpx; font-weight: 700; font-variant-numeric: tabular-nums; margin: 8rpx 0 16rpx; }
+.rest-bar { height: 8rpx; background: rgba(255,255,255,0.2); border-radius: 4rpx; overflow: hidden; }
+.rest-fill { height: 100%; background: #B0532E; transition: width 1s linear; }
 
+/* 全部完成 */
 .done-panel {
-  background: #2e7d32; color: #fff; border-radius: 20rpx;
-  padding: 28rpx; text-align: center; font-size: 28rpx; margin-bottom: 20rpx;
+  background: #3F7D4E; color: #fff;
+  border-radius: 20rpx; padding: 28rpx;
+  text-align: center; font-size: 28rpx; margin-bottom: 24rpx;
 }
 
-.ex { background: #fff; border-radius: 20rpx; padding: 24rpx; margin-bottom: 16rpx; }
-.ex-name { font-size: 30rpx; font-weight: 600; margin-bottom: 8rpx; }
-.ex-note { font-size: 22rpx; color: #8a7d75; margin-bottom: 12rpx; }
+/* 动作卡片 */
+.ex { padding: 28rpx; }
+.ex-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8rpx; }
+.ex-name { font-size: 30rpx; font-weight: 600; }
+.ex-count { font-size: 22rpx; color: #A2968D; }
+.ex-note { font-size: 22rpx; color: #A2968D; margin-bottom: 16rpx; line-height: 1.6; }
+
+/* 组 */
+.set-list { display: flex; flex-direction: column; }
 .set-row {
-  display: flex; align-items: center; padding: 16rpx 0;
-  border-top: 2rpx solid #f0e9e2;
+  display: flex; align-items: center;
+  padding: 18rpx 0;
+  border-top: 2rpx solid #EAE3DC;
 }
-.set-lb { font-size: 26rpx; font-weight: 500; min-width: 100rpx; }
-.set-detail { font-size: 24rpx; color: #5c504a; flex: 1; }
+.set-row:first-child { border-top: none; }
+.set-lb { font-size: 26rpx; font-weight: 500; min-width: 110rpx; }
+.set-detail { font-size: 24rpx; color: #6E625B; flex: 1; }
 .set-check {
-  font-size: 24rpx; color: #A5492B; border: 2rpx solid #A5492B;
-  padding: 8rpx 20rpx; border-radius: 999rpx;
+  width: 56rpx; height: 56rpx;
+  border: 2rpx solid #EAE3DC;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28rpx; color: #A2968D;
+}
+.set-check.on {
+  background: #B0532E; border-color: #B0532E; color: #fff;
 }

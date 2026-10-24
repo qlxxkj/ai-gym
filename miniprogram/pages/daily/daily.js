@@ -1,5 +1,15 @@
 const api = require("../../api");
 
+// 动作 id → 中文名（后端 name-zh 翻译好的）
+const exZhCache = {};
+async function ensureExZh() {
+  if (Object.keys(exZhCache).length) return;
+  try {
+    const list = await api.exercises({ limit: 500 });
+    (list || []).forEach((x) => (exZhCache[x.id] = x.name_zh));
+  } catch {}
+}
+
 function todayStr() {
   const d = new Date();
   return (
@@ -49,6 +59,7 @@ Page({
       return;
     }
     try {
+      await ensureExZh(); // 先拉一次动作中文映射（全局缓存，只拉一次）
       const plan = await api.plan(planId);
       const days = plan.plan_data.days || [];
       // 按今天是周几选 day：day 编号 1..N，周一=1
@@ -76,6 +87,8 @@ Page({
       }
       const exercises = ((day && day.exercises) || []).map((ex) => ({
         ...ex,
+        // 动作名用后端 name_zh（拉不到就先显示英文原名，拉到后刷新）
+        name_zh: exZhCache[ex.id] || ex.name,
         setStates: ex.sets.map((_, i) => doneSets[ex.id + ":" + (i + 1)] || false),
       }));
       this.setData({
