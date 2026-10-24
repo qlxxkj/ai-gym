@@ -71,7 +71,8 @@ Page({
       });
       wx.hideLoading();
       wx.setStorageSync("currentPlanId", r.id);
-      wx.reLaunch({ url: "/pages/plan/plan" });
+      // plan 是 tabBar 页，必须用 switchTab（reLaunch 跳 tabBar 页在部分基础库上无效）
+      wx.switchTab({ url: "/pages/plan/plan" });
     } catch (err) {
       wx.hideLoading();
       this.setData({ generating: false });
