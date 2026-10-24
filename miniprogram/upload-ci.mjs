@@ -20,31 +20,40 @@ function normalizeKey(raw) {
       if (dec.includes("BEGIN")) k = dec;
     } catch {}
   }
-  let begin = k.match(/-----\s*BEGIN([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
-  let end = k.match(/-----\s*END([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
-  // 兼容「裸 base64 正文」secret：没有 PEM 头尾，整段就是 base64 编码的 DER。
-  // 此时把整段当 DER 解析（先试 PKCS8 再试 PKCS1），统一重导出 PKCS8 PEM。
-  if (!begin || !end) {
-    const der = Buffer.from(k.replace(/\s/g, ""), "base64");
+  // 兜底：把整个字符串里非 base64 字符全剥掉（连同被压没的 PEM 标记一起去掉），
+  // 剩下的就是裸 DER 的 base64。能接住「GitHub Actions 把多行 secret 压成一行」的脏数据。
+  const lastResort = () => {
+    const b64 = k.replace(/[^A-Za-z0-9+/=]/g, "");
+    if (!b64) throw new Error("密钥里没找到任何 base64 内容");
+    const der = Buffer.from(b64, "base64");
     for (const type of ["pkcs8", "pkcs1"]) {
       try {
         const ko = crypto.createPrivateKey({ key: der, format: "der", type });
         return ko.export({ type: "pkcs8", format: "pem" });
       } catch {}
     }
-    throw new Error("密钥里没找到 PEM 段，且裸 base64 无法按 PKCS8/PKCS1 解析。请确认 secret 是「小程序密钥文件」整串内容");
-  }
+    throw new Error("密钥无法按 PKCS8/PKCS1 解析，请确认 secret 是微信后台下载的「小程序密钥」整串内容");
+  };
+
+  let begin = k.match(/-----\s*BEGIN([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
+  let end = k.match(/-----\s*END([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
+  // 兼容「裸 base64 正文」secret：没有 PEM 头尾，整段就是 base64 编码的 DER。
+  if (!begin || !end) return lastResort();
   const label = (begin[1] || "").replace(/\s+/g, " ").trim(); // "RSA"(PKCS1) 或 ""(PKCS8)
   const bIdx = k.indexOf(begin[0]);
   const eIdx = k.indexOf(end[0]);
   const body = k.slice(bIdx + begin[0].length, eIdx).replace(/\s+/g, "");
   const isPkcs1 = /^RSA$/.test(label);
-  const ko = crypto.createPrivateKey({
-    key: Buffer.from(body, "base64"),
-    format: "der",
-    type: isPkcs1 ? "pkcs1" : "pkcs8",
-  });
-  return ko.export({ type: "pkcs8", format: "pem" });
+  try {
+    const ko = crypto.createPrivateKey({
+      key: Buffer.from(body, "base64"),
+      format: "der",
+      type: isPkcs1 ? "pkcs1" : "pkcs8",
+    });
+    return ko.export({ type: "pkcs8", format: "pem" });
+  } catch {
+    return lastResort(); // 正文损坏但有标记 → 回退全串剥 base64 再试
+  }
 }
 
 // appid 优先取 secret（WX_APPID），没有则回退读 project.config.json。
@@ -62,6 +71,20 @@ if (!appid || appid === "填你的AppID") {
   console.error(`缺少 appid：project.config.json 里是占位值，且没配 WX_APPID secret`);
   process.exit(1);
 }
+// 一次性诊断：打印密钥结构（不泄露正文），定位 secret 粘贴时的实际形态
+{
+  const s = String(rawKey);
+  const stripped = s.replace(/\s/g, "");
+  const b64ish = stripped.length ? stripped.match(/^[A-Za-z0-9+/=]+$/)?.length : 0;
+  console.log("[diagnose] 密钥长度:", s.length,
+    "| 去空白后长度:", stripped.length,
+    "| 是否含BEGIN:", s.includes("BEGIN"),
+    "| 是否含END:", s.includes("END"),
+    "| 纯base64字符占比:", b64ish ? (b64ish / stripped.length).toFixed(2) : 0,
+    "| 首40:", JSON.stringify(s.slice(0, 40)),
+    "| 末40:", JSON.stringify(s.slice(-40)));
+}
+
 let key;
 try {
   key = normalizeKey(rawKey);
