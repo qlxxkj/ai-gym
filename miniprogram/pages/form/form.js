@@ -71,10 +71,10 @@ Page({
       });
       wx.hideLoading();
       this.setData({ generating: false });
+      // 存计划编号，"计划"页按编号展示，"今天"页也按编号拉当天该练的动作
       wx.setStorageSync("currentPlanId", r.id);
       // plan 是 tabBar 页，必须用 switchTab（reLaunch 跳 tabBar 页在部分基础库上无效）
       wx.switchTab({ url: "/pages/plan/plan" });
-      // 成功后弹提示，用户能明确看到"生成成功"，而不是静默切页以为失败了
       wx.showToast({ title: "计划已生成", icon: "success" });
     } catch (err) {
       wx.hideLoading();

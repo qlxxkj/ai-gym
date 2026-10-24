@@ -1,16 +1,16 @@
 <view class="page">
   <block wx:if="{{!plan}}">
     <view class="empty">
-      <view class="empty-t" wx:if="{{!loading}}">还没有计划</view>
+      <view class="empty-t" wx:if="{{!loading}}">今天没有训练</view>
       <view class="empty-t" wx:else>加载中…</view>
-      <view class="empty-s" wx:if="{{!loading}}">先去「需求」页生成一份计划</view>
+      <view class="empty-s" wx:if="{{!loading}}">先去「需求」页生成训练计划</view>
     </view>
   </block>
 
   <block wx:else>
     <view class="hero">
       <view class="hero-t">{{dayLabel}}</view>
-      <view class="hero-s">{{today}} · {{plan.title}}</view>
+      <view class="hero-s">{{today}} · 来自《{{plan.title}}》，逐项打勾完成训练</view>
     </view>
 
     <view class="card rest-panel" wx:if="{{restLeft > 0}}">
