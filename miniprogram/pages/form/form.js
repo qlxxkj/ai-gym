@@ -70,13 +70,22 @@ Page({
         notes: d.notes,
       });
       wx.hideLoading();
+      this.setData({ generating: false });
       wx.setStorageSync("currentPlanId", r.id);
       // plan 是 tabBar 页，必须用 switchTab（reLaunch 跳 tabBar 页在部分基础库上无效）
       wx.switchTab({ url: "/pages/plan/plan" });
+      // 成功后弹提示，用户能明确看到"生成成功"，而不是静默切页以为失败了
+      wx.showToast({ title: "计划已生成", icon: "success" });
     } catch (err) {
       wx.hideLoading();
       this.setData({ generating: false });
-      wx.showModal({ title: "生成失败", content: String(err.data && err.data.error || err.message), showCancel: false });
+      // 把状态码也带上，方便定位 401（openid 缺失）vs 502（AI 失败）
+      const code = err.statusCode || err.status || "";
+      wx.showModal({
+        title: "生成失败",
+        content: "状态码 " + code + "\n" + String((err.data && err.data.error) || err.detail || err.errMsg || err.message),
+        showCancel: false,
+      });
     }
   },
 });

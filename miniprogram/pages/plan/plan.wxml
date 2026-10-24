@@ -1,5 +1,14 @@
 <view class="page">
-  <block wx:if="{{!current}}">
+  <block wx:if="{{pending}}">
+    <view class="loading">正在加载计划，请稍候…</view>
+  </block>
+  <block wx:elif="{{loadErr}}">
+    <view class="empty">
+      <view class="empty-t">计划加载失败</view>
+      <view class="empty-s">{{loadErr}}</view>
+    </view>
+  </block>
+  <block wx:elif="{{!current}}">
     <view class="empty" wx:if="{{!plans.length}}">
       <view class="empty-t">还没有训练计划</view>
       <view class="empty-s">先去「需求」页填写目标，让 AI 为你定制</view>

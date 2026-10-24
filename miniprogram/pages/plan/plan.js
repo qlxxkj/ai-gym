@@ -36,6 +36,8 @@ Page({
     revising: false,
     applying: false,
     showReviewPanel: false,
+    pending: false, // 刚生成完计划、正在后台加载详情时显示"加载计划中…"，避免空页误判
+    loadErr: "",
   },
 
   onShow() {
@@ -44,17 +46,21 @@ Page({
 
   async load() {
     try {
+      this.setData({ pending: true, loadErr: "" });
       const plans = await api.plans();
       const cur = wx.getStorageSync("currentPlanId");
       const current = plans.find((p) => p.id === cur) || plans[0] || null;
       if (current) wx.setStorageSync("currentPlanId", current.id);
       const full = current ? await enrichPlan(await api.plan(current.id)) : null;
-      this.setData({ plans, current: full, openDay: -1 });
+      this.setData({ plans, current: full, openDay: -1, pending: false });
       if (full && full.sup_review) {
         this.setData({ reviewText: JSON.stringify(full.sup_review, null, 2), showReviewPanel: true });
       }
     } catch (e) {
       console.error(e);
+      this.setData({ pending: false, loadErr: String((e.data && e.data.error) || e.errMsg || e.message) });
+      // 加载失败也弹出来，别让用户误以为"计划生成成功但页面空"
+      wx.showModal({ title: "计划加载失败", content: "状态码 " + (e.statusCode || "") + "\n" + String((e.data && e.data.error) || e.errMsg || e.message), showCancel: false });
     }
   },
 
