@@ -71,7 +71,9 @@ Page({
       });
       wx.hideLoading();
       this.setData({ generating: false });
-      // 存计划编号，"计划"页按编号展示，"今天"页也按编号拉当天该练的动作
+      // 存完整计划到本地，"今天"页直接用缓存，不依赖登录编号拉服务器
+      const full = await api.plan(r.id).catch(() => null);
+      if (full) wx.setStorageSync("cachedPlan", full);
       wx.setStorageSync("currentPlanId", r.id);
       // plan 是 tabBar 页，必须用 switchTab（reLaunch 跳 tabBar 页在部分基础库上无效）
       wx.switchTab({ url: "/pages/plan/plan" });

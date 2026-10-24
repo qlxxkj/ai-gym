@@ -53,19 +53,32 @@ Page({
   },
 
   async load() {
-    // 拉本人名下全部计划（按更新时间倒序）；「当前计划」优先用本地存的编号，
-    // 没有或已不在名下才退回最新一份，并写回，保证「计划」页和「今天」页看的是同一份
-    const plans = (await api.plans().catch(() => [])) || [];
+    // 先尝试读本地缓存的完整计划，命中就直接展示（不依赖网络 / 登录编号）
+    let plan = null;
     let planId = wx.getStorageSync("currentPlanId");
-    if (!plans.some((p) => p.id === planId)) planId = plans.length ? plans[0].id : null;
-    if (planId) wx.setStorageSync("currentPlanId", planId);
-    if (!planId) {
+    const cachedPlan = wx.getStorageSync("cachedPlan");
+    if (cachedPlan && cachedPlan.id && (planId ? cachedPlan.id === planId : true)) {
+      plan = cachedPlan;
+      planId = plan.id;
+    }
+    if (!plan) {
+      // 缓存没有，拉服务器
+      const plans = (await api.plans().catch(() => [])) || [];
+      if (!plans.some((p) => p.id === planId)) planId = plans.length ? plans[0].id : null;
+      if (planId) {
+        plan = await api.plan(planId).catch(() => null);
+        if (plan) {
+          wx.setStorageSync("cachedPlan", plan);
+          wx.setStorageSync("currentPlanId", planId);
+        }
+      }
+    }
+    if (!plan) {
       this.setData({ loading: false, plan: null });
       return;
     }
     try {
       await ensureExZh(); // 先拉一次动作中文映射（全局缓存，只拉一次）
-      const plan = await api.plan(planId);
       const days = plan.plan_data.days || [];
       // 按今天是周几选 day：day 编号 1..N，周一=1
       const dayNo = (new Date().getDay() + 6) % 7 + 1;
