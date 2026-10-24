@@ -89,11 +89,18 @@ app.post("/plans/generate", reqOpenid, async (req, res) => {
   const focus = (req_.focus || []).filter(Boolean);
   const eq = req_.equipment || "";
   const where = [];
-  if (eq) where.push(`equipment ILIKE '%' || $1 || '%'`);
-  const args = [eq];
+  const args = [];
+  if (eq) {
+    args.push(eq);
+    where.push(`equipment ILIKE '%' || $${args.length} || '%'`);
+  }
+  // focus 展开成逐个 = $n OR 项，不用 ::text[] 数组参数（pg 对数组参数类型推断会报 42P18）
   if (focus.length) {
-    args.push(focus);
-    where.push(`muscle = ANY($${args.length}::text[])`);
+    const terms = focus.map((m) => {
+      args.push(m);
+      return `muscle = $${args.length}`;
+    });
+    where.push("(" + terms.join(" OR ") + ")");
   }
   const exr = await pool.query(
     `SELECT id, name, muscle, equipment FROM exercises

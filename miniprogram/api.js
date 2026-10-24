@@ -14,8 +14,16 @@ function req(method, path, data) {
 }
 
 module.exports = {
+  // 小程序运行时没有 URLSearchParams，手动拼 query string（过滤空值）
   exercises: (params) =>
-    req("GET", "/exercises?" + new URLSearchParams(params)).then((r) => r.data),
+    req(
+      "GET",
+      "/exercises?" +
+        Object.keys(params || {})
+          .filter((k) => params[k] !== undefined && params[k] !== null && params[k] !== "")
+          .map((k) => k + "=" + encodeURIComponent(params[k]))
+          .join("&")
+    ).then((r) => r.data),
   plans: () => req("GET", "/plans").then((r) => r.data),
   plan: (id) => req("GET", `/plans/${id}`).then((r) => r.data),
   generate: (body) => req("POST", "/plans/generate", body).then((r) => r.data),
