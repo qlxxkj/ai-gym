@@ -20,10 +20,20 @@ function normalizeKey(raw) {
       if (dec.includes("BEGIN")) k = dec;
     } catch {}
   }
-  // 定位 begin/end 标记，容忍换行被压没、marker 内空格也没了的脏数据
-  const begin = k.match(/-----\s*BEGIN([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
-  const end = k.match(/-----\s*END([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
-  if (!begin || !end) throw new Error("密钥里没找到 PEM 段（-----BEGIN ... PRIVATE KEY-----）");
+  let begin = k.match(/-----\s*BEGIN([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
+  let end = k.match(/-----\s*END([A-Z ]*?)\s*PRIVATE\s*KEY\s*-----/);
+  // 兼容「裸 base64 正文」secret：没有 PEM 头尾，整段就是 base64 编码的 DER。
+  // 此时把整段当 DER 解析（先试 PKCS8 再试 PKCS1），统一重导出 PKCS8 PEM。
+  if (!begin || !end) {
+    const der = Buffer.from(k.replace(/\s/g, ""), "base64");
+    for (const type of ["pkcs8", "pkcs1"]) {
+      try {
+        const ko = crypto.createPrivateKey({ key: der, format: "der", type });
+        return ko.export({ type: "pkcs8", format: "pem" });
+      } catch {}
+    }
+    throw new Error("密钥里没找到 PEM 段，且裸 base64 无法按 PKCS8/PKCS1 解析。请确认 secret 是「小程序密钥文件」整串内容");
+  }
   const label = (begin[1] || "").replace(/\s+/g, " ").trim(); // "RSA"(PKCS1) 或 ""(PKCS8)
   const bIdx = k.indexOf(begin[0]);
   const eIdx = k.indexOf(end[0]);
