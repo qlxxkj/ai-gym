@@ -1,0 +1,193 @@
+// 语言：zh / en / auto（跟随系统），存 storage "lang"。
+// bundle(lang) 返回词条字典，页面 onShow 时 setData({ i18n: bundle() })。
+// 范围：wxml 可见文案；toast/modal 中文提示暂不翻译。
+
+const ZH = {
+  tabPlan: "计划",
+  tabDaily: "今天",
+  tabExercises: "动作",
+  tabProfile: "我的",
+  // 计划页
+  planTitle: "我的计划",
+  planNoPlanT: "还没有训练计划",
+  planNoPlanS: "填写目标，AI 为你定制",
+  planNew: "＋ 新建计划",
+  planLoading: "正在加载计划…",
+  planLoadErrT: "计划加载失败",
+  planDay: "第",
+  planDaySuffix: "天",
+  planSets: "组",
+  planSetItem: "次 · 休",
+  planSetItemSec: "秒",
+  planTips: "教练提示",
+  planReview: "本周 AI 复盘",
+  planReviewClose: "关闭",
+  planApply: "采纳建议并更新计划",
+  planApplyIng: "应用中…",
+  planDoReview: "AI 周复盘",
+  planReviewing: "复盘中…",
+  planRevise: "让 AI 调整计划",
+  planFav: "收藏",
+  planFaved: "已收藏",
+  planRest: "组间休息",
+  planVersion: "版",
+  planGoal: "目标",
+  // 今天页
+  dailyTitle: "今天训练",
+  dailyEmptyT: "今天没有训练",
+  dailyEmptyS: "先去「计划」页生成训练计划",
+  dailyLoading: "加载中…",
+  dailySub: "来自《",
+  dailySubEnd: "》，逐项打勾完成训练",
+  dailyRest: "组间休息",
+  dailyAllDone: "全部完成，点击打卡",
+  dailySet: "组",
+  dailySetsCount: "组",
+  // 动作页
+  exTitle: "动作库",
+  exSub: "查动作、看示范",
+  exSearch: "搜索动作，如 深蹲 / 卧推",
+  exNone: "没有匹配动作",
+  exEquip: "器材",
+  exMuscle: "主肌群",
+  exAssist: "辅助肌群",
+  exClose: "关闭",
+  exFav: "♥ 收藏",
+  exFaved: "✓ 已收藏",
+  // 表单页
+  formTitle: "你的训练计划",
+  formSub: "选几个选项，AI 为你定制专属计划",
+  formGoal: "目标",
+  formLevel: "水平",
+  formFreq: "每周训练次数",
+  formTime: "单次时长",
+  formEquip: "可用器材",
+  formFocus: "重点肌群（可多选）",
+  formNotes: "补充说明（伤病、偏好等）",
+  formNotesPh: "例如：膝盖旧伤，避免深蹲；偏好徒手训练",
+  formSubmit: "生成我的训练计划",
+  formSubmitIng: "AI 制定中...",
+  formTimesUnit: "次",
+  formTimeUnit: "分钟",
+  // 我的页
+  profileNickPh: "健身伙伴",
+  profileVersion: "版本",
+  profileFav: "我的收藏",
+  profileFavPlans: "训练计划",
+  profileFavEx: "收藏动作",
+  profileFavEmpty: "去「计划」「动作」页点 ♥ 收藏",
+  profileSettings: "我的设置",
+  profileTheme: "外观",
+  profileLang: "语言",
+  profileThemeAuto: "跟随系统",
+  profileThemeLight: "浅色",
+  profileThemeDark: "深色",
+  profileLangAuto: "跟随系统",
+  profileLangZh: "中文",
+  profileLangEn: "英文",
+  profileShare: "分享给朋友",
+};
+
+const EN = {
+  tabPlan: "Plan",
+  tabDaily: "Today",
+  tabExercises: "Moves",
+  tabProfile: "Me",
+  planTitle: "My Plans",
+  planNoPlanT: "No plans yet",
+  planNoPlanS: "Pick your goal, AI will build one",
+  planNew: "+ New Plan",
+  planLoading: "Loading plan…",
+  planLoadErrT: "Failed to load plan",
+  planDay: "Day",
+  planDaySuffix: "",
+  planSets: "sets",
+  planSetItem: "reps · rest",
+  planSetItemSec: "s",
+  planTips: "Coach Tips",
+  planReview: "Weekly AI Review",
+  planReviewClose: "Close",
+  planApply: "Apply & update plan",
+  planApplyIng: "Applying…",
+  planDoReview: "AI Review",
+  planReviewing: "Reviewing…",
+  planRevise: "Ask AI to adjust",
+  planFav: "Favorite",
+  planFaved: "Favorited",
+  planRest: "Rest interval",
+  planVersion: "v",
+  planGoal: "Goal",
+  dailyTitle: "Today",
+  dailyEmptyT: "Nothing to train today",
+  dailyEmptyS: "Generate a plan in the Plan tab first",
+  dailyLoading: "Loading…",
+  dailySub: "from “",
+  dailySubEnd: "”, check items as you go",
+  dailyRest: "Rest",
+  dailyAllDone: "All done, tap to check in",
+  dailySet: "Set",
+  dailySetsCount: "sets",
+  exTitle: "Exercises",
+  exSub: "Browse & preview moves",
+  exSearch: "Search, e.g. squat / bench",
+  exNone: "No matches",
+  exEquip: "Equipment",
+  exMuscle: "Main muscle",
+  exAssist: "Assist",
+  exClose: "Close",
+  exFav: "♥ Favorite",
+  exFaved: "✓ Favorited",
+  formTitle: "Your Training Plan",
+  formSub: "Pick a few options, AI will craft it for you",
+  formGoal: "Goal",
+  formLevel: "Level",
+  formFreq: "Sessions / week",
+  formTime: "Session length",
+  formEquip: "Equipment",
+  formFocus: "Focus muscles (multi)",
+  formNotes: "Notes (injuries, preferences)",
+  formNotesPh: "e.g. old knee injury, avoid squats",
+  formSubmit: "Build my plan",
+  formSubmitIng: "AI building...",
+  formTimesUnit: "x",
+  formTimeUnit: "min",
+  profileNickPh: "Gym Buddy",
+  profileVersion: "Version",
+  profileFav: "Favorites",
+  profileFavPlans: "Plans",
+  profileFavEx: "Exercises",
+  profileFavEmpty: "Tap ♥ in Plan / Exercises tab",
+  profileSettings: "Settings",
+  profileTheme: "Appearance",
+  profileLang: "Language",
+  profileThemeAuto: "System",
+  profileThemeLight: "Light",
+  profileThemeDark: "Dark",
+  profileLangAuto: "System",
+  profileLangZh: "中文",
+  profileLangEn: "English",
+  profileShare: "Share with friends",
+};
+
+function sysLang() {
+  try {
+    return (wx.getSystemInfoSync().language || "zh").indexOf("en") === 0 ? "en" : "zh";
+  } catch (e) {
+    return "zh";
+  }
+}
+
+function get() {
+  const v = wx.getStorageSync("lang") || "auto";
+  return v === "auto" ? sysLang() : v;
+}
+
+function set(v) {
+  wx.setStorageSync("lang", v || "auto");
+}
+
+function bundle() {
+  return get() === "en" ? EN : ZH;
+}
+
+module.exports = { get, set, bundle, isEn: () => get() === "en" };

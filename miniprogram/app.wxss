@@ -1,23 +1,44 @@
-/* ===== 全局设计系统（简约暖灰） =====
-   色板：
-   主文字   #1C1715
-   次文字   #6E625B
-   浅文字   #A2968D
-   分隔线   #EAE3DC
-   卡片背景 #FFFFFF
-   页面背景 #F4F0EA
-   强调色   #B0532E（陶土橙，唯一强调色）
-   强调底色 #F7E7DE
-   深色块   #1C1715
-   成功     #3F7D4E
+/* ===== 全局设计系统（简约暖灰，颜色全部走 CSS 变量，深色由 .page-root.dark 覆盖） =====
+   浅色（默认）：
+   --bg #F4F0EA / --card #fff / --text #1C1715 / --text2 #6E625B / --text3 #A2968D
+   --line #EAE3DC / --accent #B0532E / --accent-bg #F7E7DE / --success #3F7D4E
+   深色（.page-root.dark）：
+   --bg #171412 / --card #241F1C / --text #F2ECE6 / --text2 #B5A99F / --text3 #7D726A
+   --line #3A322D / --accent #C96A3F / --accent-bg #3A2A20 / --success #5A9E6C
    圆角：卡片 28rpx / 圆角块 20rpx / 胶囊 999rpx
    留白：页面左右 32rpx，卡片内 32rpx，块间距 24rpx
-   字号层级：
-   大标题 40rpx/700、标题 32rpx/600、正文 28rpx、辅助 24rpx、说明 22rpx
+   字号层级：大标题 40rpx/700、标题 32rpx/600、正文 28rpx、辅助 24rpx、说明 22rpx
 */
+
+/* 根节点挂 class="page-root"，深色再加 dark；变量挂在根节点，子样式全部引用 var() */
+.page-root {
+  --bg: #F4F0EA;
+  --card: #fff;
+  --text: #1C1715;
+  --text2: #6E625B;
+  --text3: #A2968D;
+  --line: #EAE3DC;
+  --accent: #B0532E;
+  --accent-bg: #F7E7DE;
+  --success: #3F7D4E;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+.page-root.dark {
+  --bg: #171412;
+  --card: #241F1C;
+  --text: #F2ECE6;
+  --text2: #B5A99F;
+  --text3: #7D726A;
+  --line: #3A322D;
+  --accent: #C96A3F;
+  --accent-bg: #3A2A20;
+  --success: #5A9E6C;
+}
+
 page {
-  background: #F4F0EA;
-  color: #1C1715;
+  background: #F4F0EA; /* 系统层底色，防边缘白边；内容区由 .page-root 变量控制 */
   font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
 }
 
@@ -26,7 +47,7 @@ page {
 
 /* 卡片 */
 .card {
-  background: #fff;
+  background: var(--card);
   border-radius: 28rpx;
   padding: 32rpx;
   margin-bottom: 24rpx;
@@ -35,7 +56,7 @@ page {
 /* 段落标题 */
 .sec-t {
   font-size: 24rpx;
-  color: #A2968D;
+  color: var(--text3);
   letter-spacing: 4rpx;
   margin-bottom: 20rpx;
 }
@@ -46,14 +67,14 @@ page {
   padding: 16rpx 32rpx;
   border-radius: 999rpx;
   font-size: 26rpx;
-  background: #fff;
-  border: 2rpx solid #EAE3DC;
-  color: #6E625B;
+  background: var(--card);
+  border: 2rpx solid var(--line);
+  color: var(--text2);
   transition: all 0.15s;
 }
 .chip-on {
-  background: #B0532E;
-  border-color: #B0532E;
+  background: var(--accent);
+  border-color: var(--accent);
   color: #fff;
 }
 
@@ -61,31 +82,31 @@ page {
 .btn {
   width: 100%;
   box-sizing: border-box;
-  background: #1C1715;
-  color: #fff;
+  background: var(--text);
+  color: var(--bg);
   border-radius: 20rpx;
   font-size: 30rpx;
   font-weight: 600;
   padding: 26rpx 0;
 }
 .btn[disabled] { opacity: 0.5; }
-.btn-accent { background: #B0532E; }
-.btn-ghost { background: #fff; color: #1C1715; border: 2rpx solid #EAE3DC; }
+.btn-accent { background: var(--accent); color: #fff; }
+.btn-ghost { background: var(--card); color: var(--text); border: 2rpx solid var(--line); }
 
 /* 空状态 */
 .empty { text-align: center; padding: 140rpx 0; }
 .empty-t { font-size: 32rpx; font-weight: 600; margin-bottom: 12rpx; }
-.empty-s { font-size: 26rpx; color: #A2968D; line-height: 1.6; }
+.empty-s { font-size: 26rpx; color: var(--text3); line-height: 1.6; }
 
 /* 加载中文 */
 .loading {
   text-align: center; padding: 120rpx 0;
-  font-size: 26rpx; color: #A2968D;
+  font-size: 26rpx; color: var(--text3);
 }
 
 /* 提示条 */
 .toast-line {
-  background: #F7E7DE; color: #B0532E;
+  background: var(--accent-bg); color: var(--accent);
   border-radius: 16rpx; padding: 20rpx 24rpx;
   font-size: 24rpx; margin-bottom: 16rpx;
 }

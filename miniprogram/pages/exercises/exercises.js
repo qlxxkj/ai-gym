@@ -1,4 +1,8 @@
 const api = require("../../api");
+const theme = require("../../theme");
+const i18n = require("../../i18n");
+const user = require("../../user");
+const exdict = require("../../exdict");
 
 // 肌群中文标签（值必须是 DB 里的英文 muscle，查不到要改值别改标签）
 const MUSCLE_ZH = {
@@ -43,38 +47,36 @@ const EQUIP_ZH = {
   "ez barbell": "弯杠",
   "olympic barbell": "奥林匹克杆",
   "suspension trainer": "悬挂",
-  "bodyweight": "自重",
+  bodyweight: "自重",
   weighted: "负重",
   "weight plate": "杠铃片",
   "foam roller": "泡沫轴",
-  "towel": "毛巾",
-  "chair": "椅子",
+  towel: "毛巾",
+  chair: "椅子",
   "step box": "台阶箱",
-  "medicine": "药球",
+  medicine: "药球",
   "swiss ball": "健身球",
-  "mace": "锤铃",
-  "macebells": "锤铃",
-  "assisted": "助力",
-  "cable": "绳索",
-  "rope": "绳索",
+  mace: "锤铃",
+  macebells: "锤铃",
+  assisted: "助力",
 };
 
 const PART_ZH = {
   "upper back": "上背",
   "lower back": "下背",
-  "quadriceps": "大腿",
-  "quads": "大腿",
-  "hamstrings": "大腿",
-  "glutes": "臀部",
-  "chest": "胸部",
-  "shoulders": "肩部",
-  "biceps": "手臂",
-  "triceps": "手臂",
-  "core": "核心",
+  quadriceps: "大腿",
+  quads: "大腿",
+  hamstrings: "大腿",
+  glutes: "臀部",
+  chest: "胸部",
+  shoulders: "肩部",
+  biceps: "手臂",
+  triceps: "手臂",
+  core: "核心",
   "full body": "全身",
-  "legs": "腿部",
-  "back": "背部",
-  "arms": "手臂",
+  legs: "腿部",
+  back: "背部",
+  arms: "手臂",
 };
 
 const CAT_ZH = {
@@ -84,16 +86,15 @@ const CAT_ZH = {
   balance: "平衡",
   mobility: "活动度",
   stretching: "拉伸",
-  "stretching": "拉伸",
-  "bodybuilding": "健体",
-  "functional": "功能",
-  "isometric": "静力",
+  bodybuilding: "健体",
+  functional: "功能",
+  isometric: "静力",
   "martial arts": "搏击",
   "olympic lift": "举重",
-  "plyo": "弹跳",
-  "powerlifting": "力量",
-  "pilates": "普拉提",
-  "yoga": "瑜伽",
+  plyo: "弹跳",
+  powerlifting: "力量",
+  pilates: "普拉提",
+  yoga: "瑜伽",
 };
 
 function zh(v, map) {
@@ -115,10 +116,12 @@ Page({
     // 图片/视频加载失败的 id（失败则隐藏 media，只留文字）
     imgErr: {},
     clipErr: {},
-    _zh: zh, // 注入模板用（模板里 {{_zh(item.equipment, _equipMap)}} 不可行，改为在 js 里预处理）
     equipZh: EQUIP_ZH,
     partZh: PART_ZH,
     catZh: CAT_ZH,
+    dark: false,
+    i18n: {},
+    faved: false,
   },
 
   onImgErr(e) {
@@ -132,7 +135,37 @@ Page({
   },
 
   onShow() {
+    theme.apply(this);
+    this.setData({ i18n: i18n.bundle() });
+    exdict.load(() => {});
+    // 从「我的」页点收藏动作跳来：自动弹该动作详情
+    const openId = wx.getStorageSync("openExId");
+    if (openId) {
+      wx.removeStorageSync("openExId");
+      this.openByExId(openId);
+      return;
+    }
     this.search("");
+  },
+
+  // 打开详情前先显示占位（字典名），后台拉列表命中后补全 media/器材字段
+  openByExId(id) {
+    const fallback = {
+      id: String(id),
+      name: exdict.nameZh(id) || "#" + id,
+      name_zh: exdict.nameZh(id) || "#" + id,
+      img_url: "",
+      clip_url: "",
+    };
+    this.setData({ detail: fallback, faved: user.isFavEx(fallback.id) });
+    api.exercises({ limit: 60 })
+      .then((raw) => {
+        const hit = (raw || []).find((x) => String(x.id) === String(id));
+        if (hit && this.data.detail && this.data.detail.id === String(id)) {
+          this.showDetailObj(hit);
+        }
+      })
+      .catch(() => {});
   },
 
   onSearch(e) {
@@ -154,7 +187,7 @@ Page({
       muscle_zh: zh(x.muscle, this.data.partZh),
       cat_zh: zh(x.cat, this.data.catZh),
       muscles_zh: zh(x.muscles, this.data.partZh),
-      name_zh: x.name_zh || x.name,
+      name_zh: exdict.nameZh(x.id) || x.name_zh || x.name,
     }));
   },
 
@@ -171,7 +204,19 @@ Page({
 
   showDetail(e) {
     const ex = e.currentTarget.dataset.ex;
-    this.setData({ detail: ex ? this.decorate([ex])[0] : null });
+    this.showDetailObj(ex);
+  },
+
+  showDetailObj(ex) {
+    const d = this.decorate([ex])[0];
+    this.setData({ detail: d, faved: user.isFavEx(d.id) });
+  },
+
+  toggleFav() {
+    const d = this.data.detail;
+    if (!d) return;
+    user.toggleFavEx(d.id);
+    this.setData({ faved: user.isFavEx(d.id) });
   },
 
   closeSheet() {

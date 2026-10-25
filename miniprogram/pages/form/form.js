@@ -1,4 +1,6 @@
 const api = require("../../api");
+const theme = require("../../theme");
+const i18n = require("../../i18n");
 
 // 前端用中文展示，但 openGym 动作库的 equipment/muscle 字段是英文。
 // 提交前把中文映射成 DB 里的英文值，否则 ILIKE 匹配不到素材 → 计划空。
@@ -35,6 +37,13 @@ Page({
     focusChecked: {},
     notes: "",
     generating: false,
+    dark: false,
+    i18n: {},
+  },
+
+  onShow() {
+    theme.apply(this);
+    this.setData({ i18n: i18n.bundle() });
   },
 
   pick(e) {
@@ -79,8 +88,10 @@ Page({
         plan_data: r.plan,
       });
       wx.setStorageSync("currentPlanId", r.id);
-      // plan 是 tabBar 页，必须用 switchTab（reLaunch 跳 tabBar 页在部分基础库上无效）
-      wx.switchTab({ url: "/pages/plan/plan" });
+      // form 现在是普通页（从计划页 navigateTo 进来），生成完直接返回计划页；
+      // 非页面栈进入时 navigateBack 会失败，兜底 switchTab
+      const back = () => wx.switchTab({ url: "/pages/plan/plan" });
+      wx.navigateBack({ fail: back });
       wx.showToast({ title: "计划已生成", icon: "success" });
     } catch (err) {
       wx.hideLoading();

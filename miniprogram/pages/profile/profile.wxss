@@ -1,0 +1,62 @@
+/* 我的页：颜色走 app.wxss 的 CSS 变量（.page-root），这里只写布局差异 */
+
+/* 头部 */
+.head { display: flex; flex-direction: column; align-items: center; }
+.head-top { display: flex; align-items: center; gap: 28rpx; width: 100%; }
+.avatar {
+  width: 128rpx; height: 128rpx; border-radius: 50%;
+  overflow: hidden; flex-shrink: 0;
+  border: 4rpx solid var(--accent-bg);
+  background: var(--accent-bg);
+}
+.avatar image { width: 100%; height: 100%; }
+.avatar-ph {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 56rpx; font-weight: 700; color: var(--accent);
+  background: var(--accent-bg);
+}
+.head-info { flex: 1; min-width: 0; }
+.nick { font-size: 36rpx; font-weight: 700; }
+.ver { font-size: 22rpx; color: var(--text3); margin-top: 8rpx; }
+
+/* 收藏 */
+.fav-sec { margin-bottom: 20rpx; }
+.fav-lb {
+  font-size: 22rpx; color: var(--text3); letter-spacing: 2rpx;
+  margin-bottom: 8rpx;
+}
+.fav-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18rpx 0;
+  border-top: 2rpx solid var(--line);
+}
+.fav-row:first-of-type { border-top: none; padding-top: 0; }
+.fav-name { font-size: 28rpx; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fav-arrow { font-size: 28rpx; color: var(--text3); margin-left: 16rpx; }
+.fav-empty { font-size: 24rpx; color: var(--text3); text-align: center; padding: 24rpx 0; }
+
+/* 设置 */
+.set-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20rpx 0;
+  border-top: 2rpx solid var(--line);
+  gap: 16rpx;
+}
+.set-row:first-of-type { border-top: none; padding-top: 0; }
+.set-lb { font-size: 26rpx; color: var(--text2); flex-shrink: 0; }
+.set-chips { display: flex; gap: 12rpx; flex-wrap: wrap; justify-content: flex-end; }
+.s-chip {
+  padding: 10rpx 24rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  background: var(--card);
+  border: 2rpx solid var(--line);
+  color: var(--text2);
+}
+.s-chip.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.share { margin-top: 24rpx; }

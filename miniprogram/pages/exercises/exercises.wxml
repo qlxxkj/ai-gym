@@ -1,9 +1,10 @@
-<view class="page">
-  <view class="hero-t">动作库</view>
-  <view class="hero-s">查动作、看示范</view>
+<view class="page-root {{dark?'dark':''}}">
+  <view class="page">
+  <view class="hero-t">{{i18n.exTitle}}</view>
+  <view class="hero-s">{{i18n.exSub}}</view>
 
   <view class="search-card card">
-    <input class="search" placeholder="搜索动作，如 深蹲 / 卧推" value="{{q}}" bindinput="onSearch" confirm-type="search" />
+    <input class="search" placeholder="{{i18n.exSearch}}" value="{{q}}" bindinput="onSearch" confirm-type="search" />
   </view>
 
   <view class="chips">
@@ -25,7 +26,7 @@
         </view>
       </view>
     </view>
-    <view class="none" wx:if="{{!loading && !list.length}}">没有匹配动作</view>
+    <view class="none" wx:if="{{!loading && !list.length}}">{{i18n.exNone}}</view>
   </view>
 
   <view class="sheet-mask" wx:if="{{detail}}" bindtap="closeSheet">
@@ -41,11 +42,15 @@
         <image class="sheet-img" src="{{detail.img_url}}" mode="aspectFit" />
       </view>
       <view class="sheet-grid">
-        <view class="sheet-cell"><view class="cell-lb">器材</view><view class="cell-val">{{detail.equipment_zh}}</view></view>
-        <view class="sheet-cell"><view class="cell-lb">主肌群</view><view class="cell-val">{{detail.muscle_zh}}</view></view>
-        <view class="sheet-cell"><view class="cell-lb">辅助肌群</view><view class="cell-val">{{detail.muscles_zh}}</view></view>
+        <view class="sheet-cell"><view class="cell-lb">{{i18n.exEquip}}</view><view class="cell-val">{{detail.equipment_zh}}</view></view>
+        <view class="sheet-cell"><view class="cell-lb">{{i18n.exMuscle}}</view><view class="cell-val">{{detail.muscle_zh}}</view></view>
+        <view class="sheet-cell"><view class="cell-lb">{{i18n.exAssist}}</view><view class="cell-val">{{detail.muscles_zh}}</view></view>
       </view>
-      <button class="btn btn-accent" style="margin-top:28rpx" bindtap="closeSheet">关闭</button>
+      <view class="sheet-actions">
+        <button class="btn btn-ghost" bindtap="closeSheet">{{i18n.exClose}}</button>
+        <button class="fav-btn {{faved?'on':''}}" bindtap="toggleFav">{{faved ? i18n.exFaved : i18n.exFav}}</button>
+      </view>
     </view>
+  </view>
   </view>
 </view>

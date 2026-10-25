@@ -1,25 +1,29 @@
-<view class="page">
+<view class="page-root {{dark?'dark':''}}">
+  <view class="page">
   <block wx:if="{{pending}}">
-    <view class="loading">正在加载计划…</view>
+    <view class="loading">{{i18n.planLoading}}</view>
   </block>
   <block wx:elif="{{loadErr}}">
     <view class="empty">
-      <view class="empty-t">计划加载失败</view>
+      <view class="empty-t">{{i18n.planLoadErrT}}</view>
       <view class="empty-s">{{loadErr}}</view>
     </view>
   </block>
 
   <block wx:elif="{{!current}}">
     <view class="empty" wx:if="{{!plans.length}}">
-      <view class="empty-t">还没有训练计划</view>
-      <view class="empty-s">去「需求」页填写目标，让 AI 为你定制</view>
-      <button class="btn btn-accent" style="width:280rpx;margin:32rpx auto 0" bindtap="goForm">去填写需求</button>
+      <view class="empty-t">{{i18n.planNoPlanT}}</view>
+      <view class="empty-s">{{i18n.planNoPlanS}}</view>
+      <button class="btn btn-accent new-btn" bindtap="goForm">{{i18n.planNew}}</button>
     </view>
     <block wx:else>
-      <view class="hero-t">我的计划</view>
+      <view class="hero">
+        <view class="hero-t">{{i18n.planTitle}}</view>
+        <view class="hero-actions"><text class="new-link" bindtap="goForm">{{i18n.planNew}}</text></view>
+      </view>
       <view class="card" wx:for="{{plans}}" wx:key="id" data-id="{{item.id}}" bindtap="openPlan">
         <view class="card-title">{{item.title}}</view>
-        <view class="card-meta">目标 {{item.goal}} · 第 {{item.version}} 版</view>
+        <view class="card-meta">{{i18n.planGoal}} {{item.goal}} · {{i18n.planVersion}} {{item.version}}</view>
       </view>
     </block>
   </block>
@@ -30,16 +34,20 @@
       <view class="hero-s">{{current.plan_data.summary}}</view>
       <view class="hero-meta">
         <text class="tag">{{current.goal}}</text>
-        <text class="tag">组间休息 {{current.plan_data.rest_seconds}} 秒</text>
-        <text class="tag">第 {{current.version}} 版</text>
+        <text class="tag">{{i18n.planRest}} {{current.plan_data.rest_seconds}} {{i18n.planSetItemSec}}</text>
+        <text class="tag">{{i18n.planVersion}} {{current.version}}</text>
+      </view>
+      <view class="hero-act">
+        <text class="fav {{faved?'on':''}}" bindtap="toggleFav">{{faved ? i18n.planFaved : i18n.planFav}}</text>
+        <text class="new-link" bindtap="goForm">{{i18n.planNew}}</text>
       </view>
     </view>
 
     <view class="card day" wx:for="{{current.plan_data.days}}" wx:for-item="day" wx:key="day">
       <view class="day-head" data-d="{{day.day}}" bindtap="toggleDay">
-        <view class="day-lb">第 {{day.day}} 天</view>
+        <view class="day-lb">{{i18n.planDay}} {{day.day}} {{i18n.planDaySuffix}}</view>
         <view class="day-label">{{day.label}}</view>
-        <view class="day-arrow">{{openDay === day.day ? '收起' : '展开'}}</view>
+        <view class="day-arrow">{{openDay === day.day ? '−' : '＋'}}</view>
       </view>
       <view class="day-body" wx:if="{{openDay === day.day}}">
         <view class="ex" wx:for="{{day.exercises}}" wx:for-item="ex" wx:key="id">
@@ -50,7 +58,7 @@
             <view class="ex-name">{{ex.name_zh}}</view>
           </view>
           <view class="ex-set" wx:for="{{ex.sets}}" wx:for-item="st" wx:key="index">
-            第 {{index + 1}} 组 · {{st.reps}} 次 · 休 {{st.rest_seconds}} 秒
+            {{i18n.planDay}} {{index + 1}} {{i18n.planSets}} · {{st.reps}} {{i18n.planSetItem}} {{st.rest_seconds}} {{i18n.planSetItemSec}}
           </view>
           <view class="ex-note" wx:if="{{ex.note}}">{{ex.note}}</view>
         </view>
@@ -58,24 +66,25 @@
     </view>
 
     <view class="card tips" wx:if="{{current.plan_data.tips.length}}">
-      <view class="sec-t">教练提示</view>
+      <view class="sec-t">{{i18n.planTips}}</view>
       <view class="tip" wx:for="{{current.plan_data.tips}}" wx:key="*this">{{item}}</view>
     </view>
 
     <view class="card review" wx:if="{{showReviewPanel}}">
       <view class="review-head">
-        <view class="sec-t" style="margin-bottom:8rpx">本周 AI 复盘</view>
-        <view class="review-close" bindtap="dismissReview">关闭</view>
+        <view class="sec-t" style="margin-bottom:8rpx">{{i18n.planReview}}</view>
+        <view class="review-close" bindtap="dismissReview">{{i18n.planReviewClose}}</view>
       </view>
       <view class="review-pre">{{reviewText}}</view>
       <button class="btn btn-accent" style="margin-top:8rpx" disabled="{{applying}}" bindtap="applyReview">
-        {{applying ? '应用中…' : '采纳建议并更新计划'}}
+        {{applying ? i18n.planApplyIng : i18n.planApply}}
       </button>
     </view>
 
     <view class="actions">
-      <button class="btn btn-accent" bindtap="doReview" disabled="{{reviewing}}">{{reviewing ? '复盘中…' : 'AI 周复盘'}}</button>
-      <button class="btn btn-ghost" bindtap="doRevise" disabled="{{revising}}">让 AI 调整计划</button>
+      <button class="btn btn-accent" bindtap="doReview" disabled="{{reviewing}}">{{reviewing ? i18n.planReviewing : i18n.planDoReview}}</button>
+      <button class="btn btn-ghost" bindtap="doRevise" disabled="{{revising}}">{{i18n.planRevise}}</button>
     </view>
   </block>
+  </view>
 </view>

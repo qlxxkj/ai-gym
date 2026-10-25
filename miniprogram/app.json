@@ -1,9 +1,10 @@
 {
   "pages": [
-    "pages/form/form",
     "pages/plan/plan",
     "pages/daily/daily",
-    "pages/exercises/exercises"
+    "pages/exercises/exercises",
+    "pages/profile/profile",
+    "pages/form/form"
   ],
   "window": {
     "navigationBarTitleText": "AI 健身教练",
@@ -16,10 +17,10 @@
     "selectedColor": "#A5492B",
     "backgroundColor": "#fff",
     "list": [
-      { "pagePath": "pages/form/form", "text": "需求" },
       { "pagePath": "pages/plan/plan", "text": "计划" },
       { "pagePath": "pages/daily/daily", "text": "今天" },
-      { "pagePath": "pages/exercises/exercises", "text": "动作" }
+      { "pagePath": "pages/exercises/exercises", "text": "动作" },
+      { "pagePath": "pages/profile/profile", "text": "我的" }
     ]
   }
 }

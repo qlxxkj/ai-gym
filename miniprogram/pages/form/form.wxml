@@ -1,11 +1,12 @@
-<view class="page">
+<view class="page-root {{dark?'dark':''}}">
+  <view class="page">
   <view class="hero">
-    <view class="hero-t">你的训练计划</view>
-    <view class="hero-s">选几个选项，AI 为你定制专属计划</view>
+    <view class="hero-t">{{i18n.formTitle}}</view>
+    <view class="hero-s">{{i18n.formSub}}</view>
   </view>
 
   <view class="sec">
-    <view class="sec-t">目标</view>
+    <view class="sec-t">{{i18n.formGoal}}</view>
     <view class="chips">
       <view wx:for="{{goals}}" wx:key="*this"
         class="chip {{goalIndex === index ? 'chip-on' : ''}}"
@@ -14,7 +15,7 @@
   </view>
 
   <view class="sec">
-    <view class="sec-t">水平</view>
+    <view class="sec-t">{{i18n.formLevel}}</view>
     <view class="chips">
       <view wx:for="{{levels}}" wx:key="*this"
         class="chip {{levelIndex === index ? 'chip-on' : ''}}"
@@ -23,25 +24,25 @@
   </view>
 
   <view class="sec">
-    <view class="sec-t">每周训练次数</view>
+    <view class="sec-t">{{i18n.formFreq}}</view>
     <view class="chips">
       <view wx:for="{{freqs}}" wx:key="*this"
         class="chip {{freqIndex === index ? 'chip-on' : ''}}"
-        data-field="freqIndex" data-i="{{index}}" bindtap="pick">{{item}} 次</view>
+        data-field="freqIndex" data-i="{{index}}" bindtap="pick">{{item}} {{i18n.formTimesUnit}}</view>
     </view>
   </view>
 
   <view class="sec">
-    <view class="sec-t">单次时长</view>
+    <view class="sec-t">{{i18n.formTime}}</view>
     <view class="chips">
       <view wx:for="{{times}}" wx:key="*this"
         class="chip {{timeIndex === index ? 'chip-on' : ''}}"
-        data-field="timeIndex" data-i="{{index}}" bindtap="pick">{{item}} 分钟</view>
+        data-field="timeIndex" data-i="{{index}}" bindtap="pick">{{item}} {{i18n.formTimeUnit}}</view>
     </view>
   </view>
 
   <view class="sec">
-    <view class="sec-t">可用器材</view>
+    <view class="sec-t">{{i18n.formEquip}}</view>
     <view class="chips">
       <view wx:for="{{equipments}}" wx:key="*this"
         class="chip {{equipIndex === index ? 'chip-on' : ''}}"
@@ -50,7 +51,7 @@
   </view>
 
   <view class="sec">
-    <view class="sec-t">重点肌群（可多选）</view>
+    <view class="sec-t">{{i18n.formFocus}}</view>
     <view class="chips">
       <view wx:for="{{focusMuscles}}" wx:key="*this"
         class="chip {{focusChecked[item] ? 'chip-on' : ''}}"
@@ -59,11 +60,12 @@
   </view>
 
   <view class="sec">
-    <view class="sec-t">补充说明（伤病、偏好等）</view>
-    <textarea class="notes" placeholder="例如：膝盖旧伤，避免深蹲；偏好徒手训练" value="{{notes}}" bindinput="onNotes" />
+    <view class="sec-t">{{i18n.formNotes}}</view>
+    <textarea class="notes" placeholder="{{i18n.formNotesPh}}" value="{{notes}}" bindinput="onNotes" />
   </view>
 
   <button class="submit" disabled="{{generating}}" bindtap="submit">
-    {{generating ? 'AI 制定中...' : '生成我的训练计划'}}
+    {{generating ? i18n.formSubmitIng : i18n.formSubmit}}
   </button>
+  </view>
 </view>

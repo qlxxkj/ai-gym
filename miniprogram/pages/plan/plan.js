@@ -1,9 +1,11 @@
 const api = require("../../api");
 const config = require("../../config");
+const exdict = require("../../exdict");
+const theme = require("../../theme");
+const i18n = require("../../i18n");
+const user = require("../../user");
 
 // 给 AI 计划里的动作补图片/视频/中文名（用 openGym id 拼 media URL，名字查本地字典）
-const exdict = require("../../exdict");
-
 function enrichPlan(full) {
   if (!full || !full.plan_data) return full;
   const cur = JSON.parse(JSON.stringify(full)); // 深拷贝避免污染 storage
@@ -29,11 +31,23 @@ Page({
     showReviewPanel: false,
     pending: false, // 刚生成完计划、正在后台加载详情时显示"加载计划中…"，避免空页误判
     loadErr: "",
+    dark: false,
+    i18n: {},
+    faved: false,
   },
 
   onShow() {
+    theme.apply(this);
+    this.setData({ i18n: i18n.bundle() });
     // 备动作中文字典：本地命中则瞬时；首次后台拉，不阻塞渲染，到位后回写中文名
     exdict.load(() => this.applyZhNames());
+    // 从「我的」页点收藏计划跳来：读 key 直接打开该计划
+    const openId = wx.getStorageSync("profileOpenPlan");
+    if (openId) {
+      wx.removeStorageSync("profileOpenPlan");
+      this.openPlanById(openId);
+      return;
+    }
     this.load();
   },
 
@@ -41,8 +55,7 @@ Page({
   applyZhNames() {
     const cur = this.data.current;
     if (!cur) return;
-    const patched = enrichPlan(cur); // 用最新 exCache 重算 name_zh
-    this.setData({ current: patched });
+    this.setData({ current: enrichPlan(cur) });
   },
 
   async load() {
@@ -54,7 +67,13 @@ Page({
       if (current) wx.setStorageSync("currentPlanId", current.id);
       // enrichPlan 现在是同步的（中文名取自本地字典），不再串行等 500 条动作
       const full = current ? enrichPlan(await api.plan(current.id)) : null;
-      this.setData({ plans, current: full, openDay: -1, pending: false });
+      this.setData({
+        plans,
+        current: full,
+        openDay: -1,
+        pending: false,
+        faved: full ? user.isFavPlan(full.id) : false,
+      });
       if (full && full.sup_review) {
         this.setData({ reviewText: JSON.stringify(full.sup_review, null, 2), showReviewPanel: true });
       }
@@ -67,7 +86,10 @@ Page({
   },
 
   async openPlan(e) {
-    const id = e.currentTarget.dataset.id;
+    await this.openPlanById(e.currentTarget.dataset.id);
+  },
+
+  async openPlanById(id) {
     const p = enrichPlan(await api.plan(id));
     wx.setStorageSync("currentPlanId", id);
     this.setData({
@@ -75,12 +97,21 @@ Page({
       openDay: -1,
       reviewText: p.sup_review ? JSON.stringify(p.sup_review, null, 2) : "",
       showReviewPanel: !!p.sup_review,
+      faved: user.isFavPlan(id),
     });
   },
 
   toggleDay(e) {
     const d = e.currentTarget.dataset.d;
     this.setData({ openDay: this.data.openDay === d ? -1 : d });
+  },
+
+  // 收藏当前计划（本地）
+  toggleFav() {
+    const id = this.data.current && this.data.current.id;
+    if (!id) return;
+    user.toggleFavPlan(id);
+    this.setData({ faved: user.isFavPlan(id) });
   },
 
   async doReview() {
@@ -163,6 +194,7 @@ Page({
   },
 
   goForm() {
-    wx.switchTab({ url: "/pages/form/form" });
+    // form 现在是普通页（不再是 tab），直接 navigateTo
+    wx.navigateTo({ url: "/pages/form/form" });
   },
 });

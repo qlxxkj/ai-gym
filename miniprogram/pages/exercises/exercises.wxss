@@ -1,14 +1,15 @@
-/* 动作页：统一设计系统（见 app.wxss），本页只写差异 */
+/* 动作页：颜色走 app.wxss 的 CSS 变量（.page-root），这里只写布局差异 */
 
 .hero-t { font-size: 44rpx; font-weight: 700; letter-spacing: 1rpx; }
-.hero-s { font-size: 26rpx; color: #A2968D; margin-top: 10rpx; margin-bottom: 32rpx; }
+.hero-s { font-size: 26rpx; color: var(--text3); margin-top: 10rpx; margin-bottom: 32rpx; }
 
 .search-card { padding: 12rpx; margin-bottom: 24rpx; }
 .search {
-  background: #F4F0EA;
+  background: var(--bg);
   border-radius: 16rpx;
   padding: 20rpx 24rpx;
   font-size: 26rpx;
+  color: var(--text);
 }
 
 .chips { margin-bottom: 24rpx; }
@@ -21,13 +22,13 @@
 .ex-img {
   width: 112rpx; height: 112rpx;
   border-radius: 20rpx; overflow: hidden;
-  background: #F4F0EA; flex-shrink: 0;
+  background: var(--accent-bg); flex-shrink: 0;
 }
 .ex-img image { width: 100%; height: 100%; }
 .ex-body { flex: 1; min-width: 0; }
 .ex-name { font-size: 30rpx; font-weight: 600; }
-.ex-meta { font-size: 22rpx; color: #A2968D; margin-top: 8rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.none { text-align: center; padding: 80rpx 0; color: #A2968D; font-size: 26rpx; }
+.ex-meta { font-size: 22rpx; color: var(--text3); margin-top: 8rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.none { text-align: center; padding: 80rpx 0; color: var(--text3); font-size: 26rpx; }
 
 /* 详情底部弹层 */
 .sheet-mask {
@@ -37,7 +38,8 @@
 }
 .sheet {
   width: 100%;
-  background: #fff;
+  background: var(--card);
+  color: var(--text);
   border-radius: 32rpx 32rpx 0 0;
   padding: 40rpx 32rpx 80rpx;
   box-sizing: border-box;
@@ -46,7 +48,7 @@
 
 .sheet-video-wrap {
   width: 100%; height: 400rpx;
-  background: #1C1715; border-radius: 20rpx;
+  background: var(--text); border-radius: 20rpx;
   overflow: hidden; margin-bottom: 24rpx;
 }
 .sheet-video { width: 100%; height: 100%; }
@@ -59,9 +61,22 @@
   gap: 16rpx;
 }
 .sheet-cell {
-  background: #F4F0EA;
+  background: var(--bg);
   border-radius: 16rpx;
   padding: 20rpx;
 }
-.cell-lb { font-size: 22rpx; color: #A2968D; margin-bottom: 8rpx; }
-.cell-val { font-size: 26rpx; color: #1C1715; }
+.cell-lb { font-size: 22rpx; color: var(--text3); margin-bottom: 8rpx; }
+.cell-val { font-size: 26rpx; }
+
+/* sheet 底部按钮 + 收藏 */
+.sheet-actions { display: flex; align-items: center; gap: 16rpx; margin-top: 28rpx; }
+.sheet-actions .btn { flex: 1; }
+.fav-btn {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  border-radius: 20rpx;
+  font-size: 28rpx; font-weight: 600;
+  background: var(--accent-bg); color: var(--accent);
+}
+.fav-btn.on { background: var(--accent); color: #fff; }

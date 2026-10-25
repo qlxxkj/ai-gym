@@ -1,0 +1,64 @@
+<view class="page-root {{dark?'dark':''}}">
+  <view class="page">
+    <!-- 头部：头像 + 昵称 + 版本 -->
+    <view class="card head">
+      <view class="head-top">
+        <view class="avatar" bindtap="pickAvatar">
+          <image wx:if="{{avatar}}" src="{{avatar}}" mode="aspectFill"></image>
+          <view wx:else class="avatar-ph">{{nick ? nick[0] : '?'}}</view>
+        </view>
+        <view class="head-info">
+          <view class="nick" bindtap="pickNick">{{nick || i18n.profileNickPh}}</view>
+          <view class="ver" bindtap="copyVersion">{{i18n.profileVersion}} v{{version}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 我的收藏 -->
+    <view class="card">
+      <view class="sec-t">{{i18n.profileFav}}</view>
+      <block wx:if="{{favPlans.length || favExercises.length}}">
+        <view class="fav-sec" wx:if="{{favPlans.length}}">
+          <view class="fav-lb">{{i18n.profileFavPlans}}</view>
+          <view class="fav-row" wx:for="{{favPlans}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavPlan">
+            <view class="fav-name">{{item.title}}</view>
+            <view class="fav-arrow">›</view>
+          </view>
+        </view>
+        <view class="fav-sec" wx:if="{{favExercises.length}}">
+          <view class="fav-lb">{{i18n.profileFavEx}}</view>
+          <view class="fav-row" wx:for="{{favExercises}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavEx">
+            <view class="fav-name">{{item.name_zh}}</view>
+            <view class="fav-arrow">›</view>
+          </view>
+        </view>
+      </block>
+      <view wx:else class="fav-empty">{{i18n.profileFavEmpty}}</view>
+    </view>
+
+    <!-- 我的设置 -->
+    <view class="card">
+      <view class="sec-t">{{i18n.profileSettings}}</view>
+
+      <view class="set-row">
+        <view class="set-lb">{{i18n.profileTheme}}</view>
+        <view class="set-chips">
+          <view wx:for="{{themeModes}}" wx:key="v"
+            class="s-chip {{themeMode === item.v ? 'on' : ''}}"
+            data-v="{{item.v}}" bindtap="setThemeMode">{{item.label}}</view>
+        </view>
+      </view>
+
+      <view class="set-row">
+        <view class="set-lb">{{i18n.profileLang}}</view>
+        <view class="set-chips">
+          <view wx:for="{{langModes}}" wx:key="v"
+            class="s-chip {{langMode === item.v ? 'on' : ''}}"
+            data-v="{{item.v}}" bindtap="setLangMode">{{item.label}}</view>
+        </view>
+      </view>
+
+      <button class="btn btn-ghost share" open-type="share">{{i18n.profileShare}}</button>
+    </view>
+  </view>
+</view>

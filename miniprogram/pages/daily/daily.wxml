@@ -1,20 +1,21 @@
-<view class="page">
+<view class="page-root {{dark?'dark':''}}">
+  <view class="page">
   <block wx:if="{{!plan}}">
     <view class="empty">
-      <view class="empty-t" wx:if="{{!loading}}">今天没有训练</view>
-      <view class="empty-t" wx:else>加载中…</view>
-      <view class="empty-s" wx:if="{{!loading}}">先去「需求」页生成训练计划</view>
+      <view class="empty-t" wx:if="{{!loading}}">{{i18n.dailyEmptyT}}</view>
+      <view class="empty-t" wx:else>{{i18n.dailyLoading}}</view>
+      <view class="empty-s" wx:if="{{!loading}}">{{i18n.dailyEmptyS}}</view>
     </view>
   </block>
 
   <block wx:else>
     <view class="hero">
       <view class="hero-t">{{dayLabel}}</view>
-      <view class="hero-s">{{today}} · 来自《{{plan.title}}》，逐项打勾完成训练</view>
+      <view class="hero-s">{{today}} · {{i18n.dailySub}}{{plan.title}}{{i18n.dailySubEnd}}</view>
     </view>
 
-    <view class="card rest-panel" wx:if="{{restLeft > 0}}">
-      <view class="rest-t">组间休息</view>
+    <view class="rest-panel" wx:if="{{restLeft > 0}}">
+      <view class="rest-t">{{i18n.dailyRest}}</view>
       <view class="rest-num">{{restLeft}}</view>
       <view class="rest-bar">
         <view class="rest-fill" style="width: {{restLeft / restTotal * 100}}%"></view>
@@ -22,7 +23,7 @@
     </view>
 
     <view class="done-panel" wx:if="{{allDone}}" bindtap="markAllDone">
-      全部完成，点击打卡
+      {{i18n.dailyAllDone}}
     </view>
 
     <view class="card ex" wx:for="{{exercises}}" wx:for-item="ex" wx:for-index="exidx" wx:key="id">
@@ -32,13 +33,13 @@
       <image wx:elif="{{ex.img_url}}" class="ex-video" src="{{ex.img_url}}" mode="aspectFill"></image>
       <view class="ex-head">
         <view class="ex-name">{{ex.name_zh}}</view>
-        <view class="ex-count">{{ex.sets.length}} 组</view>
+        <view class="ex-count">{{ex.sets.length}} {{i18n.dailySetsCount}}</view>
       </view>
       <view class="ex-note" wx:if="{{ex.note}}">{{ex.note}}</view>
       <view class="set-list">
         <view class="set-row" wx:for="{{ex.sets}}" wx:for-item="st" wx:for-index="setidx">
-          <view class="set-lb">第 {{setidx + 1}} 组</view>
-          <view class="set-detail">{{st.reps}} 次 · 休 {{st.rest_seconds}} 秒</view>
+          <view class="set-lb">{{i18n.dailySet}} {{setidx + 1}}</view>
+          <view class="set-detail">{{st.reps}} · {{st.rest_seconds}} {{i18n.planSetItemSec}}</view>
           <view class="set-check {{ex.setStates[setidx] ? 'on' : ''}}"
             data-exidx="{{exidx}}" data-setidx="{{setidx}}"
             bindtap="toggleSet">
@@ -48,4 +49,5 @@
       </view>
     </view>
   </block>
+  </view>
 </view>

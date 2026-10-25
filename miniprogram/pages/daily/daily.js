@@ -1,6 +1,8 @@
 const api = require("../../api");
 const config = require("../../config");
 const exdict = require("../../exdict");
+const theme = require("../../theme");
+const i18n = require("../../i18n");
 
 function todayStr() {
   const d = new Date();
@@ -33,10 +35,14 @@ Page({
     restDefault: 90,
     allDone: false,
     loading: true,
+    dark: false,
+    i18n: {},
   },
   timer: null,
 
   onShow() {
+    theme.apply(this);
+    this.setData({ i18n: i18n.bundle() });
     // 备动作中文字典：本地命中瞬时；首次后台拉不阻塞，到位后刷新中文名
     exdict.load(() => this.refreshZhNames());
     this.load();
