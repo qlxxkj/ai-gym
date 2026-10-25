@@ -5,79 +5,86 @@ const exdict = require("../../exdict");
 
 Page({
   data: {
-    dark: false,
-    i18n: {},
     avatar: "",
     nick: "",
     version: user.VERSION,
-    themeMode: "auto",
-    langMode: "auto",
-    themeModes: [
-      { v: "auto", label: "auto" },
-      { v: "light", label: "light" },
-      { v: "dark", label: "dark" },
-    ],
-    langModes: [
-      { v: "auto", label: "auto" },
-      { v: "zh", label: "zh" },
-      { v: "en", label: "en" },
-    ],
+    themePref: "auto",
+    langPref: "auto",
+    themeLabel: "",
+    langLabel: "",
     favPlans: [],
     favExercises: [],
+    favCount: 0,
   },
 
   onShow() {
-    theme.apply(this);
-    this.setData({ i18n: i18n.bundle() });
-    this.refresh();
-    exdict.load(() => this.refreshExNames());
+    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 3 });
+    theme.sync(this);
+    i18n.sync(this);
+    this.refreshLabels();
+    this.refreshFav();
+    exdict.load(() => this.refreshFav());
+    // 切语言：广播回来时刷新 T/标签/收藏名
+    if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.refreshLabels(); this.refreshFav(); });
   },
 
-  refresh() {
-    const t = theme.get();
-    const l = i18n.get();
-    const i18nB = i18n.bundle();
-    // 把模式项 label 换成本语言文案
-    const themeModes = [
-      { v: "auto", label: i18nB.profileThemeAuto },
-      { v: "light", label: i18nB.profileThemeLight },
-      { v: "dark", label: i18nB.profileThemeDark },
-    ];
-    const langModes = [
-      { v: "auto", label: i18nB.profileLangAuto },
-      { v: "zh", label: i18nB.profileLangZh },
-      { v: "en", label: i18nB.profileLangEn },
-    ];
-    this.setData({
-      avatar: user.avatar(),
-      nick: user.nick(),
-      themeMode: t,
-      langMode: l,
-      themeModes,
-      langModes,
-      favPlans: this.buildFavPlans(),
-      favExercises: this.buildFavEx(),
-      i18n: i18nB,
-    });
+  refreshLabels() {
+    const T = this.data.T || {};
+    const themePref = this.data.themePref;
+    const langPref = this.data.langPref;
+    const themeLabel =
+      themePref === "light" ? T.theme_light || "浅色" :
+      themePref === "dark" ? T.theme_dark || "深色" :
+      T.theme_auto || "跟随系统";
+    const langLabel =
+      langPref === "zh" ? T.lang_zh || "中文" :
+      langPref === "en" ? T.lang_en || "英文" :
+      T.lang_auto || "跟随系统";
+    this.setData({ themeLabel, langLabel, avatar: user.avatar(), nick: user.nick() });
   },
 
-  buildFavPlans() {
-    // 标题只在 cachedPlan 命中时显示，否则用 #id 占位（不阻塞 onShow，后台补）
+  refreshFav() {
+    const T = this.data.T || {};
+    // 计划标题：cachedPlan 命中就显示标题，否则 #id
     const list = user.favPlans();
     const cached = wx.getStorageSync("cachedPlan");
-    return list.map((id) => {
-      const hit = cached && cached.id === id;
-      return { id, title: hit ? cached.title || "#" + id : "#" + id };
+    const favPlans = list.map((id) => ({
+      id,
+      title: cached && cached.id === id ? cached.title || "#" + id : "#" + id,
+    }));
+    const favExercises = user.favExercises().map((id) => ({
+      id,
+      name_zh: exdict.nameZh(id) || "#" + id,
+    }));
+    this.setData({
+      favPlans,
+      favExercises,
+      favCount: favPlans.length + favExercises.length,
     });
   },
 
-  buildFavEx() {
-    const list = user.favExercises();
-    return list.map((id) => ({ id, name_zh: exdict.nameZh(id) || "#" + id }));
+  // 外观：点「外观」行循环切换 auto→light→dark（对齐 daily-poetry 的行内切换）
+  pickTheme() {
+    const order = ["auto", "light", "dark"];
+    const cur = this.data.themePref || "auto";
+    const next = order[(order.indexOf(cur) + 1) % order.length];
+    theme.set(next);
+    this.setData({ themePref: next });
+    theme.sync(this);
+    i18n.sync(this);
+    this.refreshLabels();
   },
 
-  refreshExNames() {
-    this.setData({ favExercises: this.buildFavEx() });
+  // 语言：循环 auto→zh→en
+  pickLang() {
+    const order = ["auto", "zh", "en"];
+    const cur = this.data.langPref || "auto";
+    const next = order[(order.indexOf(cur) + 1) % order.length];
+    i18n.setLang(next === "auto" ? "auto" : next);
+    this.setData({ langPref: next });
+    i18n.sync(this);
+    this.refreshLabels();
+    this.refreshFav();
   },
 
   pickAvatar() {
@@ -86,16 +93,19 @@ Page({
       sizeType: ["compressed"],
       success: (r) => {
         const tmp = r.tempFiles[0].path;
-        // 复制到本地缓存持久化（临时路径重启可能失效）
-        const fd = wx.getFileSystemManager();
+        // 复制到本地持久化（临时路径重启失效）
         const dst = wx.env.USER_DATA_PATH + "/avatar.png";
         try {
-          fd.saveFile({
+          wx.getFileSystemManager().saveFile({
             filePath: tmp,
             destPath: dst,
             success: () => {
               user.setAvatar(dst);
               this.setData({ avatar: dst });
+            },
+            fail: () => {
+              user.setAvatar(tmp);
+              this.setData({ avatar: tmp });
             },
           });
         } catch (e) {
@@ -107,11 +117,11 @@ Page({
   },
 
   pickNick() {
-    const i18nB = this.data.i18n;
+    const T = this.data.T || {};
     wx.showModal({
-      title: i18nB.profileNickPh,
+      title: T.mine_nick_ph || "设置昵称",
       editable: true,
-      placeholderText: this.data.nick || i18nB.profileNickPh,
+      placeholderText: this.data.nick,
       success: (r) => {
         if (r.confirm && r.content) {
           user.setNick(r.content.trim());
@@ -121,37 +131,18 @@ Page({
     });
   },
 
-  copyVersion() {
-    wx.setClipboardData({
-      data: user.VERSION,
-      success: () => wx.showToast({ title: "v" + user.VERSION, icon: "none" }),
-    });
-  },
-
-  setThemeMode(e) {
-    theme.set(e.currentTarget.dataset.v);
-    theme.apply(this);
-    this.setData({ themeMode: theme.get() });
-  },
-
-  setLangMode(e) {
-    i18n.set(e.currentTarget.dataset.v);
-    this.refresh();
-  },
-
   openFavPlan(e) {
-    const id = e.currentTarget.dataset.id;
-    wx.setStorageSync("profileOpenPlan", id);
+    wx.setStorageSync("profileOpenPlan", e.currentTarget.dataset.id);
     wx.switchTab({ url: "/pages/plan/plan" });
   },
 
   openFavEx(e) {
-    const id = e.currentTarget.dataset.id;
-    wx.setStorageSync("openExId", id);
+    wx.setStorageSync("openExId", e.currentTarget.dataset.id);
     wx.switchTab({ url: "/pages/exercises/exercises" });
   },
 
   onShareAppMessage() {
-    return { title: "AI 健身教练", path: "/pages/plan/plan" };
+    const T = this.data.T || {};
+    return { title: T.about_brand || "AI 健身教练", path: "/pages/plan/plan" };
   },
 });

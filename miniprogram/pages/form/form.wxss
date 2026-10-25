@@ -1,31 +1,23 @@
-/* 表单页：颜色走 app.wxss 的 CSS 变量（.page-root），这里只写布局差异 */
-.hero { margin-bottom: 48rpx; }
-.hero-t { font-size: 44rpx; font-weight: 700; letter-spacing: 2rpx; }
-.hero-s { font-size: 26rpx; color: var(--text3); margin-top: 12rpx; }
-.sec { margin-bottom: 40rpx; }
-.sec-t { margin-bottom: 24rpx; }
+/* .hero/.card/.chips/.tag/.section-title/.btn/.rise 已在 app.wxss，本页只写差异 */
+
+.sec { padding: 0 var(--s-4); }
+.sec__t {
+  padding: var(--s-4) 0 var(--s-3);
+  font-size: var(--t-cap);
+  letter-spacing: 2rpx;
+  color: var(--ink-3);
+}
+.sec-notes { margin-top: var(--s-5); }
 
 .notes {
   width: 100%;
   box-sizing: border-box;
-  min-height: 140rpx;
-  padding: 24rpx;
+  min-height: 160rpx;
+  padding: var(--s-3);
   background: var(--card);
-  border: 2rpx solid var(--line);
-  border-radius: 20rpx;
-  font-size: 26rpx;
-  color: var(--text);
+  border-radius: var(--r-md);
+  font-size: var(--t-sm);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  line-height: 1.6;
 }
-
-.submit {
-  margin-top: 16rpx;
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--accent);
-  color: #fff;
-  border-radius: 20rpx;
-  font-size: 32rpx;
-  font-weight: 600;
-  padding: 28rpx 0;
-}
-.submit[disabled] { opacity: 0.5; }

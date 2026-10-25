@@ -1,64 +1,82 @@
-<view class="page-root {{dark?'dark':''}}">
-  <view class="page">
-    <!-- 头部：头像 + 昵称 + 版本 -->
-    <view class="card head">
-      <view class="head-top">
-        <view class="avatar" bindtap="pickAvatar">
-          <image wx:if="{{avatar}}" src="{{avatar}}" mode="aspectFill"></image>
-          <view wx:else class="avatar-ph">{{nick ? nick[0] : '?'}}</view>
-        </view>
-        <view class="head-info">
-          <view class="nick" bindtap="pickNick">{{nick || i18n.profileNickPh}}</view>
-          <view class="ver" bindtap="copyVersion">{{i18n.profileVersion}} v{{version}}</view>
-        </view>
-      </view>
+<view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
+  <!-- ---------- 头像 / 昵称 ---------- -->
+  <view class="card me rise">
+    <view class="me__avatar-btn" bindtap="pickAvatar">
+      <image wx:if="{{avatar}}" class="me__avatar" src="{{avatar}}" mode="aspectFill"></image>
+      <view wx:else class="me__avatar me__avatar-ph">{{nick ? nick[0] : '?'}}</view>
+      <view class="me__badge"><text class="me__badge-t">✎</text></view>
     </view>
+    <view class="me__info">
+      <view class="me__name" bindtap="pickNick">{{nick}}</view>
+      <view class="me__stat">{{T.mine_faved_prefix}}{{favCount}}{{T.mine_faved_suffix}}</view>
+    </view>
+  </view>
 
-    <!-- 我的收藏 -->
-    <view class="card">
-      <view class="sec-t">{{i18n.profileFav}}</view>
-      <block wx:if="{{favPlans.length || favExercises.length}}">
-        <view class="fav-sec" wx:if="{{favPlans.length}}">
-          <view class="fav-lb">{{i18n.profileFavPlans}}</view>
-          <view class="fav-row" wx:for="{{favPlans}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavPlan">
-            <view class="fav-name">{{item.title}}</view>
-            <view class="fav-arrow">›</view>
-          </view>
-        </view>
-        <view class="fav-sec" wx:if="{{favExercises.length}}">
-          <view class="fav-lb">{{i18n.profileFavEx}}</view>
-          <view class="fav-row" wx:for="{{favExercises}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavEx">
-            <view class="fav-name">{{item.name_zh}}</view>
-            <view class="fav-arrow">›</view>
-          </view>
+  <!-- ---------- 我的收藏 ---------- -->
+  <view class="section-title section-title--gap">{{T.sec_fav}}</view>
+  <view class="card group">
+    <block wx:if="{{favPlans.length || favExercises.length}}">
+      <block wx:if="{{favPlans.length}}">
+        <view class="group-lb" wx:if="{{favPlans.length}}">{{T.sec_fav_plans}}</view>
+        <view class="row" wx:for="{{favPlans}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavPlan">
+          <text class="row__label">{{item.title}}</text>
+          <view class="row__arrow">›</view>
         </view>
       </block>
-      <view wx:else class="fav-empty">{{i18n.profileFavEmpty}}</view>
-    </view>
-
-    <!-- 我的设置 -->
-    <view class="card">
-      <view class="sec-t">{{i18n.profileSettings}}</view>
-
-      <view class="set-row">
-        <view class="set-lb">{{i18n.profileTheme}}</view>
-        <view class="set-chips">
-          <view wx:for="{{themeModes}}" wx:key="v"
-            class="s-chip {{themeMode === item.v ? 'on' : ''}}"
-            data-v="{{item.v}}" bindtap="setThemeMode">{{item.label}}</view>
+      <block wx:if="{{favExercises.length}}">
+        <view class="hr" wx:if="{{favPlans.length}}"></view>
+        <view class="group-lb">{{T.sec_fav_ex}}</view>
+        <view class="row" wx:for="{{favExercises}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavEx">
+          <text class="row__label">{{item.name_zh}}</text>
+          <view class="row__arrow">›</view>
         </view>
-      </view>
-
-      <view class="set-row">
-        <view class="set-lb">{{i18n.profileLang}}</view>
-        <view class="set-chips">
-          <view wx:for="{{langModes}}" wx:key="v"
-            class="s-chip {{langMode === item.v ? 'on' : ''}}"
-            data-v="{{item.v}}" bindtap="setLangMode">{{item.label}}</view>
-        </view>
-      </view>
-
-      <button class="btn btn-ghost share" open-type="share">{{i18n.profileShare}}</button>
+      </block>
+    </block>
+    <view wx:else class="state">
+      <view class="state__text">{{T.mine_fav_empty}}</view>
     </view>
+  </view>
+
+  <!-- ---------- 我的设置 ---------- -->
+  <view class="section-title section-title--gap">{{T.sec_settings}}</view>
+  <view class="card group">
+    <view class="row" bindtap="pickTheme">
+      <text class="row__label">{{T.mine_appearance}}</text>
+      <text class="row__value">{{themeLabel}}</text>
+      <view class="row__arrow">›</view>
+    </view>
+    <view class="hr"></view>
+    <view class="row" bindtap="pickLang">
+      <text class="row__label">{{T.mine_text}}</text>
+      <text class="row__value">{{langLabel}}</text>
+      <view class="row__arrow">›</view>
+    </view>
+  </view>
+
+  <!-- ---------- 分享 ---------- -->
+  <view class="section-title section-title--gap">{{T.sec_share}}</view>
+  <view class="card group">
+    <view class="row row__share">
+      <button class="row__share-btn" open-type="share">
+        <view class="row__lead">
+          <text class="row__label">{{T.share_friend}}</text>
+        </view>
+      </button>
+      <view class="row__arrow">›</view>
+    </view>
+  </view>
+
+  <!-- ---------- 关于 ---------- -->
+  <view class="section-title section-title--gap">{{T.sec_about}}</view>
+  <view class="card group">
+    <view class="row">
+      <text class="row__label">{{T.about_version}}</text>
+      <text class="row__value">{{version}}</text>
+    </view>
+  </view>
+
+  <view class="about">
+    <view class="about__brand">{{T.about_brand}}</view>
+    <view class="about__desc">{{T.about_desc}}</view>
   </view>
 </view>

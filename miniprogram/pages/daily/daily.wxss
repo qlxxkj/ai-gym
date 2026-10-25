@@ -1,57 +1,86 @@
-/* 今天页：颜色走 app.wxss 的 CSS 变量（.page-root），这里只写布局差异 */
+/* .hero/.card/.state/.rise 已在 app.wxss，本页只写差异 */
 
-.hero { margin-bottom: 32rpx; }
-.hero-t { font-size: 44rpx; font-weight: 700; letter-spacing: 1rpx; }
-.hero-s { font-size: 26rpx; color: var(--text3); margin-top: 10rpx; }
-
-/* 组间休息：纯色陶土橙（用户要求纯色填充，不用黑块） */
-.rest-panel {
-  background: var(--accent); color: #fff;
-  border-radius: 28rpx; padding: 32rpx;
-  text-align: center; margin-bottom: 24rpx;
+/* 组间休息：纯色陶土橙（不用黑块） */
+.rest {
+  background: var(--accent);
+  color: var(--on-solid);
+  border-radius: var(--r-lg);
+  padding: var(--s-4);
+  text-align: center;
+  margin-bottom: var(--s-3);
 }
-.rest-t { font-size: 24rpx; opacity: 0.85; letter-spacing: 4rpx; }
-.rest-num { font-size: 80rpx; font-weight: 700; font-variant-numeric: tabular-nums; margin: 8rpx 0 16rpx; }
-.rest-bar { height: 8rpx; background: rgba(255,255,255,0.35); border-radius: 4rpx; overflow: hidden; }
-.rest-fill { height: 100%; background: #fff; transition: width 1s linear; }
+.rest__lb { font-size: var(--t-cap); letter-spacing: 4rpx; opacity: 0.85; }
+.rest__num {
+  font-size: 80rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin: var(--s-1) 0 var(--s-2);
+}
+.rest__bar {
+  height: 8rpx;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+.rest__fill { height: 100%; background: #fff; transition: width 1s linear; }
 
 /* 全部完成 */
-.done-panel {
-  background: var(--success); color: #fff;
-  border-radius: 20rpx; padding: 28rpx;
-  text-align: center; font-size: 28rpx; margin-bottom: 24rpx;
+.done {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-radius: var(--r-md);
+  padding: var(--s-4);
+  text-align: center;
+  font-size: var(--t-sm);
+  margin-bottom: var(--s-3);
 }
 
-/* 动作卡片 */
-.ex { padding: 28rpx; }
-.ex-video {
-  width: 100%; height: 400rpx;
-  border-radius: 24rpx; overflow: hidden;
-  background: var(--accent-bg); margin-bottom: 20rpx;
+/* 动作卡 */
+.ex { padding: var(--s-4); margin-bottom: var(--s-3); }
+.ex__media {
+  width: 100%;
+  height: 400rpx;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--fill);
   display: block;
+  margin-bottom: var(--s-3);
 }
-.ex-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8rpx; }
-.ex-name { font-size: 30rpx; font-weight: 600; }
-.ex-count { font-size: 22rpx; color: var(--text3); }
-.ex-note { font-size: 22rpx; color: var(--text3); margin-bottom: 16rpx; line-height: 1.6; }
+.ex__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--s-1);
+}
+.ex__name { font-size: var(--t-sm); font-weight: 600; }
+.ex__count { font-size: var(--t-cap); color: var(--ink-3); }
+.ex__note { font-size: var(--t-cap); color: var(--ink-3); margin-bottom: var(--s-2); line-height: 1.6; }
 
 /* 组 */
-.set-list { display: flex; flex-direction: column; }
-.set-row {
-  display: flex; align-items: center;
-  padding: 18rpx 0;
-  border-top: 2rpx solid var(--line);
+.set {
+  display: flex;
+  align-items: center;
+  padding: var(--s-2) 0;
+  border-top: 1rpx solid var(--line);
 }
-.set-row:first-child { border-top: none; }
-.set-lb { font-size: 26rpx; font-weight: 500; min-width: 110rpx; }
-.set-detail { font-size: 24rpx; color: var(--text2); flex: 1; }
-.set-check {
-  width: 56rpx; height: 56rpx;
+.set:first-of-type { border-top: none; }
+.set__lb { font-size: var(--t-sm); font-weight: 500; min-width: 110rpx; }
+.set__detail { font-size: var(--t-cap); color: var(--ink-2); flex: 1; }
+.set__check {
+  width: 56rpx;
+  height: 56rpx;
+  flex: none;
   border: 2rpx solid var(--line);
   border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28rpx; color: var(--text3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
 }
-.set-check.on {
-  background: var(--accent); border-color: var(--accent); color: #fff;
+.set__check--on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-solid);
 }

@@ -1,53 +1,43 @@
-<view class="page-root {{dark?'dark':''}}">
-  <view class="page">
+<view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
   <block wx:if="{{!plan}}">
-    <view class="empty">
-      <view class="empty-t" wx:if="{{!loading}}">{{i18n.dailyEmptyT}}</view>
-      <view class="empty-t" wx:else>{{i18n.dailyLoading}}</view>
-      <view class="empty-s" wx:if="{{!loading}}">{{i18n.dailyEmptyS}}</view>
+    <view class="state">
+      <view class="state__text">{{!loading ? T.daily_empty_s : T.daily_loading}}</view>
+      <view class="state__text" wx:if="{{!loading}}" style="margin-top:var(--s-2);color:var(--ink-2);font-size:var(--t-body)">{{T.daily_empty_t}}</view>
     </view>
   </block>
 
   <block wx:else>
-    <view class="hero">
-      <view class="hero-t">{{dayLabel}}</view>
-      <view class="hero-s">{{today}} · {{i18n.dailySub}}{{plan.title}}{{i18n.dailySubEnd}}</view>
+    <view class="hero hero--lead">
+      <view class="hero__title" style="font-size:var(--t-title);letter-spacing:2rpx">{{dayLabel}}</view>
+      <view class="hero__desc">{{today}} · {{T.daily_sub}}{{plan.title}}{{T.daily_sub_end}}</view>
     </view>
 
-    <view class="rest-panel" wx:if="{{restLeft > 0}}">
-      <view class="rest-t">{{i18n.dailyRest}}</view>
-      <view class="rest-num">{{restLeft}}</view>
-      <view class="rest-bar">
-        <view class="rest-fill" style="width: {{restLeft / restTotal * 100}}%"></view>
-      </view>
+    <view class="rest rise" wx:if="{{restLeft > 0}}">
+      <view class="rest__lb">{{T.daily_rest}}</view>
+      <view class="rest__num">{{restLeft}}</view>
+      <view class="rest__bar"><view class="rest__fill" style="width: {{restLeft / restTotal * 100}}%"></view></view>
     </view>
 
-    <view class="done-panel" wx:if="{{allDone}}" bindtap="markAllDone">
-      {{i18n.dailyAllDone}}
-    </view>
+    <view class="done rise" wx:if="{{allDone}}" bindtap="markAllDone">{{T.daily_all_done}}</view>
 
-    <view class="card ex" wx:for="{{exercises}}" wx:for-item="ex" wx:for-index="exidx" wx:key="id">
-      <video wx:if="{{ex.clip_url}}" class="ex-video" src="{{ex.clip_url}}"
+    <view class="card ex rise-item" wx:for="{{exercises}}" wx:for-item="ex" wx:for-index="exidx" wx:key="id">
+      <video wx:if="{{ex.clip_url}}" class="ex__media" src="{{ex.clip_url}}"
         loop="{{true}}" controls="{{false}}" autoplay="{{true}}" muted="{{true}}"
         show-center-play-btn="{{false}}" object-fit="cover"></video>
-      <image wx:elif="{{ex.img_url}}" class="ex-video" src="{{ex.img_url}}" mode="aspectFill"></image>
-      <view class="ex-head">
-        <view class="ex-name">{{ex.name_zh}}</view>
-        <view class="ex-count">{{ex.sets.length}} {{i18n.dailySetsCount}}</view>
+      <image wx:elif="{{ex.img_url}}" class="ex__media" src="{{ex.img_url}}" mode="aspectFill"></image>
+      <view class="ex__head">
+        <text class="ex__name">{{ex.name_zh}}</text>
+        <text class="ex__count">{{ex.sets.length}} {{T.daily_sets_u}}</text>
       </view>
-      <view class="ex-note" wx:if="{{ex.note}}">{{ex.note}}</view>
-      <view class="set-list">
-        <view class="set-row" wx:for="{{ex.sets}}" wx:for-item="st" wx:for-index="setidx">
-          <view class="set-lb">{{i18n.dailySet}} {{setidx + 1}}</view>
-          <view class="set-detail">{{st.reps}} · {{st.rest_seconds}} {{i18n.planSetItemSec}}</view>
-          <view class="set-check {{ex.setStates[setidx] ? 'on' : ''}}"
-            data-exidx="{{exidx}}" data-setidx="{{setidx}}"
-            bindtap="toggleSet">
-            {{ex.setStates[setidx] ? '✓' : '○'}}
-          </view>
+      <view class="ex__note" wx:if="{{ex.note}}">{{ex.note}}</view>
+      <view class="set" wx:for="{{ex.sets}}" wx:for-item="st" wx:for-index="setidx" wx:key="*this">
+        <text class="set__lb">{{T.daily_set}} {{setidx + 1}}</text>
+        <text class="set__detail">{{st.reps}} · {{st.rest_seconds}} {{T.daily_sec_u}}</text>
+        <view class="set__check {{ex.setStates[setidx] ? 'set__check--on' : ''}}"
+          data-exidx="{{exidx}}" data-setidx="{{setidx}}" bindtap="toggleSet">
+          {{ex.setStates[setidx] ? '✓' : '○'}}
         </view>
       </view>
     </view>
   </block>
-  </view>
 </view>

@@ -1,0 +1,44 @@
+/* 自带 token：样式隔离下拿不到页面的主题变量，由 theme 属性切换整套色值 */
+.tb {
+    --card: #FEFCFC;
+    --line: #EAE5E3;
+    --ink-3: #766D6A;
+    --accent: #A5492B;
+
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    background: var(--card);
+    box-shadow: 0 -1rpx 0 var(--line);
+}
+.tb--dark {
+    --card: #211D1C;
+    --line: #373230;
+    --ink-3: #B2AAA8;
+    --accent: #E78F73;
+}
+
+.tb__inner {
+    display: flex;
+    height: 104rpx;
+}
+.tb__item {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.tb__text {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: var(--ink-3);
+    transition: color 120ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+.tb__item--on .tb__text { color: var(--accent); font-weight: 600; }
+
+.tb__safe {
+    height: env(safe-area-inset-bottom);
+}

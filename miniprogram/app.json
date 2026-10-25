@@ -8,14 +8,16 @@
   ],
   "window": {
     "navigationBarTitleText": "AI 健身教练",
-    "navigationBarBackgroundColor": "#241D1B",
-    "navigationBarTextStyle": "white",
-    "backgroundColor": "#F6F1EC"
+    "navigationBarBackgroundColor": "#F9F6F5",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F9F6F5"
   },
   "tabBar": {
-    "color": "#9b8f88",
+    "custom": true,
+    "color": "#766D6A",
     "selectedColor": "#A5492B",
-    "backgroundColor": "#fff",
+    "backgroundColor": "#FEFCFC",
+    "borderStyle": "white",
     "list": [
       { "pagePath": "pages/plan/plan", "text": "计划" },
       { "pagePath": "pages/daily/daily", "text": "今天" },

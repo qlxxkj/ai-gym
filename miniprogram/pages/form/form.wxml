@@ -1,71 +1,29 @@
-<view class="page-root {{dark?'dark':''}}">
-  <view class="page">
+<view class="page {{theme === 'dark' ? 't-dark' : ''}}">
   <view class="hero">
-    <view class="hero-t">{{i18n.formTitle}}</view>
-    <view class="hero-s">{{i18n.formSub}}</view>
+    <view class="hero__title" style="font-size:var(--t-title);letter-spacing:2rpx">{{T.form_title}}</view>
+    <view class="hero__desc">{{T.form_sub}}</view>
   </view>
 
-  <view class="sec">
-    <view class="sec-t">{{i18n.formGoal}}</view>
+  <view class="card sec rise" wx:for="{{secs}}" wx:key="id">
+    <view class="sec__t">{{item.label}}</view>
     <view class="chips">
-      <view wx:for="{{goals}}" wx:key="*this"
-        class="chip {{goalIndex === index ? 'chip-on' : ''}}"
-        data-field="goalIndex" data-i="{{index}}" bindtap="pick">{{item}}</view>
+      <view wx:if="{{item.kind === 'single'}}"
+        wx:for="{{item.values}}" wx:for-item="v" wx:for-index="i" wx:key="*this"
+        class="chip {{item.active === i ? 'chip--on' : ''}}"
+        data-field="{{item.field}}" data-i="{{i}}" bindtap="pick">{{v}}</view>
+      <view wx:else
+        wx:for="{{item.values}}" wx:for-item="v" wx:key="*this"
+        class="chip {{item.checked[v] ? 'chip--on' : ''}}"
+        data-m="{{v}}" bindtap="toggleFocus">{{v}}</view>
     </view>
   </view>
 
-  <view class="sec">
-    <view class="sec-t">{{i18n.formLevel}}</view>
-    <view class="chips">
-      <view wx:for="{{levels}}" wx:key="*this"
-        class="chip {{levelIndex === index ? 'chip-on' : ''}}"
-        data-field="levelIndex" data-i="{{index}}" bindtap="pick">{{item}}</view>
-    </view>
+  <view class="sec-notes">
+    <view class="section-title">{{T.form_notes}}</view>
+    <textarea class="notes" placeholder="{{T.form_notes_ph}}" value="{{notes}}" bindinput="onNotes" />
   </view>
 
-  <view class="sec">
-    <view class="sec-t">{{i18n.formFreq}}</view>
-    <view class="chips">
-      <view wx:for="{{freqs}}" wx:key="*this"
-        class="chip {{freqIndex === index ? 'chip-on' : ''}}"
-        data-field="freqIndex" data-i="{{index}}" bindtap="pick">{{item}} {{i18n.formTimesUnit}}</view>
-    </view>
-  </view>
-
-  <view class="sec">
-    <view class="sec-t">{{i18n.formTime}}</view>
-    <view class="chips">
-      <view wx:for="{{times}}" wx:key="*this"
-        class="chip {{timeIndex === index ? 'chip-on' : ''}}"
-        data-field="timeIndex" data-i="{{index}}" bindtap="pick">{{item}} {{i18n.formTimeUnit}}</view>
-    </view>
-  </view>
-
-  <view class="sec">
-    <view class="sec-t">{{i18n.formEquip}}</view>
-    <view class="chips">
-      <view wx:for="{{equipments}}" wx:key="*this"
-        class="chip {{equipIndex === index ? 'chip-on' : ''}}"
-        data-field="equipIndex" data-i="{{index}}" bindtap="pick">{{item}}</view>
-    </view>
-  </view>
-
-  <view class="sec">
-    <view class="sec-t">{{i18n.formFocus}}</view>
-    <view class="chips">
-      <view wx:for="{{focusMuscles}}" wx:key="*this"
-        class="chip {{focusChecked[item] ? 'chip-on' : ''}}"
-        data-m="{{item}}" bindtap="toggleFocus">{{item}}</view>
-    </view>
-  </view>
-
-  <view class="sec">
-    <view class="sec-t">{{i18n.formNotes}}</view>
-    <textarea class="notes" placeholder="{{i18n.formNotesPh}}" value="{{notes}}" bindinput="onNotes" />
-  </view>
-
-  <button class="submit" disabled="{{generating}}" bindtap="submit">
-    {{generating ? i18n.formSubmitIng : i18n.formSubmit}}
+  <button class="btn btn--accent btn--block rise" style="margin-top:var(--s-5)" disabled="{{generating}}" bindtap="submit">
+    {{generating ? T.form_submit_ing : T.form_submit}}
   </button>
-  </view>
 </view>

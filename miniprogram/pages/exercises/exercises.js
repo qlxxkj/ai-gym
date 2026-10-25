@@ -119,8 +119,6 @@ Page({
     equipZh: EQUIP_ZH,
     partZh: PART_ZH,
     catZh: CAT_ZH,
-    dark: false,
-    i18n: {},
     faved: false,
   },
 
@@ -135,8 +133,10 @@ Page({
   },
 
   onShow() {
-    theme.apply(this);
-    this.setData({ i18n: i18n.bundle() });
+    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 2 });
+    theme.sync(this);
+    i18n.sync(this);
+    if (!this._offLang) this._offLang = i18n.onChange(() => i18n.sync(this));
     exdict.load(() => {});
     // 从「我的」页点收藏动作跳来：自动弹该动作详情
     const openId = wx.getStorageSync("openExId");

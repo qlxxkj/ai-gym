@@ -1,0 +1,15 @@
+<view class="tb {{theme === 'dark' ? 'tb--dark' : ''}}">
+  <view class="tb__inner">
+    <view
+      wx:for="{{list}}"
+      wx:key="key"
+      class="tb__item {{selected === index ? 'tb__item--on' : ''}}"
+      data-index="{{index}}"
+      data-path="{{item.path}}"
+      bindtap="onTap"
+    >
+      <text class="tb__text">{{item.text}}</text>
+    </view>
+  </view>
+  <view class="tb__safe"></view>
+</view>

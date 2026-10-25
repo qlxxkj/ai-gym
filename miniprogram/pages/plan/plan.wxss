@@ -1,61 +1,68 @@
-/* 计划页：颜色走 app.wxss 的 CSS 变量（.page-root），这里只写布局差异 */
+/* .hero/.card/.row/.chips/.state/.section-title/.btn 已在 app.wxss，本页只写差异 */
 
-/* 大标题区 */
-.hero { margin-bottom: 32rpx; }
-.hero-t { font-size: 44rpx; font-weight: 700; letter-spacing: 1rpx; }
-.hero-s { font-size: 26rpx; color: var(--text2); margin-top: 14rpx; line-height: 1.7; }
-.hero-meta { display: flex; flex-wrap: wrap; gap: 12rpx; margin-top: 24rpx; }
-.tag {
-  font-size: 22rpx; color: var(--accent);
-  background: var(--accent-bg); border-radius: 999rpx;
-  padding: 8rpx 20rpx;
+/* 天数卡 */
+.card.day { padding: 0 var(--s-4); }
+.day__head { border-radius: var(--r-lg); }
+.day__body { padding: 0 0 var(--s-3); }
+
+/* 动作块 */
+.ex {
+  padding: var(--s-3) 0;
+  border-top: 1rpx solid var(--line);
 }
-.hero-act { display: flex; gap: 28rpx; margin-top: 28rpx; align-items: center; }
-.hero-actions { margin-top: 20rpx; }
-.fav { font-size: 26rpx; color: var(--text3); }
-.fav.on { color: var(--accent); }
-.new-link { font-size: 26rpx; color: var(--accent); }
-.new-btn { width: 280rpx; margin: 32rpx auto 0; }
-
-/* 计划列表（多计划时） */
-.card { padding: 28rpx 32rpx; }
-.card-title { font-size: 32rpx; font-weight: 600; }
-.card-meta { font-size: 24rpx; color: var(--text3); margin-top: 8rpx; }
-
-/* 天数 */
-.day-head { display: flex; align-items: center; gap: 16rpx; }
-.day-lb { font-size: 30rpx; font-weight: 700; }
-.day-label { font-size: 24rpx; color: var(--text3); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.day-arrow { font-size: 24rpx; color: var(--accent); }
-.day-body { margin-top: 24rpx; }
-
-/* 动作卡片 */
-.ex { padding: 20rpx 0; border-top: 2rpx solid var(--line); }
 .ex:first-child { border-top: none; }
-.ex-top { display: flex; align-items: center; gap: 20rpx; margin-bottom: 12rpx; }
-.ex-media {
-  width: 108rpx; height: 108rpx;
-  border-radius: 20rpx; overflow: hidden;
-  background: var(--accent-bg); flex-shrink: 0;
+.ex__top {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-bottom: var(--s-2);
 }
-.ex-media image { width: 100%; height: 100%; }
-.ex-name { font-size: 30rpx; font-weight: 600; }
-.ex-set { font-size: 24rpx; color: var(--text2); margin-bottom: 4rpx; }
-.ex-note { font-size: 22rpx; color: var(--text3); margin-top: 8rpx; line-height: 1.6; }
+.ex__media {
+  width: 128rpx;
+  height: 96rpx;
+  flex: none;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--fill);
+}
+.ex__media image, .ex__media video { width: 100%; height: 100%; display: block; }
+.ex__name { font-size: var(--t-sm); font-weight: 600; min-width: 0; }
+.ex__set { font-size: var(--t-cap); color: var(--ink-2); margin-top: var(--s-1); }
+.ex__note { font-size: var(--t-cap); color: var(--ink-3); margin-top: var(--s-2); line-height: 1.6; }
+
+/* 收藏标记 */
+.fav { font-size: var(--t-cap); color: var(--ink-3); }
+.fav--on { color: var(--accent); }
 
 /* 教练提示 */
-.tip { font-size: 26rpx; color: var(--text2); line-height: 1.8; margin-bottom: 10rpx; }
-.tip:last-child { margin-bottom: 0; }
+.card.tips { padding: var(--s-4); }
+.tip { font-size: var(--t-sm); color: var(--ink-2); line-height: 1.7; margin-top: var(--s-2); }
+.tip:first-child { margin-top: 0; }
 
-/* 复盘 */
-.review-head { display: flex; justify-content: space-between; align-items: center; }
-.review-close { font-size: 24rpx; color: var(--text3); }
-.review-pre {
-  font-size: 24rpx; color: var(--text2);
-  white-space: pre-wrap; word-break: break-all;
-  margin: 12rpx 0 16rpx; line-height: 1.8;
-  max-height: 600rpx; overflow: auto;
+/* 复盘面板 */
+.card.review { padding: var(--s-4); }
+.review__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.review__close {
+  font-size: var(--t-cap);
+  color: var(--ink-3);
+}
+.review__pre {
+  margin: var(--s-3) 0;
+  padding: var(--s-3);
+  background: var(--fill);
+  border-radius: var(--r-md);
+  font-size: var(--t-cap);
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 600rpx;
+  overflow: auto;
+  line-height: 1.7;
 }
 
-/* 底部按钮 */
-.actions { display: flex; flex-direction: column; gap: 16rpx; margin-top: 8rpx; }
+/* 底部操作 */
+.actions { margin-top: var(--s-5); }

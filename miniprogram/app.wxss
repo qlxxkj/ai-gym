@@ -1,112 +1,296 @@
-/* ===== 全局设计系统（简约暖灰，颜色全部走 CSS 变量，深色由 .page-root.dark 覆盖） =====
-   浅色（默认）：
-   --bg #F4F0EA / --card #fff / --text #1C1715 / --text2 #6E625B / --text3 #A2968D
-   --line #EAE3DC / --accent #B0532E / --accent-bg #F7E7DE / --success #3F7D4E
-   深色（.page-root.dark）：
-   --bg #171412 / --card #241F1C / --text #F2ECE6 / --text2 #B5A99F / --text3 #7D726A
-   --line #3A322D / --accent #C96A3F / --accent-bg #3A2A20 / --success #5A9E6C
-   圆角：卡片 28rpx / 圆角块 20rpx / 胶囊 999rpx
-   留白：页面左右 32rpx，卡片内 32rpx，块间距 24rpx
-   字号层级：大标题 40rpx/700、标题 32rpx/600、正文 28rpx、辅助 24rpx、说明 22rpx
-*/
+/* ==========================================================================
+   AI 健身教练 · 设计系统（对齐 daily-poetry）
+   现代极简。墨色做骨架，陶土橙做强调，其余全部留给留白。
+   深浅两套 token；深色由根节点 .t-dark 触发（theme.js sync 写入 data.theme）。
 
-/* 根节点挂 class="page-root"，深色再加 dark；变量挂在根节点，子样式全部引用 var() */
-.page-root {
-  --bg: #F4F0EA;
-  --card: #fff;
-  --text: #1C1715;
-  --text2: #6E625B;
-  --text3: #A2968D;
-  --line: #EAE3DC;
-  --accent: #B0532E;
-  --accent-bg: #F7E7DE;
-  --success: #3F7D4E;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
-.page-root.dark {
-  --bg: #171412;
-  --card: #241F1C;
-  --text: #F2ECE6;
-  --text2: #B5A99F;
-  --text3: #7D726A;
-  --line: #3A322D;
-  --accent: #C96A3F;
-  --accent-bg: #3A2A20;
-  --success: #5A9E6C;
-}
-
+   · 中性色带陶土暖色调（hue 40），避免死灰
+   · 不用纯白 #fff / 纯黑 #000
+   · 字阶基准 32rpx，比例约 1.25，刻意拉开档位
+   · 间距 8rpx 网格；只动 transform/opacity；指数缓动
+   ========================================================================== */
 page {
-  background: #F4F0EA; /* 系统层底色，防边缘白边；内容区由 .page-root 变量控制 */
-  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+    /* 面 */
+    --bg: #F9F6F5;
+    --card: #FEFCFC;
+    --fill: #F6F0EF;
+    --fill-2: #EFE8E5;
+    --line: #EAE5E3;
+
+    /* 字 */
+    --ink: #241D1B;
+    --ink-2: #645B59;
+    --ink-3: #766D6A;
+
+    /* 强调 */
+    --accent: #A5492B;
+    --accent-bg: #FDEEE9;
+    --on-solid: #FDF9F8;
+    --ok: #397852;
+    --ok-bg: #E5F7EB;
+    --err: #B24037;
+    --err-bg: #FFEFED;
+
+    /* 浮层遮罩 */
+    --mask: rgba(36, 29, 27, 0.42);
+
+    /* 字阶 */
+    --t-cap: 24rpx;
+    --t-sm: 28rpx;
+    --t-body: 32rpx;
+    --t-title: 44rpx;
+    --t-display: 52rpx;
+
+    /* 间距（8rpx 网格） */
+    --s-1: 8rpx;
+    --s-2: 16rpx;
+    --s-3: 24rpx;
+    --s-4: 32rpx;
+    --s-5: 40rpx;
+    --s-6: 56rpx;
+    --s-7: 72rpx;
+
+    --r-sm: 12rpx;
+    --r-md: 18rpx;
+    --r-lg: 28rpx;
+
+    --shadow: 0 2rpx 16rpx rgba(36, 29, 27, 0.06);
+
+    --dur-1: 120ms;
+    --dur-2: 240ms;
+    --dur-3: 420ms;
+    --ease: cubic-bezier(0.25, 1, 0.5, 1);
+
+    background: var(--bg);
+    color: var(--ink);
+    font-size: var(--t-body);
+    line-height: 1.6;
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* 页面通用容器 */
-.page { padding: 32rpx 32rpx 160rpx; }
+/* 深色：强调色必须提亮，直接沿用浅色朱砂会掉对比度 */
+.t-dark {
+    --bg: #141110;
+    --card: #211D1C;
+    --fill: #302B2A;
+    --fill-2: #3E3836;
+    --line: #373230;
 
-/* 卡片 */
+    --ink: #F2EBE9;
+    --ink-2: #C9C0BE;
+    --ink-3: #B2AAA8;
+
+    --accent: #E78F73;
+    --accent-bg: #3D2821;
+    --on-solid: #181210;
+    --ok: #7BC495;
+    --ok-bg: #163120;
+    --err: #F09286;
+    --err-bg: #422521;
+
+    --mask: rgba(0, 0, 0, 0.62);
+
+    --shadow: 0 2rpx 18rpx rgba(0, 0, 0, 0.36);
+}
+
+/* ---------- 布局 ---------- */
+.page {
+    padding: var(--s-4) var(--s-4) calc(var(--s-6) + env(safe-area-inset-bottom));
+    background: var(--bg); /* 挂在可见层，否则深色露出 page 浅色底 */
+    min-height: 100vh;
+}
+.page--tab {
+    padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+}
+
 .card {
-  background: var(--card);
-  border-radius: 28rpx;
-  padding: 32rpx;
-  margin-bottom: 24rpx;
+    background: var(--card);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+    overflow-wrap: anywhere;
+    min-width: 0;
 }
 
-/* 段落标题 */
-.sec-t {
-  font-size: 24rpx;
-  color: var(--text3);
-  letter-spacing: 4rpx;
-  margin-bottom: 20rpx;
-}
+.hr { height: 1rpx; background: var(--line); }
 
-/* 胶囊选项 */
-.chips { display: flex; flex-wrap: wrap; gap: 16rpx; }
-.chip {
-  padding: 16rpx 32rpx;
-  border-radius: 999rpx;
-  font-size: 26rpx;
-  background: var(--card);
-  border: 2rpx solid var(--line);
-  color: var(--text2);
-  transition: all 0.15s;
+/* ---------- 文字 ---------- */
+.section-title {
+    margin: 0 4rpx var(--s-2);
+    font-size: var(--t-cap);
+    letter-spacing: 2rpx;
+    color: var(--ink-3);
 }
-.chip-on {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
+.section-title--gap { margin-top: var(--s-5); }
 
-/* 主按钮 */
+.muted { color: var(--ink-3); }
+
+/* ---------- 页头 ---------- */
+.hero { padding: var(--s-3) 0 var(--s-6); }
+.hero__title {
+    font-size: var(--t-display);
+    font-weight: 600;
+    letter-spacing: 6rpx;
+    color: var(--ink);
+}
+.hero__desc {
+    margin-top: var(--s-2);
+    font-size: var(--t-sm);
+    color: var(--ink-3);
+}
+/* 页面名已在导航栏给出，内容区不再重复大标题 */
+.hero--lead { padding: var(--s-2) 0 var(--s-5); }
+.hero--lead .hero__desc { margin-top: 0; }
+
+/* ---------- 按钮 ---------- */
+button { padding: 0; margin: 0; background: transparent; line-height: 1; font-size: inherit; color: inherit; }
+button::after { border: none; }
+
 .btn {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--text);
-  color: var(--bg);
-  border-radius: 20rpx;
-  font-size: 30rpx;
-  font-weight: 600;
-  padding: 26rpx 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 92rpx;
+    padding: 0 var(--s-5);
+    border-radius: var(--r-md);
+    font-size: var(--t-body);
+    font-weight: 500;
+    letter-spacing: 1rpx;
+    background: var(--ink);
+    color: var(--on-solid);
+    transition: transform var(--dur-1) var(--ease), opacity var(--dur-1) var(--ease);
 }
-.btn[disabled] { opacity: 0.5; }
-.btn-accent { background: var(--accent); color: #fff; }
-.btn-ghost { background: var(--card); color: var(--text); border: 2rpx solid var(--line); }
+.btn:active { transform: scale(0.975); opacity: 0.88; }
+.btn--ghost { background: var(--fill); color: var(--ink); }
+.btn--ghost:active { opacity: 1; }
+.btn--accent { background: var(--accent); color: var(--on-solid); }
+.btn--block { width: 100%; }
+.btn[disabled] { opacity: 0.45; transform: none; }
+.btn--loading { gap: 16rpx; }
+.btn__spinner {
+    width: 32rpx; height: 32rpx; border-radius: 50%; flex-shrink: 0;
+    border: 3rpx solid rgba(255, 255, 255, 0.30);
+    border-top-color: #fff;
+    animation: btn-spin 0.6s linear infinite;
+}
+@keyframes btn-spin { to { transform: rotate(360deg); } }
 
-/* 空状态 */
-.empty { text-align: center; padding: 140rpx 0; }
-.empty-t { font-size: 32rpx; font-weight: 600; margin-bottom: 12rpx; }
-.empty-s { font-size: 26rpx; color: var(--text3); line-height: 1.6; }
+.icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 92rpx;
+    height: 92rpx;
+    flex: none;
+    border-radius: var(--r-md);
+    background: var(--fill);
+    transition: background var(--dur-1) var(--ease), transform var(--dur-1) var(--ease);
+}
+.icon-btn:active { background: var(--fill-2); transform: scale(0.94); }
 
-/* 加载中文 */
-.loading {
-  text-align: center; padding: 120rpx 0;
-  font-size: 26rpx; color: var(--text3);
+/* ---------- 标签 ---------- */
+.tag {
+    display: inline-flex;
+    align-items: center;
+    height: 40rpx;
+    padding: 0 var(--s-2);
+    border-radius: 999rpx;
+    font-size: var(--t-cap);
+    line-height: 1;
+    background: var(--fill);
+    color: var(--ink-2);
+}
+.tag--accent { background: var(--accent-bg); color: var(--accent); }
+
+/* 胶囊选项（表单页复用） */
+.chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--s-4);
+    height: 68rpx;
+    border-radius: 999rpx;
+    background: var(--fill);
+    color: var(--ink-2);
+    font-size: var(--t-sm);
+    transition: background var(--dur-1) var(--ease), color var(--dur-1) var(--ease),
+        transform var(--dur-1) var(--ease);
+}
+.chip:active { transform: scale(0.96); }
+.chip--on { background: var(--accent); color: var(--on-solid); }
+.chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+
+/* ---------- 分组列表行（我的 / 收藏 / 设置） ---------- */
+.group { overflow: hidden; }
+
+.row {
+    display: flex;
+    align-items: center;
+    min-height: 112rpx;
+    padding: 0 var(--s-4);
+    transition: background var(--dur-1) var(--ease);
+}
+.row:active { background: var(--fill); }
+.row__ic {
+    width: 40rpx;
+    height: 40rpx;
+    flex: none;
+    margin-right: var(--s-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36rpx;
+    color: var(--ink-3);
+}
+.row__label {
+    flex: none;
+    font-size: var(--t-body);
+    color: var(--ink);
+}
+.row__value {
+    flex: 1;
+    min-width: 0;
+    margin-left: var(--s-3);
+    text-align: right;
+    font-size: var(--t-sm);
+    color: var(--ink-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.row__arrow {
+    flex: none;
+    width: 28rpx;
+    text-align: center;
+    color: var(--ink-3);
+    font-size: 32rpx;
+    margin-left: var(--s-2);
 }
 
-/* 提示条 */
-.toast-line {
-  background: var(--accent-bg); color: var(--accent);
-  border-radius: 16rpx; padding: 20rpx 24rpx;
-  font-size: 24rpx; margin-bottom: 16rpx;
+/* ---------- 空态 ---------- */
+.state { padding: 140rpx 0; text-align: center; }
+.state__text { font-size: var(--t-sm); color: var(--ink-3); margin-top: var(--s-3); }
+
+/* ---------- 提示条 ---------- */
+.err-box {
+    display: flex;
+    align-items: center;
+    margin-top: var(--s-3);
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--r-md);
+    background: var(--err-bg);
+    color: var(--err);
+    font-size: var(--t-sm);
+}
+
+/* ---------- 入场动效 ---------- */
+@keyframes rise {
+    from { opacity: 0; transform: translateY(16rpx); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.rise { animation: rise var(--dur-3) var(--ease) both; }
+.rise-item { animation: rise var(--dur-3) var(--ease) both; }
+
+@media (prefers-reduced-motion: reduce) {
+    .rise, .rise-item { animation: none; }
+    .btn, .icon-btn, .chip, .row { transition: none; }
 }

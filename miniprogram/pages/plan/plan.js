@@ -31,14 +31,14 @@ Page({
     showReviewPanel: false,
     pending: false, // 刚生成完计划、正在后台加载详情时显示"加载计划中…"，避免空页误判
     loadErr: "",
-    dark: false,
-    i18n: {},
     faved: false,
   },
 
   onShow() {
-    theme.apply(this);
-    this.setData({ i18n: i18n.bundle() });
+    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 0 });
+    theme.sync(this);
+    i18n.sync(this);
+    if (!this._offLang) this._offLang = i18n.onChange(() => i18n.sync(this));
     // 备动作中文字典：本地命中则瞬时；首次后台拉，不阻塞渲染，到位后回写中文名
     exdict.load(() => this.applyZhNames());
     // 从「我的」页点收藏计划跳来：读 key 直接打开该计划
