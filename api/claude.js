@@ -41,16 +41,17 @@ function labelEn(label) {
   const hit = Object.keys(LABEL_EN).find((k) => s.indexOf(k) >= 0);
   return hit ? s.replace(hit, LABEL_EN[hit]) : s;
 }
-// 给 plan_data 补英文字段（title_en/goal_en/summary_en/weekly_goals_en/label_en/note_en），
-// 前端全英文模式读这些；中文原文留在 title/goal/summary/label/note
+// 给 plan_data 补英文字段（title_en/goal_en/summary_en/weekly_goals_en/tips_en/label_en/note_en），
+// 英文字段由 AI 提示词直接输出真翻译；缺省则回退 labelEn 推导 / 原值
 function withEn(plan) {
   const p = JSON.parse(JSON.stringify(plan || {}));
-  p.title_en = p.title || "";
-  p.summary_en = p.summary || "";
-  p.weekly_goals_en = (p.weekly_goals || []).map((x) => String(x));
+  p.title_en = p.title_en || p.title || "";
+  p.summary_en = p.summary_en || p.summary || "";
+  p.weekly_goals_en = p.weekly_goals_en || (p.weekly_goals || []).map((x) => String(x));
+  p.tips_en = p.tips_en || (p.tips || []).map((x) => String(x));
   (p.days || []).forEach((d) => {
-    d.label_en = labelEn(d.label);
-    (d.exercises || []).forEach((e) => (e.note_en = e.note || ""));
+    d.label_en = d.label_en || labelEn(d.label);
+    (d.exercises || []).forEach((e) => (e.note_en = e.note_en || e.note || ""));
   });
   return p;
 }
@@ -71,28 +72,35 @@ function planPrompt(user, exercises) {
     "输出严格的 JSON，格式如下:",
     `{
       "title": string,
+      "title_en": string,
       "summary": string,
+      "summary_en": string,
       "rest_seconds": number,
       "days": [
         {
           "day": number,
           "label": string,
+          "label_en": string,
           "focus": [string],
           "exercises": [
             {
               "id": string,
               "name": string,
               "sets": [{ "reps": number, "rest_seconds": number, "weight_note": string }],
-              "note": string
+              "note": string,
+              "note_en": string
             }
           ]
         }
       ],
       "weekly_goals": [string],
-      "tips": [string]
+      "weekly_goals_en": [string],
+      "tips": [string],
+      "tips_en": [string]
     }`,
     "规则: 休息日 exercises 为空数组; 每个训练日 4-6 个动作; 每个动作 3-4 组; 新手用较轻重量多次数。",
-    "语言: title、summary、days[].label、days[].exercises[].note、weekly_goals、tips 必须全部用简体中文, 不要出现任何英文单词。",
+    "语言: title/summary/days[].label/days[].exercises[].note/weekly_goals/tips 全部用简体中文; " +
+    "对应 _en 字段（title_en/summary_en/label_en/note_en/weekly_goals_en/tips_en）全部用英文，是上面中文内容的准确翻译，不是占位。",
   ].join("\n");
 }
 
@@ -109,8 +117,10 @@ function revisePrompt(plan, adjustments, exercises) {
     "允许选用的动作（id 引用）:",
     JSON.stringify(exercises),
     "",
-    "输出修改后的完整计划，严格 JSON，格式同原计划（title/summary/rest_seconds/days/weekly_goals/tips），days 里的动作 id 只能来自上面允许列表。",
-    "语言: 所有文本字段（title/summary/label/note/weekly_goals/tips）必须用简体中文, 不要出现任何英文单词。",
+    "输出修改后的完整计划，严格 JSON，格式含双语字段：",
+    "title/title_en, summary/summary_en, rest_seconds, days[].label/label_en, days[].exercises[].note/note_en, weekly_goals/weekly_goals_en, tips/tips_en。",
+    "days 里的动作 id 只能来自上面允许列表。",
+    "语言: 不带 _en 的字段全部用简体中文; _en 字段是中文的准确英文翻译，不能留空或照抄中文。",
   ].join("\n");
 }
 

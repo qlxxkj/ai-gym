@@ -21,7 +21,7 @@ function enrichPlan(full, lang) {
   return cur;
 }
 
-// 计划显示用名称：en 用英文（标题/目标/摘要/天标签），zh 用原值
+// 计划显示用名称：en 用英文（标题/目标/摘要/天标签/提示/备注），zh 用原值
 function locPlan(full, lang) {
   if (!full) return full;
   if (lang !== "en") return full;
@@ -30,7 +30,12 @@ function locPlan(full, lang) {
   const d = c.plan_data || {};
   d.goal = full.goal_en || full.goal;
   d.summary = full.summary_en || d.summary;
-  (d.days || []).forEach((day) => (day.label = day.label_en || day.label));
+  if ((full.plan_data && full.plan_data.tips_en || []).length) d.tips = full.plan_data.tips_en;
+  if ((full.plan_data && full.plan_data.weekly_goals_en || []).length) d.weekly_goals = full.plan_data.weekly_goals_en;
+  (d.days || []).forEach((day) => {
+    day.label = day.label_en || day.label;
+    (day.exercises || []).forEach((ex) => { if (ex.note_en) ex.note = ex.note_en; });
+  });
   return c;
 }
 

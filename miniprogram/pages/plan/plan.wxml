@@ -77,7 +77,7 @@
             <view class="ex__name">{{ex.name_zh}}</view>
           </view>
           <view class="ex__set" wx:for="{{ex.sets}}" wx:for-item="st" wx:key="index">
-            {{T.plan_day}} {{index + 1}} {{T.plan_set}} · {{st.reps}} {{T.plan_reps}} · {{st.rest_seconds}} {{T.plan_rest_s}}
+            {{T.plan_day}} {{index + 1}} {{T.plan_set}} · {{st.reps}} {{T.plan_reps}} · {{T.plan_rest_lb}} {{st.rest_seconds}} {{T.plan_rest_s}}
           </view>
           <view class="ex__note" wx:if="{{ex.note}}">{{ex.note}}</view>
         </view>

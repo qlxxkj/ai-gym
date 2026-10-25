@@ -16,6 +16,24 @@ function todayStr() {
   );
 }
 
+// 同 plan.js locPlan：en 模式把计划文案换成 *_en 字段（缺省回退原值），保证全英文
+function locPlan(full, lang) {
+  if (!full) return full;
+  if (lang !== "en") return full;
+  const c = JSON.parse(JSON.stringify(full));
+  c.title = full.title_en || full.title;
+  const d = c.plan_data || {};
+  d.goal = full.goal_en || full.goal;
+  d.summary = full.summary_en || d.summary;
+  if ((full.plan_data && full.plan_data.tips_en || []).length) d.tips = full.plan_data.tips_en;
+  if ((full.plan_data && full.plan_data.weekly_goals_en || []).length) d.weekly_goals = full.plan_data.weekly_goals_en;
+  (d.days || []).forEach((day) => {
+    day.label = day.label_en || day.label;
+    (day.exercises || []).forEach((ex) => { if (ex.note_en) ex.note = ex.note_en; });
+  });
+  return c;
+}
+
 // 把 "eid:sno" 列表转成 { "eid:sno": true } 对象（WXML 对象索引支持点号键不行，但支持字符串字面量键）
 function toObj(list) {
   const o = {};
@@ -67,17 +85,22 @@ Page({
     this.setData({ exercises: list });
   },
 
-  // 切语言：当天标签/计划标题/动作名按新语言重建
+  // 切语言：当天标签/计划标题/动作名/备注按新语言重建
   reloadLang() {
-    const en = this.data.lang === "en";
+    const lang = this.data.lang;
+    const en = lang === "en";
     const p = this.data.plan;
     if (!p) return;
-    const day = p.plan_data && ((p.plan_data.days || []).find((d) => d.day === this._dayNo) || {});
+    // 用原始 _en 字段重建本地化视图（locPlan 幂等：en 字段仍在，重复调用不出错）
+    const lp = locPlan(p, lang);
+    const day = lp.plan_data && ((lp.plan_data.days || []).find((d) => d.day === this._dayNo) || {});
     const patch = {
-      dayLabel: en ? day.label_en || day.label : day.label || "",
+      plan: lp,
+      dayLabel: day.label || "",
       exercises: (this.data.exercises || []).map((ex) => ({
         ...ex,
         name_zh: en ? exdict.nameEn(ex.id) || ex.name : exdict.nameZh(ex.id) || ex.name,
+        note: day.exercises && ex.id ? ((day.exercises.find((x) => x.id === ex.id) || {}).note) || ex.note : ex.note,
       })),
     };
     this.setData(patch);
@@ -113,7 +136,10 @@ Page({
       return;
     }
     try {
-      const days = (plan.plan_data || {}).days || [];
+      // en 模式先取本地化视图（标题/天标签/备注用 *_en），原始 _en 字段保留在 plan 供切语言重建
+      const lang = this.data.lang;
+      const lp = locPlan(plan, lang);
+      const days = (lp.plan_data || {}).days || [];
       // 按今天是周几选 day：day 编号 1..N，周一=1
       const dayNo = (new Date().getDay() + 6) % 7 + 1;
       this._dayNo = dayNo;
@@ -146,13 +172,11 @@ Page({
         console.error("打卡记录加载失败（不影响计划展示）:", se);
       }
 
-      const lang = this.data.lang;
-      const en = lang === "en";
       const exName = (ex) =>
-        en ? exdict.nameEn(ex.id) || ex.name : exdict.nameZh(ex.id) || ex.name;
+        lang === "en" ? exdict.nameEn(ex.id) || ex.name : exdict.nameZh(ex.id) || ex.name;
       const exercises = ((day && day.exercises) || []).map((ex) => ({
         ...ex,
-        // 动作名按语言取；还没有就先用英文原名占位，后台字典到位后 refreshNames 补上
+        // 动作名/备注按语言取（备注已随 locPlan 本地化），媒体/收藏用原值
         name_zh: exName(ex),
         img_url: config.mediaStill(ex.id),
         clip_url: config.mediaClip(ex.id),
@@ -161,12 +185,12 @@ Page({
       }));
       this.setData({
         plan,
-        langEn: en,
-        // 天标签/计划标题按语言取：en 优先 *_en 字段，缺省回退原值
-        dayLabel: en ? (day ? day.label_en || day.label : "") : day ? day.label : "",
+        langEn: lang === "en",
+        // 天标签/计划标题取自本地化视图 lp
+        dayLabel: day ? day.label : "",
         session: sessionId,
         exercises,
-        restDefault: plan.plan_data.rest_seconds || 90,
+        restDefault: (plan.plan_data || {}).rest_seconds || 90,
         doneSets,
         allDone: this.checkAllDone(),
         loading: false,

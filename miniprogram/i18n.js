@@ -61,6 +61,7 @@ const DICT = {
     daily_sets_u: "组",
     daily_sec_u: "秒",
     daily_reps_u: "次",
+    daily_rest_u: "间歇",
 
     // 动作页
     ex_sub: "查动作、看示范",
@@ -173,6 +174,7 @@ const DICT = {
     daily_sets_u: "sets",
     daily_sec_u: "s",
     daily_reps_u: "reps",
+    daily_rest_u: "Rest",
 
     ex_sub: "Browse & preview",
     ex_ph: "Search, e.g. squat",
