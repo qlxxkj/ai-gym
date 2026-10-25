@@ -12,10 +12,11 @@
         wx:for="{{item.values}}" wx:for-item="v" wx:for-index="i" wx:key="*this"
         class="chip {{item.active === i ? 'chip--on' : ''}}"
         data-field="{{item.field}}" data-i="{{i}}" bindtap="pick">{{v}}</view>
-      <view wx:else
-        wx:for="{{item.values}}" wx:for-item="v" wx:key="*this"
-        class="chip {{item.checked[v] ? 'chip--on' : ''}}"
-        data-m="{{v}}" bindtap="toggleFocus">{{v}}</view>
+      <block wx:if="{{item.kind !== 'single'}}">
+        <view wx:for="{{item.values}}" wx:for-item="v" wx:key="*this"
+          class="chip {{item.checked[v] ? 'chip--on' : ''}}"
+          data-m="{{v}}" bindtap="toggleFocus">{{v}}</view>
+      </block>
     </view>
   </view>
 
