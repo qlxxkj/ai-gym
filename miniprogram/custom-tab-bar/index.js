@@ -4,9 +4,10 @@ const i18n = require("../i18n");
 const theme = require("../theme");
 
 const TABS = [
-  { key: "plan", path: "/pages/plan/plan", tkey: "tab_plan", icon: "clipboard" },
   { key: "today", path: "/pages/today/today", tkey: "tab_today", icon: "check" },
+  { key: "plan", path: "/pages/plan/plan", tkey: "tab_plan", icon: "clipboard" },
   { key: "exercises", path: "/pages/exercises/exercises", tkey: "tab_exercises", icon: "dumbbell" },
+  { key: "stats", path: "/pages/stats/stats", tkey: "tab_stats", icon: "chart" },
   { key: "profile", path: "/pages/profile/profile", tkey: "tab_profile", icon: "user" },
 ];
 

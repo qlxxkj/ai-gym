@@ -15,6 +15,7 @@ const DICT = {
     tab_profile: "我的",
     tab_stats: "数据",
     tab_form: "新建计划",
+    tab_today_first: "首页",
 
     nav_plan: "我的计划",
     nav_daily: "今天训练",
@@ -179,6 +180,15 @@ const DICT = {
     st_weight_save: "记录",
     st_weight_saving: "记录中…",
     st_weight_empty: "还没有体重记录",
+    st_1rm: "1RM 曲线（近 180 天）",
+    st_bodymap: "肌群分布",
+    st_bodymap_lo: "少",
+    st_bodymap_hi: "多",
+    st_radar: "肌群覆盖（近 90 天）",
+    st_heat: "训练热力（近 26 周）",
+    st_heat_note: "深绿 = 组数多",
+    st_weight_target: "目标体重",
+    st_weight_target_ph: "目标 kg",
   },
 
   en: {
@@ -345,6 +355,15 @@ const DICT = {
     st_weight_save: "Log",
     st_weight_saving: "Saving…",
     st_weight_empty: "No weight records yet",
+    st_1rm: "1RM curve (180 days)",
+    st_bodymap: "Muscle distribution",
+    st_bodymap_lo: "Low",
+    st_bodymap_hi: "High",
+    st_radar: "Muscle coverage (90 days)",
+    st_heat: "Training heatmap (26 weeks)",
+    st_heat_note: "Darker = more sets",
+    st_weight_target: "Target weight",
+    st_weight_target_ph: "Target kg",
   },
 };
 

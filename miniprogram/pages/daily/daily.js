@@ -71,7 +71,7 @@ Page({
   timer: null,
 
   onShow() {
-    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 1 });
+    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 0 });
     theme.sync(this);
     i18n.sync(this);
     this.setData({ langEn: this.data.lang === "en" });

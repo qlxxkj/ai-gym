@@ -70,7 +70,7 @@ Page({
   },
 
   onShow() {
-    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 0 });
+    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 1 });
     theme.sync(this);
     i18n.sync(this);
     // 切语言：重建当前计划（动作名/标题按语言取），tabBar 文案另走广播

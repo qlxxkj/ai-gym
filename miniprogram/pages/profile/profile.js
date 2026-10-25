@@ -24,7 +24,7 @@ Page({
   },
 
   onShow() {
-    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 3 });
+    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 4 });
     theme.sync(this);
     i18n.sync(this);
     this.refreshOpts();

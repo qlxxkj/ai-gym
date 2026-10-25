@@ -22,9 +22,10 @@
     "backgroundColor": "#FEFCFC",
     "borderStyle": "white",
     "list": [
-      { "pagePath": "pages/plan/plan", "text": "计划" },
       { "pagePath": "pages/today/today", "text": "今日" },
+      { "pagePath": "pages/plan/plan", "text": "计划" },
       { "pagePath": "pages/exercises/exercises", "text": "动作" },
+      { "pagePath": "pages/stats/stats", "text": "数据" },
       { "pagePath": "pages/profile/profile", "text": "我的" }
     ]
   }

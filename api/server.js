@@ -437,6 +437,64 @@ app.get("/stats", reqOpenid, async (req, res) => {
   });
 });
 
+// ---------- 1RM / 肌群覆盖 / 周热力图 ----------
+// 各动作 1RM 曲线（Epley 公式，近 180 天按周聚合）
+app.get("/stats/1rm", reqOpenid, async (req, res) => {
+  await ensureUser(req.openid);
+  const u = req.openid;
+  const r = await pool.query(
+    `SELECT date_trunc('week', s.session_date) AS wk,
+            sr.exercise_id,
+            max(sr.weight * (1 + sr.reps / 30.0)) AS rm1,
+            e.name, e.name_zh
+     FROM set_records sr
+     JOIN sessions s ON s.id = sr.session_id
+     JOIN exercises e ON e.id = sr.exercise_id
+     WHERE s.user_id = $1 AND sr.done AND sr.weight IS NOT NULL AND sr.reps IS NOT NULL
+       AND s.session_date >= CURRENT_DATE - INTERVAL '180 days'
+     GROUP BY 1, 2, 3, e.name, e.name_zh
+     ORDER BY 1, 2`,
+    [u]
+  );
+  // 按 exercise_id 分组，每个动作一条时间序列
+  const byEx = {};
+  r.rows.forEach((row) => {
+    if (!byEx[row.exercise_id]) byEx[row.exercise_id] = { id: row.exercise_id, name: row.name, name_zh: row.name_zh, series: [] };
+    byEx[row.exercise_id].series.push({ week: row.wk && row.wk.toISOString().slice(0, 10), rm1: Math.round(row.rm1 * 10) / 10 });
+  });
+  res.json(Object.values(byEx));
+});
+
+// 肌群覆盖雷达图数据：近 90 天各部位完成组数
+app.get("/stats/muscle-radar", reqOpenid, async (req, res) => {
+  await ensureUser(req.openid);
+  const r = await pool.query(
+    `SELECT e.muscle, count(*)::int AS sets
+     FROM set_records sr
+     JOIN sessions s ON s.id = sr.session_id
+     JOIN exercises e ON e.id = sr.exercise_id
+     WHERE s.user_id = $1 AND sr.done
+       AND s.session_date >= CURRENT_DATE - INTERVAL '90 days'
+     GROUP BY e.muscle ORDER BY e.muscle`,
+    [req.openid]
+  );
+  res.json(r.rows);
+});
+
+// 周热力图：近 26 周（约 6 个月）每周完成组数，按周编号
+app.get("/stats/heatmap", reqOpenid, async (req, res) => {
+  await ensureUser(req.openid);
+  const r = await pool.query(
+    `SELECT date_trunc('week', session_date) AS wk, count(*)::int AS sets
+     FROM set_records sr JOIN sessions s ON s.id = sr.session_id
+     WHERE s.user_id = $1 AND sr.done
+       AND s.session_date >= CURRENT_DATE - INTERVAL '182 days'
+     GROUP BY 1 ORDER BY 1`,
+    [req.openid]
+  );
+  res.json(r.rows.map((row) => ({ week: row.wk && row.wk.toISOString().slice(0, 10), sets: row.sets })));
+});
+
 // ---------- 周复盘 ----------
 app.post("/plans/:id/review", reqOpenid, async (req, res) => {
   await ensureUser(req.openid);

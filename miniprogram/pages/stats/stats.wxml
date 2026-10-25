@@ -26,7 +26,88 @@
       </view>
     </view>
 
-    <!-- 每周打卡 -->
+    <!-- 1RM 曲线（top 4 动作，SVG polyline） -->
+    <view class="card rise" wx:if="{{oneRm.length}}">
+      <view class="section-title">{{T.st_1rm}}</view>
+      <view class="rm-chart">
+        <view class="rm-chart__area">
+          <!-- 条形图（每条线一个动作，显示最新 1RM 值） -->
+          <view class="rm-bars">
+            <view class="rm-bar" wx:for="{{oneRm}}" wx:key="id">
+              <text class="rm-bar__lb">{{item.name}}</text>
+              <view class="rm-bar__track">
+                <view class="rm-bar__fill" style="width: {{rmMaxY ? (item.pts.length ? (item.pts[item.pts.length - 1].y / rmMaxY * 100) : 0) : 0}}%"></view>
+              </view>
+              <text class="rm-bar__val">{{item.pts.length ? item.pts[item.pts.length - 1].y : ''}} kg</text>
+            </view>
+          </view>
+        </view>
+        <!-- 图例 -->
+        <view class="rm-legend">
+          <view class="rm-legend__item" wx:for="{{oneRm}}" wx:key="id">
+            <view class="rm-legend__dot" style="background:{{rmColors[index]}}"></view>
+            <text class="rm-legend__lb">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 肌群地图（人体轮廓，按训练量着色） -->
+    <view class="card rise" wx:if="{{bodyMapUrl}}">
+      <view class="section-title">{{T.st_bodymap}}</view>
+      <view class="bodymap">
+        <image class="bodymap__img" src="{{bodyMapUrl}}" mode="aspectFit" />
+        <view class="bodymap__legend">
+          <text class="bodymap__legend--lo">{{T.st_bodymap_lo}}</text>
+          <text class="bodymap__legend--hi">{{T.st_bodymap_hi}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 肌群覆盖雷达图 -->
+    <view class="card rise" wx:if="{{radar.length}}">
+      <view class="section-title">{{T.st_radar}}</view>
+      <view class="radar">
+        <!-- 雷达图：用 CSS 六边形 + 填充实现（SVG polygon） -->
+        <view class="radar__wrap">
+          <!-- 背景六边形网格 -->
+          <view class="radar__grid"></view>
+          <!-- 数据多边形（view 叠层模拟） -->
+          <view class="radar__ring radar__ring--1"></view>
+          <view class="radar__ring radar__ring--2"></view>
+          <view class="radar__ring radar__ring--3"></view>
+          <!-- 数据填充层（每个部位一条） -->
+          <view class="radar__val" wx:for="{{radar}}" wx:key="key" wx:for-item="r"
+            style="transform: rotate({{r.angleDeg}}deg); height: {{r.pct * 0.5}}rpx">
+          </view>
+          <!-- 标签 -->
+          <view class="radar__labels">
+            <text class="radar__lb" wx:for="{{radar}}" wx:key="key" wx:for-item="r"
+              style="top: {{r.top}}%; left: {{r.left}}%">
+              {{r.lb}} · {{r.sets}}
+            </text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 周热力图（近 26 周组数） -->
+    <view class="card rise" wx:if="{{heatmap.length}}">
+      <view class="section-title">{{T.st_heat}}</view>
+      <view class="heat">
+        <view class="heat__row">
+          <view class="heat__cell {{item.sets ? 'heat__cell--on' : ''}}"
+            wx:for="{{heatmap}}" wx:key="key"
+            style="--pct:{{item.pct}}"
+            data-week="{{item.key}}"
+          >
+          </view>
+        </view>
+        <view class="heat__note">{{T.st_heat_note}}</view>
+      </view>
+    </view>
+
+    <!-- 每周打卡（保留原有柱状） -->
     <view class="card rise" wx:if="{{weeks.length}}">
       <view class="section-title">{{T.st_weekly}}</view>
       <view class="bars">
@@ -66,6 +147,18 @@
         <button class="btn btn--accent wt__btn" size="mini" disabled="{{saving}}" bindtap="saveWeight">
           {{saving ? T.st_weight_saving : T.st_weight_save}}
         </button>
+      </view>
+      <!-- 目标体重 -->
+      <view class="wt__target">
+        <view class="wt__target__row">
+          <text class="wt__target__lb">{{T.st_weight_target}}</text>
+          <input class="wt__input wt__target__input" type="digit" placeholder="{{T.st_weight_target_ph}}"
+            value="{{weightTarget}}" bindinput="onWeightTargetInput" bindblur="saveWeightTarget" />
+        </view>
+        <view class="wt__target__diff" wx:if="{{weightTargetDiff}}">
+          <text class="wt__delta {{weightTargetDiff.indexOf('+') === 0 ? 'wt__delta--up' : 'wt__delta--dn'}}">{{weightTargetDiff}}</text>
+          <text class="wt__target__pct">({{weightTargetDiffPct}})</text>
+        </view>
       </view>
       <view class="wt__note" wx:if="{{!weights.length}}">{{T.st_weight_empty}}</view>
     </view>

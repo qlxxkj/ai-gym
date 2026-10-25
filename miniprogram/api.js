@@ -48,4 +48,7 @@ module.exports = {
   weightAdd: (body) => req("POST", "/weight", body).then((r) => r.data),
   // 数据统计
   stats: () => req("GET", "/stats").then((r) => r.data),
+  stats1rm: () => req("GET", "/stats/1rm").then((r) => r.data),
+  statsRadar: () => req("GET", "/stats/muscle-radar").then((r) => r.data),
+  statsHeat: () => req("GET", "/stats/heatmap").then((r) => r.data),
 };
