@@ -52,6 +52,18 @@ Page({
     weekPct: 0,
     sets7: 0,
     stats: null,
+    // 首页卡：预计训练量 / 恢复状态环 / AI 教练一句话（可解释规则，非模型）
+    estMin: 0,
+    totalSets: 0,
+    totalEx: 0,
+    recover: 0, // 0-100 恢复状态估算
+    recoverLb: "",
+    coachTip: "",
+    coachTipKey: "", // 用于 i18n 兜底渲染
+    restDay: false, // 今天不是训练日 → 给「轻活动」建议而不是"别练"
+    lastSets: {}, // { exId: { weight, reps, last_date } } 上次重量预填
+    rpe: {}, // { "eid:sno": 6-10 } 组 RPE 快选
+    rpeOpen: "", // "eid:sno" 正在展开 RPE 快选
   },
 
   onShow() {
@@ -148,6 +160,7 @@ Page({
       }
 
       const en = this.data.lang === "en";
+      const T0 = this.data.T || {};
       const exName = (x) =>
         en ? exdict.nameEn(x.id) || x.name : exdict.nameZh(x.id) || x.name;
       const exercises = ((day.exercises) || []).map((ex) => ({
@@ -157,8 +170,13 @@ Page({
         clip_url: config.mediaClip(ex.id),
         faved: user.isFavEx(ex.id),
         setStates: ex.sets.map((_, i) => doneSets[ex.id + ":" + (i + 1)] || false),
+        // 上次重量预填（来自 stats.last_sets，近 30 天）
+        last: (stats && stats.last_sets || []).find((x) => String(x.exercise_id) === String(ex.id)) || null,
       }));
       const totalSets = exercises.reduce((n, ex) => n + ex.sets.length, 0);
+      // 预计时长：组数 × 平均组耗（含间歇）；动作多时加 10% 换动作时间
+      const restAvg = ((lp.plan_data || {}).rest_seconds) || 90;
+      const estMin = Math.round((totalSets * (40 + restAvg)) / 60 + totalSets * 0.2);
 
       // 本周进度 + 近 7 天组数（后台拉，失败降级）
       let stats = null;
@@ -169,6 +187,30 @@ Page({
       const weekDone = stats && stats.goal ? stats.goal.this_week : 0;
       const sets7 = (stats && stats.week7 || []).reduce((n, x) => n + Number(x.sets || 0), 0);
 
+      // 休息日（今天计划里没有对应 day）→ 给轻活动建议，不说"别练"
+      const restDay = idx < 0 && dayNo > 0 && !(day && day.exercises && day.exercises.length);
+      // 恢复状态（0-100 估算）：近 7 天训练量大 + 本周已满勤 → 偏低；反之偏高
+      const weekTarget = Math.max(weekGoal || 3, 3);
+      const loadRecent = Math.min(1.5, sets7 / (weekTarget * 8 || 8)); // 7 天组数 / 理想周容量
+      const recover = Math.round(100 - Math.min(100, loadRecent * 60 - Math.min(weekDone, weekTarget) * 5));
+      const recoverLb = recover >= 80 ? "good" : recover >= 55 ? "mid" : "low";
+
+      // AI 教练一句话：纯规则可解释（不用模型，训练中只给关键话）
+      let coachTip = "";
+      let coachTipKey = "";
+      if (restDay) {
+        coachTipKey = "coach_rest";
+      } else if (recover < 55 && totalSets > 0) {
+        coachTipKey = "coach_low_rec"; // 恢复偏低 → 建议减量
+        coachTip = en
+          ? "You've trained hard lately - drop the last exercise to optional and keep rests short."
+          : "最近训练量大，最后一个动作可改选做，间歇保持 60s 内。";
+      } else if (sets7 === 0 && totalSets > 0) {
+        coachTipKey = "coach_streak";
+      } else if (totalSets > 0) {
+        coachTipKey = "coach_ready";
+      }
+
       this.setData({
         planRaw: lp,
         dayLabel: day.label || "",
@@ -176,6 +218,14 @@ Page({
         planGoal: (lp.plan_data || {}).goal || "",
         exercises,
         totalSets,
+        totalEx: exercises.length,
+        estMin,
+        recover,
+        recoverLb,
+        coachTip,
+        coachTipKey,
+        restDay,
+        lastSets: ((stats && stats.last_sets) || []).reduce((o, x) => { o[x.exercise_id] = x; return o; }, {}),
         session: sessionId,
         doneSets,
         allDone: totalSets > 0 && Object.keys(doneSets).length >= totalSets,
@@ -273,6 +323,22 @@ Page({
       exercises: this.data.exercises.map((x) => (x.id === ex.id ? { ...x, faved: user.isFavEx(ex.id) } : x)),
     });
     wx.vibrateShort({ type: "light" });
+  },
+
+  // RPE 快选：打勾后的组点 RPE 数字记录（6-10），再点取消
+  toggleRpePicker(e) {
+    const key = e.currentTarget.dataset.key;
+    this.setData({ rpeOpen: this.data.rpeOpen === key ? "" : key });
+  },
+  pickRpe(e) {
+    const { key, v } = e.currentTarget.dataset;
+    const [exId, sno] = key.split(":");
+    const rpe = { ...this.data.rpe };
+    if (rpe[key] === Number(v)) delete rpe[key];
+    else rpe[key] = Number(v);
+    this.setData({ rpe, rpeOpen: rpe[key] ? key : "" });
+    const sid = this.data.session;
+    if (sid && rpe[key]) api.recordSet(sid, { exercise_id: exId, set_no: Number(sno), rpe: rpe[key] }).catch(() => {});
   },
 
   // 快捷入口

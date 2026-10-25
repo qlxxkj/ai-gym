@@ -1,4 +1,4 @@
-<view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
+<view class="page page--tab {{theme === 'ai' ? 't-ai' : theme === 'dark' ? 't-dark' : ''}}">
   <topbar tkey="tab_plan" />
   <block wx:if="{{pending}}">
     <view class="state"><view class="state__text">{{T.plan_loading}}</view></view>
@@ -89,13 +89,29 @@
       <view class="tip" wx:for="{{current.plan_data.tips}}" wx:key="*this">{{item}}</view>
     </view>
 
+    <!-- AI 建议「待你确认」门控 -->
+    <view class="card rise adj" wx:if="{{confirmAdj}}" style="margin-top:var(--s-4)">
+      <view class="adj__head">
+        <view class="ic ic-target adj__ic"></view>
+        <text class="adj__lb">{{T.plan_pending}}</text>
+      </view>
+      <view class="adj__text">{{confirmAdj}}</view>
+      <view class="adj__note">{{T.plan_pending_note}}</view>
+      <view class="adj__btns">
+        <button class="btn btn--ghost btn--block" bindtap="cancelAdj">{{T.plan_review_close}}</button>
+        <button class="btn btn--accent btn--block" disabled="{{applying}}" bindtap="confirmAdj">
+          {{applying ? T.plan_apply_ing : T.plan_apply}}
+        </button>
+      </view>
+    </view>
+
     <view class="card review" wx:if="{{showReviewPanel}}" style="margin-top:var(--s-4)">
       <view class="review__head">
         <view class="section-title" style="margin-bottom:var(--s-1)">{{T.plan_review}}</view>
         <view class="review__close" bindtap="dismissReview">{{T.plan_review_close}}</view>
       </view>
       <view class="review__pre">{{reviewText}}</view>
-      <button class="btn btn--accent btn--block" disabled="{{applying}}" bindtap="applyReview">
+      <button class="btn btn--accent btn--block" disabled="{{applying}}" bindtap="setConfirmAdj" data-text="{{current.sup_review.next_plan_adjustment}}">
         {{applying ? T.plan_apply_ing : T.plan_apply}}
       </button>
     </view>

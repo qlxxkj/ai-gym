@@ -16,6 +16,12 @@
 
     background: #141110; /* 深色：深填充，与 page 背景同色 */
 }
+.tb--ai {
+    --ink: #F5F6F7;
+    --ink-3: #9AA0A8;
+
+    background: #0E0F13; /* AI 暗色：与 page 背景同色 */
+}
 
 .tb__t {
     display: block;

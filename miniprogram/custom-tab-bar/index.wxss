@@ -19,6 +19,12 @@
     --ink-3: #B2AAA8;
     --accent: #E78F73;
 }
+.tb--ai {
+    --card: #17191F;
+    --line: #262A33;
+    --ink-3: #9AA0A8;
+    --accent: #00E08A;
+}
 
 .tb__inner {
     display: flex;

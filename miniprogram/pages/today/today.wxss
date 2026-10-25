@@ -1,5 +1,63 @@
 /* .hero/.card/.row/.state/.btn 已在 app.wxss，本页只写差异 */
 
+/* 预计量 / 恢复环 */
+.today__est {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  margin-bottom: var(--s-3);
+}
+.today__est-cell { display: flex; flex-direction: column; gap: 2rpx; }
+.today__est-num { font-size: 48rpx; font-weight: 700; font-variant-numeric: tabular-nums; }
+.today__est-lb { font-size: var(--t-cap); color: var(--ink-3); }
+.today__recov { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-1); }
+.recov-ring {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--fill) 0);
+}
+.recov-ring__num {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--t-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.recov-lb { font-size: var(--t-cap); color: var(--ink-3); text-align: right; }
+.recov-lb--good { color: var(--ok); }
+.recov-lb--low { color: var(--warn); }
+
+/* AI 教练一句话卡（紫色强调） */
+.coach {
+  background: var(--ai-bg);
+  border-radius: var(--r-lg);
+  padding: var(--s-3) var(--s-4);
+  margin-bottom: var(--s-3);
+}
+.coach__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin-bottom: var(--s-1);
+}
+.coach__ic { --ic: var(--ai); width: 30rpx; height: 30rpx; }
+.coach__lb { font-size: var(--t-cap); color: var(--ai); font-weight: 600; letter-spacing: 2rpx; }
+.coach__tip { font-size: var(--t-sm); color: var(--ink-2); line-height: 1.6; }
+
+/* 上次重量 */
+.ex__last { font-size: var(--t-cap); color: var(--ink-3); margin-bottom: var(--s-2); }
+.ex__last text { font-variant-numeric: tabular-nums; }
+
 /* 周进度 */
 .prog__head { padding: var(--s-4) var(--s-4) var(--s-2); }
 .prog__head .row__value { color: var(--accent); font-weight: 600; }
@@ -111,6 +169,41 @@
   border-color: var(--accent);
   color: var(--on-solid);
 }
+
+/* RPE 快选 */
+.set__rpe {
+  width: 64rpx;
+  flex: none;
+  text-align: center;
+  font-size: var(--t-cap);
+  color: var(--ink-3);
+  background: var(--fill);
+  border-radius: 6rpx;
+  padding: 4rpx 0;
+  margin-right: var(--s-2);
+}
+.set__rpe--on { background: var(--ai-bg); color: var(--ai); }
+.rpe {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) 0;
+  border-top: 1rpx solid var(--line);
+}
+.rpe__lb { font-size: var(--t-cap); color: var(--ink-3); letter-spacing: 2rpx; }
+.rpe__pick {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: var(--fill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--t-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+.rpe__pick--on { background: var(--ai-bg); color: var(--ai); font-weight: 700; }
 
 /* 快捷入口 */
 .quick {

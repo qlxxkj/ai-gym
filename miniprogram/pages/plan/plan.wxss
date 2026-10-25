@@ -42,6 +42,15 @@
 
 /* 复盘面板 */
 .card.review { padding: var(--s-4); }
+
+/* AI 建议「待你确认」门控卡 */
+.card.adj { background: var(--ai-bg); padding: var(--s-4); }
+.adj__head { display: flex; align-items: center; gap: var(--s-1); margin-bottom: var(--s-1); }
+.adj__ic { --ic: var(--ai); width: 30rpx; height: 30rpx; }
+.adj__lb { font-size: var(--t-cap); color: var(--ai); font-weight: 600; letter-spacing: 2rpx; }
+.adj__text { font-size: var(--t-sm); color: var(--ink-2); line-height: 1.6; }
+.adj__note { font-size: var(--t-cap); color: var(--ink-3); margin-top: var(--s-1); }
+.adj__btns { display: flex; gap: var(--s-2); margin-top: var(--s-3); }
 .review__head {
   display: flex;
   align-items: center;

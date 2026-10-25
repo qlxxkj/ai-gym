@@ -196,6 +196,7 @@ Page({
     catZh: CAT_ZH,
     faved: false,
     exStats: {}, // { "exId": { count, pct } } 近期训练组数（数据分析页拉）
+    lastSets: {}, // { "exId": { weight, reps, last_date } } 近 30 天上次重量
   },
 
   onImgErr(e) {
@@ -228,7 +229,9 @@ Page({
       (s && s.top_exercises || []).forEach((x) => {
         exStats[x.exercise_id] = { count: Number(x.sets) || 0, pct: Math.round(((Number(x.sets) || 0) / maxSets) * 100) };
       });
-      this.setData({ exStats, exTopIds: top });
+      const lastSets = {};
+      (s && s.last_sets || []).forEach((x) => { lastSets[x.exercise_id] = x; });
+      this.setData({ exStats, exTopIds: top, lastSets });
       this.relang();
     }).catch(() => {});
     // 从「我的」页点收藏动作跳来：自动弹该动作详情

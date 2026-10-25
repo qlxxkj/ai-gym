@@ -217,6 +217,8 @@ app.post("/plans/:id/revise", reqOpenid, async (req, res) => {
     `UPDATE plans SET plan_data = $3, version = $4, updated_at = now() WHERE id = $1 AND user_id = $2`,
     [req.params.id, req.openid, JSON.stringify(revised), version]
   );
+  // 采纳/修改成功后清掉待确认建议，避免重复弹窗
+  await pool.query(`UPDATE plans SET sup_review = NULL WHERE id = $1`, [req.params.id]);
   res.json({ id: req.params.id, version, plan: revised });
 });
 
@@ -254,18 +256,32 @@ app.get("/sessions/:planId", reqOpenid, async (req, res) => {
 // 打卡 / 组记录
 app.post("/sessions/:id/sets", reqOpenid, async (req, res) => {
   await ensureUser(req.openid);
-  const { exercise_id, set_no, reps, weight, done = true } = req.body;
+  const { exercise_id, set_no, reps, weight, done = true, rpe } = req.body;
   const r = await pool.query(
     `SELECT s FROM sessions WHERE id = $1 AND user_id = $2`,
     [req.params.id, req.openid]
   );
   if (!r.rows.length) return res.status(404).json({ error: "session not found" });
   const out = await pool.query(
-    `INSERT INTO set_records (session_id, exercise_id, set_no, reps, weight, done)
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-    [req.params.id, exercise_id, set_no, reps ?? null, weight ?? null, done]
+    `INSERT INTO set_records (session_id, exercise_id, set_no, reps, weight, done, rpe)
+     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+    [req.params.id, exercise_id, set_no, reps ?? null, weight ?? null, done, rpe ?? null]
   );
   res.json(out.rows[0]);
+});
+
+// 某动作最近一次已完成的组（30 天内）：今日页预填上次重量/次数
+app.get("/sessions/last/:exerciseId", reqOpenid, async (req, res) => {
+  await ensureUser(req.openid);
+  const r = await pool.query(
+    `SELECT sr.weight, sr.reps, sr.rpe, s.session_date
+     FROM set_records sr JOIN sessions s ON s.id = sr.session_id
+     WHERE sr.exercise_id = $1 AND s.user_id = $2 AND sr.done
+       AND s.session_date >= CURRENT_DATE - INTERVAL '30 days'
+     ORDER BY s.session_date DESC, sr.set_no DESC LIMIT 1`,
+    [req.params.exerciseId, req.openid]
+  );
+  res.json(r.rows[0] || null);
 });
 
 // 读回某 session 已完成的组（页面刷新恢复用）
@@ -340,7 +356,7 @@ app.post("/weight", reqOpenid, async (req, res) => {
 app.get("/stats", reqOpenid, async (req, res) => {
   await ensureUser(req.openid);
   const u = req.openid;
-  const [total, weekly, volume, topEx, week7, weightRow] = await Promise.all([
+  const [total, weekly, volume, topEx, week7, weightRow, lastSets] = await Promise.all([
     // 累计打卡天数
     pool.query(
       `SELECT count(*)::int AS n FROM sessions WHERE user_id = $1 AND done`, [u]
@@ -383,6 +399,16 @@ app.get("/stats", reqOpenid, async (req, res) => {
               (ARRAY_AGG(day ORDER BY day DESC))[1] AS latest_day
        FROM weight_log WHERE user_id = $1 AND day >= CURRENT_DATE - INTERVAL '180 days'`, [u]
     ),
+    // 最近一次有重量的组记录（近 30 天）：今日页"上次重量"预填 + 进阶提示
+    // 用 DISTINCT ON 取每个动作最新一条，避免 MAX() 跨行拼接
+    pool.query(
+      `SELECT DISTINCT ON (sr.exercise_id) sr.exercise_id, s.session_date AS last_date,
+              sr.weight, sr.reps, sr.rpe
+       FROM set_records sr JOIN sessions s ON s.id = sr.session_id
+       WHERE s.user_id = $1 AND sr.done AND sr.weight IS NOT NULL
+         AND s.session_date >= CURRENT_DATE - INTERVAL '30 days'
+       ORDER BY sr.exercise_id, s.session_date DESC, sr.set_no DESC`, [u]
+    ),
   ]);
   // 目标进度：当前计划周训练天数（plan_data.days）对比本周实际打卡
   const pw = await pool.query(
@@ -406,6 +432,7 @@ app.get("/stats", reqOpenid, async (req, res) => {
     top_exercises: topEx.rows, // [{exercise_id, name, name_zh, sets}]
     week7: week7.rows, // [{session_date, sets}]
     weight: weightRow.rows[0], // {latest, min, max, latest_day}
+    last_sets: lastSets.rows, // [{exercise_id, last_date, weight, reps}] 近 30 天
     goal: { per_week: perWeek, this_week: thisWeek.rows[0].n },
   });
 });

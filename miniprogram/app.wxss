@@ -25,6 +25,11 @@ page {
     --accent: #A5492B;
     --accent-bg: #FDEEE9;
     --on-solid: #FDF9F8;
+    /* AI 建议色（智能紫），浅暗两套 */
+    --ai: #6C5CE7;
+    --ai-bg: #EEEBFB;
+    --warn: #B7791F;
+    --warn-bg: #FBF3E2;
     --ok: #397852;
     --ok-bg: #E5F7EB;
     --err: #B24037;
@@ -83,6 +88,10 @@ page {
     --accent: #E78F73;
     --accent-bg: #3D2821;
     --on-solid: #181210;
+    --ai: #9D8FF5;
+    --ai-bg: #2B2748;
+    --warn: #FFB020;
+    --warn-bg: #3A2E14;
     --ok: #7BC495;
     --ok-bg: #163120;
     --err: #F09286;
@@ -91,6 +100,35 @@ page {
     --mask: rgba(0, 0, 0, 0.62);
 
     --shadow: 0 2rpx 18rpx rgba(0, 0, 0, 0.36);
+}
+
+/* AI 主题（HUD 暗色，默认档）：冷灰黑底 + 电光绿 + 智能紫 */
+.t-ai {
+    --bg: #0E0F13;
+    --card: #17191F;
+    --fill: #1E2128;
+    --fill-2: #272B34;
+    --line: #262A33;
+
+    --ink: #F5F6F7;
+    --ink-2: #9AA0A8;
+    --ink-3: #6B7280;
+
+    --accent: #00E08A;
+    --accent-bg: #0D3527;
+    --on-solid: #04120C;
+    --ai: #8B7CF6;
+    --ai-bg: #241F45;
+    --warn: #FFB020;
+    --warn-bg: #332812;
+    --ok: #00E08A;
+    --ok-bg: #0D3527;
+    --err: #FF4D4F;
+    --err-bg: #331B1C;
+
+    --mask: rgba(0, 0, 0, 0.68);
+
+    --shadow: 0 2rpx 18rpx rgba(0, 0, 0, 0.4);
 }
 
 /* ---------- 布局 ---------- */

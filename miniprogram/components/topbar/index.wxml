@@ -1,4 +1,4 @@
-<view class="tb {{theme === 'dark' ? 'tb--dark' : ''}}" style="padding-top:{{statusH}}px">
+<view class="tb {{theme === 'ai' ? 'tb--ai' : theme === 'dark' ? 'tb--dark' : ''}}" style="padding-top:{{statusH}}px">
   <view style="height:{{barH}}px">
     <text class="tb__t">{{text}}</text>
   </view>

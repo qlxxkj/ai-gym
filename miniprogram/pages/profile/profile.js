@@ -38,6 +38,7 @@ Page({
   refreshOpts() {
     const T = this.data.T || {};
     const themeOpts = [
+      { v: "ai", label: T.theme_ai },
       { v: "auto", label: T.theme_auto },
       { v: "light", label: T.theme_light },
       { v: "dark", label: T.theme_dark },
@@ -46,7 +47,8 @@ Page({
       { v: "zh", label: T.lang_zh },
       { v: "en", label: T.lang_en },
     ];
-    const themePref = theme.pref() === "dark" || theme.pref() === "light" ? theme.pref() : "auto";
+    const p = theme.pref();
+    const themePref = ["ai", "auto", "light", "dark"].indexOf(p) > -1 ? p : "ai";
     const langPref = this.data.lang === "en" ? "en" : "zh";
     this.setData({
       themePref,

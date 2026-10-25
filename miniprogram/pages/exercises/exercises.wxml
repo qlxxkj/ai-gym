@@ -1,4 +1,4 @@
-<view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
+<view class="page page--tab {{theme === 'ai' ? 't-ai' : theme === 'dark' ? 't-dark' : ''}}">
   <topbar tkey="tab_exercises" />
   <view class="hero hero--lead">
     <view class="hero__desc">{{T.ex_sub}}</view>
@@ -27,9 +27,9 @@
         <view class="ex__body">
           <view class="ex__name">{{item.name_zh}}</view>
           <view class="ex__meta">{{item.equipment_zh}} · {{item.muscle_zh}} · {{item.cat_zh}}</view>
-          <!-- 近期训练进度条（组数） -->
+          <!-- 近期训练进度条（组数）+ 上次重量 -->
           <view class="ex__prog" wx:if="{{item._count}}">
-            <text class="ex__prog-lb">{{T.ex_done_u}} {{item._count}}</text>
+            <text class="ex__prog-lb">{{T.ex_done_u}} {{item._count}}<text wx:if="{{lastSets[item.id] && lastSets[item.id].weight}}"> · {{T.last_w}} {{lastSets[item.id].weight}}kg</text></text>
             <view class="ex__prog-track"><view class="ex__prog-fill" style="width: {{item._pct}}%"></view></view>
           </view>
         </view>
@@ -61,6 +61,10 @@
         <view class="sheet__cell"><view class="cell__lb">{{T.ex_equip}}</view><view class="cell__val">{{detail.equipment_zh}}</view></view>
         <view class="sheet__cell"><view class="cell__lb">{{T.ex_muscle}}</view><view class="cell__val">{{detail.muscle_zh}}</view></view>
         <view class="sheet__cell sheet__cell--wide"><view class="cell__lb">{{T.ex_assist}}</view><view class="cell__val">{{detail.muscles_zh}}</view></view>
+        <view class="sheet__cell sheet__cell--wide" wx:if="{{lastSets[detail.id] && lastSets[detail.id].weight}}">
+          <view class="cell__lb">{{T.last_w}}</view>
+          <view class="cell__val">{{lastSets[detail.id].weight}}kg · {{lastSets[detail.id].reps}}{{T.ex_reps_u}}</view>
+        </view>
       </view>
       <view class="sheet__acts">
         <button class="btn btn--ghost" style="flex:1" bindtap="closeSheet">{{T.ex_close}}</button>

@@ -62,6 +62,7 @@ Page({
     reviewing: false,
     revising: false,
     applying: false,
+    confirmAdj: "", // 待确认的 AI 建议文本（plan_data.next_plan_adjustment）
     showReviewPanel: false,
     pending: false, // 刚生成完计划、正在后台加载详情时显示"加载计划中…"，避免空页误判
     loadErr: "",
@@ -249,6 +250,23 @@ Page({
         fail: () => resolve(null),
       });
     });
+  },
+
+  // 「待你确认」门控：展示 AI 建议，用户点确认后才调 revise
+  setConfirmAdj(e) {
+    const text = (e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.text) ||
+      (this.data.current && this.data.current.sup_review && this.data.current.sup_review.next_plan_adjustment) || "";
+    if (!text) return;
+    this.setData({ confirmAdj: text });
+  },
+  confirmAdj() {
+    const adj = this.data.confirmAdj;
+    if (!adj) return;
+    this.setData({ confirmAdj: "" });
+    this.applyReview();
+  },
+  cancelAdj() {
+    this.setData({ confirmAdj: "" });
   },
 
   // 采纳复盘里的 next_plan_adjustment，让 AI 据此修改计划

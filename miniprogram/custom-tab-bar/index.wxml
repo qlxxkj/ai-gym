@@ -1,4 +1,4 @@
-<view class="tb {{theme === 'dark' ? 'tb--dark' : ''}}">
+<view class="tb {{theme === 'ai' ? 'tb--ai' : theme === 'dark' ? 'tb--dark' : ''}}">
   <view class="tb__inner">
     <view
       wx:for="{{list}}"

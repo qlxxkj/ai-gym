@@ -32,6 +32,9 @@ module.exports = {
   sessions: (planId) => req("GET", `/sessions/${planId}`).then((r) => r.data),
   sessionSets: (sessionId) =>
     req("GET", `/sessions/${sessionId}/sets`).then((r) => r.data),
+  // 某动作 30 天内最近一次组记录（预填上次重量）
+  lastSet: (exerciseId) =>
+    req("GET", `/sessions/last/${exerciseId}`).then((r) => r.data),
   day: (planId, dayNo) =>
     req("GET", `/plans/${planId}/day/${dayNo}`).then((r) => r.data),
   recordSet: (sessionId, body) =>

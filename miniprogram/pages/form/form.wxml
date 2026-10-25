@@ -1,4 +1,4 @@
-<view class="page {{theme === 'dark' ? 't-dark' : ''}}">
+<view class="page {{theme === 'ai' ? 't-ai' : theme === 'dark' ? 't-dark' : ''}}">
   <topbar tkey="tab_form" />
   <view class="hero">
     <view class="hero__title" style="font-size:var(--t-title);letter-spacing:2rpx">{{T.form_title}}</view>
