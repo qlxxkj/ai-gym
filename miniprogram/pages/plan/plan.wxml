@@ -52,7 +52,7 @@
 
     <view class="chips rise" style="margin-bottom:var(--s-4)">
       <text class="tag tag--accent">{{curGoal}}</text>
-      <text class="tag">{{T.plan_rest_lb}} {{current.plan_data.rest_seconds}}{{T.plan_rest_s}}</text>
+      <text class="tag">{{T.plan_rest_lb}} {{current.plan_data.rest_seconds}} {{T.plan_rest_s}}</text>
       <text class="tag">{{T.plan_v}} {{current.version}}</text>
       <view style="flex:1"></view>
       <view class="fav {{faved?'fav--on':''}}" bindtap="toggleFav">

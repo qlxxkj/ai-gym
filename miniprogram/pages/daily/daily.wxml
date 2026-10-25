@@ -36,7 +36,7 @@
       <view class="ex__note" wx:if="{{ex.note}}">{{ex.note}}</view>
       <view class="set" wx:for="{{ex.sets}}" wx:for-item="st" wx:for-index="setidx" wx:key="*this">
         <text class="set__lb">{{T.daily_set}} {{setidx + 1}}</text>
-        <text class="set__detail">{{st.reps}} · {{st.rest_seconds}} {{T.daily_sec_u}}</text>
+        <text class="set__detail">{{st.reps}} {{T.daily_reps_u}} · {{st.rest_seconds}} {{T.daily_sec_u}}</text>
         <view class="set__check {{ex.setStates[setidx] ? 'set__check--on' : ''}}"
           data-exidx="{{exidx}}" data-setidx="{{setidx}}" bindtap="toggleSet">
           {{ex.setStates[setidx] ? '✓' : '○'}}
