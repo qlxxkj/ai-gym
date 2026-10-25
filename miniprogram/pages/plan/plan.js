@@ -88,34 +88,63 @@ Page({
   },
 
   async load() {
+    this.setData({ pending: true, loadErr: "" });
+    const lang = this.data.lang;
+
+    // 先读本地缓存：命中就立即展示（不阻塞、不依赖网络）
+    const cached = wx.getStorageSync("cachedPlan");
+    const cachedId = wx.getStorageSync("currentPlanId");
+    if (cached && cached.id && (!cachedId || cached.id === cachedId)) {
+      const full = enrichPlan(locPlan(cached, lang), lang);
+      this.setData({
+        current: full,
+        curGoal: (full.plan_data || {}).goal || "",
+        langEn: lang === "en",
+        openDay: -1,
+        pending: false,
+        faved: user.isFavPlan(full.id),
+      });
+      if (full.sup_review) {
+        this.setData({ reviewText: JSON.stringify(full.sup_review, null, 2), showReviewPanel: true });
+      }
+    }
+
+    // 后台拉最新列表+详情；成功回写缓存；失败不清已展示的缓存，只在无缓存时弹错
     try {
-      this.setData({ pending: true, loadErr: "" });
-      const lang = this.data.lang;
       const rawPlans = await api.plans();
       const plans = rawPlans.map((p) => locPlan(p, lang));
       const cur = wx.getStorageSync("currentPlanId");
       const current = plans.find((p) => p.id === cur) || plans[0] || null;
-      if (current) wx.setStorageSync("currentPlanId", current.id);
-      // enrichPlan 现在是同步的（名称取自本地字典），不再串行等 500 条动作
-      const full = current ? enrichPlan(locPlan(await api.plan(current.id), lang), lang) : null;
-      this.setData({
-        plans,
-        current: full,
-        curGoal: full ? (full.plan_data || {}).goal || "" : "",
-        langEn: lang === "en",
-        openDay: -1,
-        pending: false,
-        faved: full ? user.isFavPlan(full.id) : false,
-      });
-      if (full && full.sup_review) {
-        this.setData({ reviewText: JSON.stringify(full.sup_review, null, 2), showReviewPanel: true });
+      if (current) {
+        wx.setStorageSync("currentPlanId", current.id);
+        const full = enrichPlan(locPlan(await api.plan(current.id), lang), lang);
+        wx.setStorageSync("cachedPlan", full); // 回写缓存供下次离线用
+        this.setData({
+          plans,
+          current: full,
+          curGoal: (full.plan_data || {}).goal || "",
+          langEn: lang === "en",
+          openDay: -1,
+          pending: false,
+          faved: user.isFavPlan(full.id),
+        });
+        if (full.sup_review) {
+          this.setData({ reviewText: JSON.stringify(full.sup_review, null, 2), showReviewPanel: true });
+        }
+      } else {
+        this.setData({ plans, pending: false });
       }
     } catch (e) {
-      const en = this.data.lang === "en";
-      console.error(e);
-      this.setData({ pending: false, loadErr: String((e.data && e.data.error) || e.errMsg || e.message) });
-      // 加载失败也弹出来，别让用户误以为"计划生成成功但页面空"
-      wx.showModal({ title: en ? "Load failed" : "计划加载失败", content: (en ? "Code " : "状态码 ") + (e.statusCode || "") + "\n" + String((e.data && e.data.error) || e.errMsg || e.message), showCancel: false });
+      console.error("plans refresh failed, using cache:", e);
+      if (!this.data.current) {
+        const en = this.data.lang === "en";
+        this.setData({ pending: false, loadErr: String((e.data && e.data.error) || e.errMsg || e.message) });
+        wx.showModal({
+          title: en ? "Load failed" : "计划加载失败",
+          content: (en ? "Code " : "状态码 ") + (e.statusCode || "") + "\n" + String((e.data && e.data.error) || e.errMsg || e.message),
+          showCancel: false,
+        });
+      }
     }
   },
 
