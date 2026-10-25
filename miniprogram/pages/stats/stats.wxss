@@ -1,0 +1,95 @@
+/* .hero/.card/.row/.state/.section-title/.btn/.ic* 已在 app.wxss */
+
+/* 核心指标 2x2 */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+  margin-bottom: var(--s-4);
+}
+.grid__cell {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  padding: var(--s-4);
+  text-align: center;
+  box-shadow: 0 2rpx 12rpx rgba(36, 29, 27, 0.05);
+}
+.grid__num {
+  font-size: 56rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.grid__lb {
+  margin-top: var(--s-1);
+  font-size: var(--t-cap);
+  color: var(--ink-3);
+}
+
+/* 每周打卡柱状 */
+.card { margin-bottom: var(--s-4); }
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--s-2);
+  padding: var(--s-3) 0 var(--s-2);
+  height: 280rpx;
+}
+.bars__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-1);
+  height: 100%;
+}
+.bars__num { font-size: 20rpx; color: var(--ink-3); }
+.bars__track {
+  flex: 1;
+  width: 100%;
+  max-width: 56rpx;
+  background: var(--fill);
+  border-radius: 8rpx;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+.bars__fill {
+  width: 100%;
+  background: var(--accent);
+  border-radius: 8rpx;
+  min-height: 4rpx;
+}
+.bars__wk { font-size: 20rpx; color: var(--ink-3); }
+.bars__note { font-size: var(--t-cap); color: var(--ink-3); padding: 0 var(--s-4) var(--s-3); }
+
+/* 常用动作行 */
+.ex__row { padding: var(--s-2) var(--s-4); border-top: 1rpx solid var(--line); }
+.ex__row:first-of-type { border-top: none; }
+
+/* 体重 */
+.wt__head { padding: var(--s-4) var(--s-4) 0; }
+.wt__head .row__value { display: flex; align-items: baseline; gap: var(--s-2); }
+.wt__latest { color: var(--accent); font-weight: 700; font-size: var(--t-title); }
+.wt__delta { font-size: var(--t-cap); }
+.wt__delta--up { color: var(--ok); }
+.wt__delta--dn { color: var(--danger, #C0392B); }
+.wt__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4) 0;
+}
+.wt__input {
+  flex: 1;
+  background: var(--fill);
+  border-radius: var(--r-md);
+  padding: var(--s-2) var(--s-3);
+  font-size: var(--t-body);
+}
+.wt__btn { flex: none; }
+.wt__note {
+  padding: var(--s-3) var(--s-4) var(--s-4);
+  font-size: var(--t-cap);
+  color: var(--ink-3);
+}

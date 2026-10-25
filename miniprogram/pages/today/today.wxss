@@ -1,0 +1,134 @@
+/* .hero/.card/.row/.state/.btn 已在 app.wxss，本页只写差异 */
+
+/* 周进度 */
+.prog__head { padding: var(--s-4) var(--s-4) var(--s-2); }
+.prog__head .row__value { color: var(--accent); font-weight: 600; }
+.prog__bar {
+  height: 10rpx;
+  background: var(--fill);
+  border-radius: 5rpx;
+  overflow: hidden;
+  margin: 0 var(--s-4) var(--s-3);
+}
+.prog__fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 5rpx;
+  transition: width 0.4s ease;
+}
+
+/* 组间休息：纯色陶土橙 */
+.rest {
+  background: var(--accent);
+  color: var(--on-solid);
+  border-radius: var(--r-lg);
+  padding: var(--s-4);
+  text-align: center;
+  margin-bottom: var(--s-3);
+}
+.rest__lb { font-size: var(--t-cap); letter-spacing: 4rpx; opacity: 0.85; }
+.rest__num {
+  font-size: 80rpx;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin: var(--s-1) 0 var(--s-2);
+}
+.rest__bar {
+  height: 8rpx;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+.rest__fill { height: 100%; background: #fff; transition: width 1s linear; }
+
+/* 全部完成 */
+.done {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-radius: var(--r-md);
+  padding: var(--s-4);
+  text-align: center;
+  font-size: var(--t-sm);
+  margin-bottom: var(--s-3);
+}
+
+/* 动作卡 */
+.ex { padding: var(--s-4); margin-bottom: var(--s-3); }
+.ex__media {
+  width: 100%;
+  height: 400rpx;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--fill);
+  display: block;
+  margin-bottom: var(--s-3);
+}
+.ex__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin-bottom: var(--s-1);
+}
+.ex__name { font-size: var(--t-sm); font-weight: 600; flex: 1; min-width: 0; }
+.ex__count { font-size: var(--t-cap); color: var(--ink-3); flex: none; }
+.ex__fav {
+  width: 56rpx;
+  height: 56rpx;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ex__fav-ic { width: 40rpx; height: 40rpx; }
+.ex__fav--on .ic-heart-fill { --ic: var(--accent); }
+.ex__note { font-size: var(--t-cap); color: var(--ink-3); margin-bottom: var(--s-2); line-height: 1.6; }
+
+/* 组 */
+.set {
+  display: flex;
+  align-items: center;
+  padding: var(--s-2) 0;
+  border-top: 1rpx solid var(--line);
+}
+.set:first-of-type { border-top: none; }
+.set__lb { font-size: var(--t-sm); font-weight: 500; min-width: 110rpx; }
+.set__detail { font-size: var(--t-cap); color: var(--ink-2); flex: 1; }
+.set__check {
+  width: 56rpx;
+  height: 56rpx;
+  flex: none;
+  border: 2rpx solid var(--line);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
+}
+.set__check--on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-solid);
+}
+
+/* 快捷入口 */
+.quick {
+  display: flex;
+  gap: var(--s-2);
+  margin: var(--s-5) 0 var(--s-5);
+}
+.quick__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-1);
+  background: var(--card);
+  border-radius: var(--r-lg);
+  padding: var(--s-3);
+  font-size: var(--t-cap);
+  color: var(--ink-2);
+  box-shadow: 0 2rpx 12rpx rgba(36, 29, 27, 0.06);
+}
+.quick__ic { width: 44rpx; height: 44rpx; --ic: var(--accent); }

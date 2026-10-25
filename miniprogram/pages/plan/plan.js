@@ -173,6 +173,7 @@ Page({
     const lang = this.data.lang;
     const p = enrichPlan(locPlan(await api.plan(id), lang), lang);
     wx.setStorageSync("currentPlanId", id);
+    wx.setStorageSync("cachedPlan", p); // 回写缓存，今日页（tab）读它展示当天应练
     this.setData({
       current: p,
       curGoal: (p.plan_data || {}).goal || "",

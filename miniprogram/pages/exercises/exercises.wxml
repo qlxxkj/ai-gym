@@ -8,6 +8,9 @@
     <input class="search__input" placeholder="{{T.ex_ph}}" value="{{q}}" bindinput="onSearch" confirm-type="search" />
   </view>
 
+  <!-- AI 生成计划入口 -->
+  <button class="btn btn--accent btn--block rise" style="margin-bottom:var(--s-4)" bindtap="goForm">{{T.ex_ai_btn}}</button>
+
   <view class="chips" style="margin:var(--s-3) 0 var(--s-4)">
     <view wx:for="{{muscles}}" wx:key="*this"
       class="chip {{muscle === item ? 'chip--on' : ''}}"
@@ -24,6 +27,15 @@
         <view class="ex__body">
           <view class="ex__name">{{item.name_zh}}</view>
           <view class="ex__meta">{{item.equipment_zh}} · {{item.muscle_zh}} · {{item.cat_zh}}</view>
+          <!-- 近期训练进度条（组数） -->
+          <view class="ex__prog" wx:if="{{item._count}}">
+            <text class="ex__prog-lb">{{T.ex_done_u}} {{item._count}}</text>
+            <view class="ex__prog-track"><view class="ex__prog-fill" style="width: {{item._pct}}%"></view></view>
+          </view>
+        </view>
+        <!-- 收藏按钮 -->
+        <view class="ex__fav {{item._faved ? 'ex__fav--on' : ''}}" data-ex="{{item}}" catchtap="toggleListFav">
+          <view class="ic {{item._faved ? 'ic-heart-fill' : 'ic-heart'}} ex__fav-ic"></view>
         </view>
         <view class="ic ic-chevron ex__arrow"></view>
       </view>

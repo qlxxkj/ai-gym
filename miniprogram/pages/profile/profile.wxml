@@ -57,6 +57,16 @@
     </view>
   </view>
 
+  <!-- ---------- 数据分析：跳转 navigateTo 页 ---------- -->
+  <view class="section-title section-title--gap">{{T.sec_stats}}</view>
+  <view class="card group rise">
+    <view class="row" bindtap="goStats">
+      <view class="row__lead"><view class="ic ic-activity row__ic"></view></view>
+      <text class="row__label">{{T.sec_stats}}</text>
+      <view class="ic ic-chevron row__arrow" style="flex:none;margin-left:var(--s-2)"></view>
+    </view>
+  </view>
+
   <!-- ---------- 分享：左 图标+文字，右 箭头 ---------- -->
   <view class="section-title section-title--gap">{{T.sec_share}}</view>
   <view class="card group rise">

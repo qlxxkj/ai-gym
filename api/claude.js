@@ -125,6 +125,29 @@ function revisePrompt(plan, adjustments, exercises) {
 }
 
 function reviewPrompt(plan, sessions, sets, extra) {
+  // 训练量/频率统计：给 AI 数值依据，建议才能量化（减多少组、加几天）
+  const daySet = new Set();
+  let totalSets = 0, totalReps = 0, totalVol = 0;
+  const exSet = new Map(); // exercise_id → sets
+  for (const r of sets || []) {
+    if (!r.done) continue;
+    totalSets++;
+    totalReps += Number(r.reps) || 0;
+    totalVol += (Number(r.reps) || 0) * (Number(r.weight) || 0);
+    const key = String(r.exercise_id || "");
+    exSet.set(key, (exSet.get(key) || 0) + 1);
+  }
+  const top = [...exSet.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const doneDays = (sessions || []).filter((s) => s.done).length;
+  const activeDays = new Set((sessions || []).map((s) => s.session_date)).size;
+  const stats = {
+    done_days: doneDays,
+    active_days: activeDays,
+    total_sets: totalSets,
+    total_reps: totalReps,
+    total_volume: Math.round(totalVol),
+    top_exercises: top.map(([id, n]) => ({ exercise_id: id, sets: n })),
+  };
   return [
     "你是健身教练，请基于用户过去一周的训练记录做复盘。",
     "",
@@ -135,10 +158,19 @@ function reviewPrompt(plan, sessions, sets, extra) {
     JSON.stringify(sessions),
     "",
     "近 7 天组记录:",
-    JSON.stringify(sets.slice(0, 300)),
+    JSON.stringify((sets || []).slice(0, 300)),
+    "",
+    "训练量/频率统计（复盘建议必须引用这些数值）:",
+    JSON.stringify(stats),
     "",
     "用户反馈:",
     JSON.stringify(extra),
+    "",
+    "规则:",
+    "- verdict/adherence/strengths/problems 保持原有风格；",
+    "- suggestions 里每条 action 必须给出具体数值调整（组数、次数、频率、重量），例如「推日组数 4→3」，不要空泛建议；",
+    "- 若 done_days 明显低于计划天数，first 提频率建议；若 total_volume 持平/下降，提渐进超负荷（加重量或次数）；",
+    "- next_plan_adjustment 用一段话描述要交给修改接口执行的调整，含目标肌群/组数/次数变化。",
     "",
     "输出严格 JSON:",
     `{

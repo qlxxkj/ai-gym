@@ -40,4 +40,9 @@ module.exports = {
     req("POST", `/sessions/${sessionId}/done`).then((r) => r.data),
   review: (planId, body) =>
     req("POST", `/plans/${planId}/review`, body).then((r) => r.data),
+  // 体重
+  weight: () => req("GET", "/weight").then((r) => r.data),
+  weightAdd: (body) => req("POST", "/weight", body).then((r) => r.data),
+  // 数据统计
+  stats: () => req("GET", "/stats").then((r) => r.data),
 };

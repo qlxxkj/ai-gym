@@ -123,7 +123,7 @@ Page({
       });
       wx.hideLoading();
       this.setData({ generating: false });
-      // generate 返回里已带完整计划数据（r.plan），直接存本地，"今天"页读缓存展示
+      // generate 返回里已带完整计划数据（r.plan），直接存本地，今日页（tab）读缓存展示当天应练
       wx.setStorageSync("cachedPlan", {
         id: r.id,
         title: (r.plan && r.plan.title) || "",
@@ -132,6 +132,8 @@ Page({
       wx.setStorageSync("currentPlanId", r.id);
       const back = () => wx.switchTab({ url: "/pages/plan/plan" });
       wx.navigateBack({ fail: back });
+      // 生成成功后直达今日页打卡
+      this._generated = true;
       wx.showToast({ title: en ? "Plan created" : "计划已生成", icon: "success" });
     } catch (err) {
       wx.hideLoading();

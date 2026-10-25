@@ -195,6 +195,7 @@ Page({
     partZh: PART_ZH,
     catZh: CAT_ZH,
     faved: false,
+    exStats: {}, // { "exId": { count, pct } } 近期训练组数（数据分析页拉）
   },
 
   onImgErr(e) {
@@ -208,7 +209,7 @@ Page({
   },
 
   onShow() {
-    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 2 });
+    if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 2 }); // tab: plan/today/exercises/profile
     theme.sync(this);
     i18n.sync(this);
     this.setData({ langEn: this.data.lang === "en" });
@@ -219,6 +220,17 @@ Page({
       this.relang();
     });
     exdict.load(() => this.relang());
+    // 近期训练统计（组数）后台拉，用来给列表画进度条；失败静默
+    api.stats().then((s) => {
+      const top = (s && s.top_exercises || []).map((x) => x.exercise_id);
+      const maxSets = s && s.top_exercises && s.top_exercises[0] ? Number(s.top_exercises[0].sets) || 1 : 1;
+      const exStats = {};
+      (s && s.top_exercises || []).forEach((x) => {
+        exStats[x.exercise_id] = { count: Number(x.sets) || 0, pct: Math.round(((Number(x.sets) || 0) / maxSets) * 100) };
+      });
+      this.setData({ exStats, exTopIds: top });
+      this.relang();
+    }).catch(() => {});
     // 从「我的」页点收藏动作跳来：自动弹该动作详情
     const openId = wx.getStorageSync("openExId");
     if (openId) {
@@ -271,8 +283,10 @@ Page({
   },
 
   // 把每条 list 的英文字段映射成当前语言展示字段（en 保持英文，zh 用中文表）
+  // 附：_count/_pct = 近期训练组数进度；_faved = 本地收藏态
   decorate(list) {
     const en = this.data.lang === "en";
+    const stats = this.data.exStats || {};
     return (list || []).map((x) => ({
       ...x,
       equipment_zh: en ? zh(x.equipment, {}) : zh(x.equipment, this.data.equipZh),
@@ -280,6 +294,9 @@ Page({
       cat_zh: en ? zh(x.cat, {}) : zh(x.cat, this.data.catZh),
       muscles_zh: en ? zh(x.muscles, {}) : zh(x.muscles, this.data.partZh),
       name_zh: en ? exdict.nameEn(x.id) || x.name : exdict.nameZh(x.id) || x.name_zh || x.name,
+      _count: stats[x.id] ? stats[x.id].count : 0,
+      _pct: stats[x.id] ? stats[x.id].pct : 0,
+      _faved: user.isFavEx(x.id),
     }));
   },
 
@@ -324,5 +341,26 @@ Page({
 
   closeSheet() {
     this.setData({ detail: null });
+  },
+
+  // 列表行收藏（catchtap 阻止冒泡，不触发 showDetail）
+  toggleListFav(e) {
+    const ex = e.currentTarget.dataset.ex;
+    if (!ex) return;
+    user.toggleFavEx(ex.id);
+    const faved = user.isFavEx(ex.id);
+    this.setData({
+      list: this.data.list.map((x) => (x.id === ex.id ? { ...x, _faved: faved } : x)),
+    });
+    wx.vibrateShort({ type: "light" });
+    wx.showToast({
+      title: this.data.lang === "en" ? (faved ? "Favorited" : "Removed") : faved ? "已加入收藏" : "已取消收藏",
+      icon: "none",
+    });
+  },
+
+  // AI 生成：基于选中的动作让 AI 出一份计划（form 页的快捷入口）
+  goForm() {
+    wx.navigateTo({ url: "/pages/form/form" });
   },
 });

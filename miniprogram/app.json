@@ -1,9 +1,11 @@
 {
   "pages": [
     "pages/plan/plan",
-    "pages/daily/daily",
+    "pages/today/today",
+    "pages/stats/stats",
     "pages/exercises/exercises",
     "pages/profile/profile",
+    "pages/daily/daily",
     "pages/form/form"
   ],
   "window": {
@@ -21,7 +23,7 @@
     "borderStyle": "white",
     "list": [
       { "pagePath": "pages/plan/plan", "text": "计划" },
-      { "pagePath": "pages/daily/daily", "text": "今天" },
+      { "pagePath": "pages/today/today", "text": "今日" },
       { "pagePath": "pages/exercises/exercises", "text": "动作" },
       { "pagePath": "pages/profile/profile", "text": "我的" }
     ]

@@ -42,6 +42,40 @@
 }
 .ex__arrow { width: 32rpx; height: 32rpx; flex: none; }
 
+/* 近期训练进度（组数） */
+.ex__prog {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+.ex__prog-lb { font-size: 20rpx; color: var(--ink-3); flex: none; }
+.ex__prog-track {
+  flex: 1;
+  max-width: 240rpx;
+  height: 8rpx;
+  background: var(--fill);
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+.ex__prog-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4rpx;
+}
+
+/* 列表行收藏按钮 */
+.ex__fav {
+  width: 56rpx;
+  height: 56rpx;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ex__fav-ic { width: 40rpx; height: 40rpx; --ic: var(--ink-3); }
+.ex__fav--on .ex__fav-ic { --ic: var(--accent); }
+
 /* 详情弹层：底部让出 tabBar 高度（tabBar 高 104rpx + 安全区），收藏按钮不被挡 */
 .sheet__mask {
   position: fixed;

@@ -1,0 +1,73 @@
+<view class="page {{theme === 'dark' ? 't-dark' : ''}}">
+  <topbar tkey="tab_stats" />
+
+  <view class="state" wx:if="{{loading}}">
+    <view class="state__text">{{T.loading}}</view>
+  </view>
+
+  <block wx:if="{{!loading && s}}">
+    <!-- 核心指标 -->
+    <view class="grid rise">
+      <view class="grid__cell">
+        <view class="grid__num">{{s.total_days}}</view>
+        <view class="grid__lb">{{T.st_total_days}}</view>
+      </view>
+      <view class="grid__cell">
+        <view class="grid__num">{{s.volume.sets}}</view>
+        <view class="grid__lb">{{T.st_total_sets}}</view>
+      </view>
+      <view class="grid__cell">
+        <view class="grid__num">{{s.volume.reps}}</view>
+        <view class="grid__lb">{{T.st_total_reps}}</view>
+      </view>
+      <view class="grid__cell">
+        <view class="grid__num">{{s.week7Max}}</view>
+        <view class="grid__lb">{{T.st_week7}}</view>
+      </view>
+    </view>
+
+    <!-- 每周打卡 -->
+    <view class="card rise" wx:if="{{weeks.length}}">
+      <view class="section-title">{{T.st_weekly}}</view>
+      <view class="bars">
+        <view class="bars__col" wx:for="{{weeks}}" wx:key="week">
+          <view class="bars__num" wx:if="{{item.n}}">{{item.n}}</view>
+          <view class="bars__track">
+            <view class="bars__fill" style="height: {{item.pct}}%"></view>
+          </view>
+          <view class="bars__wk">{{item.week}}</view>
+        </view>
+      </view>
+      <view class="bars__note">{{T.st_weekly_note}}</view>
+    </view>
+
+    <!-- 常用动作 -->
+    <view class="card rise" wx:if="{{topExercises.length}}">
+      <view class="section-title">{{T.st_top_ex}}</view>
+      <view class="row ex__row" wx:for="{{topExercises}}" wx:key="exercise_id" wx:for-item="ex">
+        <view class="ic ic-dumbbell row__ic"></view>
+        <text class="row__label">{{ex.disp}}</text>
+        <text class="row__value">{{ex.sets}} {{T.st_ex_sets}}</text>
+      </view>
+    </view>
+
+    <!-- 体重 -->
+    <view class="card rise">
+      <view class="row wt__head">
+        <view class="ic ic-activity row__ic"></view>
+        <text class="row__label">{{T.st_weight}}</text>
+        <block wx:if="{{weightLatest}}">
+          <text class="row__value wt__latest">{{weightLatest}} kg</text>
+          <text class="wt__delta {{weightDelta.indexOf('+') === 0 ? 'wt__delta--up' : 'wt__delta--dn'}}" wx:if="{{weightDelta}}">{{weightDelta}} kg ({{weightDeltaPct}})</text>
+        </block>
+      </view>
+      <view class="wt__row">
+        <input class="wt__input" type="digit" placeholder="{{T.st_weight_ph}}" value="{{weightInput}}" bindinput="onWeightInput" />
+        <button class="btn btn--accent wt__btn" size="mini" disabled="{{saving}}" bindtap="saveWeight">
+          {{saving ? T.st_weight_saving : T.st_weight_save}}
+        </button>
+      </view>
+      <view class="wt__note" wx:if="{{!weights.length}}">{{T.st_weight_empty}}</view>
+    </view>
+  </block>
+</view>

@@ -307,6 +307,109 @@ app.get("/plans/:id/day/:dayNo", reqOpenid, async (req, res) => {
   res.json({ day, rest_seconds: p.rows[0].plan_data.rest_seconds });
 });
 
+// ---------- 体重 ----------
+app.get("/weight", reqOpenid, async (req, res) => {
+  await ensureUser(req.openid);
+  const r = await pool.query(
+    `SELECT day, weight, note FROM weight_log WHERE user_id = $1 ORDER BY day DESC LIMIT 90`,
+    [req.openid]
+  );
+  res.json(r.rows);
+});
+
+app.post("/weight", reqOpenid, async (req, res) => {
+  await ensureUser(req.openid);
+  const { day, weight, note } = req.body || {};
+  if (weight == null || weight <= 0 || weight > 400)
+    return res.status(400).json({ error: "bad weight" });
+  const d = String(day || "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d))
+    return res.status(400).json({ error: "bad day" });
+  const r = await pool.query(
+    `INSERT INTO weight_log (user_id, day, weight, note)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (user_id, day) DO UPDATE SET weight = EXCLUDED.weight, note = EXCLUDED.note
+     RETURNING day, weight, note`,
+    [req.openid, d, weight, note || ""]
+  );
+  res.json(r.rows[0]);
+});
+
+// ---------- 数据统计（数据分析页） ----------
+// 总打卡天数 / 每周打卡（近 8 周）/ 训练量（reps×组、总组数）/ 动作次数 top / 近 7 天趋势 / 目标进度
+app.get("/stats", reqOpenid, async (req, res) => {
+  await ensureUser(req.openid);
+  const u = req.openid;
+  const [total, weekly, volume, topEx, week7, weightRow] = await Promise.all([
+    // 累计打卡天数
+    pool.query(
+      `SELECT count(*)::int AS n FROM sessions WHERE user_id = $1 AND done`, [u]
+    ),
+    // 近 8 周每周打卡天数（周一为起）
+    pool.query(
+      `SELECT date_trunc('week', session_date) AS wk, count(*)::int AS n
+       FROM sessions WHERE user_id = $1 AND done AND session_date >= date_trunc('week', CURRENT_DATE - INTERVAL '56 days')
+       GROUP BY 1 ORDER BY 1`, [u]
+    ),
+    // 累计训练量
+    pool.query(
+      `SELECT count(*)::int AS sets,
+              coalesce(sum(reps),0)::int AS reps,
+              count(DISTINCT s.plan_id)::int AS plans_n
+       FROM set_records sr JOIN sessions s ON s.id = sr.session_id
+       WHERE s.user_id = $1 AND sr.done AND s.session_date >= CURRENT_DATE - INTERVAL '365 days'`, [u]
+    ),
+    // 常用动作 top5（近 90 天完成的组数）
+    pool.query(
+      `SELECT sr.exercise_id, e.name, e.name_zh, count(*)::int AS sets
+       FROM set_records sr
+       JOIN sessions s ON s.id = sr.session_id
+       JOIN exercises e ON e.id = sr.exercise_id
+       WHERE s.user_id = $1 AND sr.done AND s.session_date >= CURRENT_DATE - INTERVAL '90 days'
+       GROUP BY sr.exercise_id, e.name, e.name_zh
+       ORDER BY sets DESC LIMIT 5`, [u]
+    ),
+    // 近 7 天每日完成组数（趋势）
+    pool.query(
+      `SELECT s.session_date, count(*)::int AS sets
+       FROM set_records sr JOIN sessions s ON s.id = sr.session_id
+       WHERE s.user_id = $1 AND sr.done AND s.session_date >= CURRENT_DATE - 6
+       GROUP BY 1 ORDER BY 1`, [u]
+    ),
+    // 体重：最近 + 最早（算变化）
+    pool.query(
+      `SELECT (ARRAY_AGG(weight ORDER BY day DESC))[1]::numeric AS latest,
+              min(weight) AS min, max(weight) AS max,
+              (ARRAY_AGG(day ORDER BY day DESC))[1] AS latest_day
+       FROM weight_log WHERE user_id = $1 AND day >= CURRENT_DATE - INTERVAL '180 days'`, [u]
+    ),
+  ]);
+  // 目标进度：当前计划周训练天数（plan_data.days）对比本周实际打卡
+  const pw = await pool.query(
+    `SELECT jsonb_array_length(plan_data->'days') FROM plans
+     WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1`, [u]
+  );
+  const perWeek = pw.rows[0] && pw.rows[0]["jsonb_array_length"]
+    ? Number(pw.rows[0]["jsonb_array_length"])
+    : 3;
+  const week = new Date();
+  const monday = new Date(week);
+  monday.setDate(week.getDate() - ((week.getDay() + 6) % 7));
+  const thisWeek = await pool.query(
+    `SELECT count(*)::int AS n FROM sessions WHERE user_id = $1 AND done AND session_date >= $2`,
+    [u, monday.toISOString().slice(0, 10)]
+  );
+  res.json({
+    total_days: total.rows[0].n,
+    weekly: weekly.rows, // [{wk, n}] 近 8 周
+    volume: volume.rows[0], // {sets, reps, plans_n} 近一年
+    top_exercises: topEx.rows, // [{exercise_id, name, name_zh, sets}]
+    week7: week7.rows, // [{session_date, sets}]
+    weight: weightRow.rows[0], // {latest, min, max, latest_day}
+    goal: { per_week: perWeek, this_week: thisWeek.rows[0].n },
+  });
+});
+
 // ---------- 周复盘 ----------
 app.post("/plans/:id/review", reqOpenid, async (req, res) => {
   await ensureUser(req.openid);

@@ -5,7 +5,7 @@ const theme = require("../theme");
 
 const TABS = [
   { key: "plan", path: "/pages/plan/plan", tkey: "tab_plan", icon: "clipboard" },
-  { key: "daily", path: "/pages/daily/daily", tkey: "tab_daily", icon: "calendar" },
+  { key: "today", path: "/pages/today/today", tkey: "tab_today", icon: "check" },
   { key: "exercises", path: "/pages/exercises/exercises", tkey: "tab_exercises", icon: "dumbbell" },
   { key: "profile", path: "/pages/profile/profile", tkey: "tab_profile", icon: "user" },
 ];
