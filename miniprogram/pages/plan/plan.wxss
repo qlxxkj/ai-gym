@@ -18,8 +18,8 @@
   margin-bottom: var(--s-2);
 }
 .ex__media {
-  width: 128rpx;
-  height: 96rpx;
+  width: 112rpx;
+  height: 112rpx;
   flex: none;
   border-radius: var(--r-sm);
   overflow: hidden;

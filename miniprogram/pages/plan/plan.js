@@ -21,7 +21,18 @@ function enrichPlan(full, lang) {
   return cur;
 }
 
-// 计划显示用名称：en 用英文（标题/目标/摘要/天标签/提示/备注），zh 用原值
+// 部位标签中→英（AI 计划 days[].focus 是中文部位词）
+const FOCUS_EN = {
+  胸: "Chest", 背: "Back", 腿: "Legs", 肩: "Shoulders",
+  手臂: "Arms", 臂: "Arms", 核心: "Core", 臀: "Glutes", 全身: "Full Body",
+};
+function focusEn(v) {
+  const s = String(v || "");
+  const hit = Object.keys(FOCUS_EN).find((k) => s.indexOf(k) >= 0);
+  return hit ? s.replace(hit, FOCUS_EN[hit]) : s;
+}
+
+// 计划显示用名称：en 用英文（标题/目标/摘要/天标签/提示/备注/部位），zh 用原值
 function locPlan(full, lang) {
   if (!full) return full;
   if (lang !== "en") return full;
@@ -34,6 +45,7 @@ function locPlan(full, lang) {
   if ((full.plan_data && full.plan_data.weekly_goals_en || []).length) d.weekly_goals = full.plan_data.weekly_goals_en;
   (d.days || []).forEach((day) => {
     day.label = day.label_en || day.label;
+    day.focus = (day.focus || []).map(focusEn);
     (day.exercises || []).forEach((ex) => { if (ex.note_en) ex.note = ex.note_en; });
   });
   return c;
