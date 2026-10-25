@@ -1,8 +1,13 @@
-/* 组件自带 token：样式隔离下页面的 .t-dark 够不到组件，深浅由 theme 属性切 */
+/* 组件自带 token：样式隔离下页面的 .t-dark 够不到组件，深浅由 theme 属性切
+   参照 daily-poetry navbar：sticky 顶栏不随内容滚动，背景色组件内写死不透明 */
 .tb {
     --ink: #241D1B;
     --ink-3: #766D6A;
 
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
     background: #F9F6F5; /* 浅色：浅填充，与 page 背景同色，不透明 */
 }
 .tb--dark {
