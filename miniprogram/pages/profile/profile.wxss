@@ -80,22 +80,18 @@
     color: var(--ink-3);
 }
 
-/* ---------- 设置区：标签 + chip 行内切换 ---------- */
-.set {
-    padding: var(--s-4);
-}
-.set__lb {
+/* ---------- 设置行：与分享行一致的两段式（左 图标+文字，右 选项） ---------- */
+.row--set {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: var(--s-2);
-    font-size: var(--t-body);
-    font-weight: 500;
-    color: var(--ink);
-    margin-bottom: var(--s-3);
 }
-.set__ic {
-    width: 34rpx;
-    height: 34rpx;
+.row--set .row__label { flex: none; }
+.row__chips {
+    display: flex;
+    gap: var(--s-1);
+    flex: none;
 }
 
 /* ---------- 空态图标 ---------- */

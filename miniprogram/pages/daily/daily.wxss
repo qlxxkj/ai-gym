@@ -48,12 +48,22 @@
 }
 .ex__head {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-1);
   margin-bottom: var(--s-1);
 }
-.ex__name { font-size: var(--t-sm); font-weight: 600; }
-.ex__count { font-size: var(--t-cap); color: var(--ink-3); }
+.ex__name { font-size: var(--t-sm); font-weight: 600; flex: 1; min-width: 0; }
+.ex__count { font-size: var(--t-cap); color: var(--ink-3); flex: none; }
+.ex__fav {
+  width: 56rpx;
+  height: 56rpx;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ex__fav-ic { width: 40rpx; height: 40rpx; }
+.ex__fav--on .ic-heart-fill { --ic: var(--accent); }
 .ex__note { font-size: var(--t-cap); color: var(--ink-3); margin-bottom: var(--s-2); line-height: 1.6; }
 
 /* 组 */

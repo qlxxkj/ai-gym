@@ -29,6 +29,9 @@
       <view class="ex__head">
         <text class="ex__name">{{ex.name_zh}}</text>
         <text class="ex__count">{{ex.sets.length}} {{T.daily_sets_u}}</text>
+        <view class="ex__fav {{ex.faved ? 'ex__fav--on' : ''}}" data-ex="{{ex}}" bindtap="toggleExFav">
+          <view class="ic {{ex.faved ? 'ic-heart-fill' : 'ic-heart'}} {{ex.faved ? 'ic--acc' : ''}} ex__fav-ic"></view>
+        </view>
       </view>
       <view class="ex__note" wx:if="{{ex.note}}">{{ex.note}}</view>
       <view class="set" wx:for="{{ex.sets}}" wx:for-item="st" wx:for-index="setidx" wx:key="*this">

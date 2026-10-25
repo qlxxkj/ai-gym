@@ -25,7 +25,7 @@
           <view class="ex__name">{{item.name_zh}}</view>
           <view class="ex__meta">{{item.equipment_zh}} · {{item.muscle_zh}} · {{item.cat_zh}}</view>
         </view>
-        <view class="row__arrow">›</view>
+        <view class="ic ic-chevron ex__arrow"></view>
       </view>
     </view>
     <view class="state" wx:if="{{!loading && !list.length}}">

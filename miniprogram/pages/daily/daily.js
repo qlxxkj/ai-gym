@@ -3,6 +3,7 @@ const config = require("../../config");
 const exdict = require("../../exdict");
 const theme = require("../../theme");
 const i18n = require("../../i18n");
+const user = require("../../user");
 
 function todayStr() {
   const d = new Date();
@@ -155,6 +156,7 @@ Page({
         name_zh: exName(ex),
         img_url: config.mediaStill(ex.id),
         clip_url: config.mediaClip(ex.id),
+        faved: user.isFavEx(ex.id),
         setStates: ex.sets.map((_, i) => doneSets[ex.id + ":" + (i + 1)] || false),
       }));
       this.setData({
@@ -174,6 +176,16 @@ Page({
       // 计划主体已拿到（缓存或服务器），展示环节出错不清空 plan，只关 loading
       this.setData({ loading: false });
     }
+  },
+
+  // 动作卡上的收藏入口（本地）
+  toggleExFav(e) {
+    const ex = e.currentTarget.dataset.ex;
+    if (!ex) return;
+    user.toggleFavEx(ex.id);
+    this.setData({
+      exercises: this.data.exercises.map((x, i) => (x.id === ex.id ? { ...x, faved: user.isFavEx(ex.id) } : x)),
+    });
   },
 
   toggleSet(e) {

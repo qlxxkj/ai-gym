@@ -3,7 +3,7 @@
 // 渲染方式：把解析出的 light|dark 写到页面 data.theme，页面根节点挂 .t-dark 类，
 // CSS 变量在 .t-dark 里整体替换（见 app.wxss）。
 //
-// 另外两处必须跟着改，否则深色模式下会露出浅色底：
+// 另两处必须跟着改，否则深色模式下会露出浅色底：
 //   1. page 元素本身（我们只能在它内部的 view 上换变量，够不到它）
 //   2. 状态栏/导航栏颜色
 
@@ -57,12 +57,12 @@ if (wx.onThemeChange) {
 }
 
 // 页面/组件之外的那些「壳」：page 背景色 + 导航栏。
-// 浅色：导航栏透明，只留状态栏/导航栏的深色文字（没有黑块）；
+// 浅色：page 与导航栏同色浅填充 #F9F6F5（顶部不透明）；
 // 深色：导航栏和 page 同为深底 #141110，白字。
 function paintChrome(t) {
   const dark = t === "dark";
   const bg = dark ? "#141110" : "#F9F6F5";
-  const navBg = dark ? "#141110" : "#00000000"; // 浅色=全透明
+  const navBg = dark ? "#141110" : "#F9F6F5"; // 浅色=浅填充，不透明
   try {
     wx.setBackgroundColor({ backgroundColor: bg, backgroundColorTop: bg, backgroundColorBottom: bg });
   } catch (e) {

@@ -45,19 +45,19 @@
 
   <!-- ---------- 我的设置：三档 chip，行内切换 ---------- -->
   <view class="section-title section-title--gap">{{T.sec_settings}}</view>
-  <view class="card rise">
-    <view class="set">
-      <view class="set__lb"><view class="ic ic-sun set__ic"></view>{{T.mine_appearance}}</view>
-      <view class="chips">
+  <view class="card group rise">
+    <view class="row row--set">
+      <view class="row__lead"><view class="ic ic-sun row__ic"></view><text class="row__label">{{T.mine_appearance}}</text></view>
+      <view class="row__chips">
         <view wx:for="{{themeOpts}}" wx:key="v"
           class="chip {{themePref === item.v ? 'chip--on' : ''}}"
           data-v="{{item.v}}" bindtap="pickThemeOpt">{{item.label}}</view>
       </view>
     </view>
     <view class="hr"></view>
-    <view class="set">
-      <view class="set__lb"><view class="ic ic-lang set__ic"></view>{{T.mine_text}}</view>
-      <view class="chips">
+    <view class="row row--set">
+      <view class="row__lead"><view class="ic ic-lang row__ic"></view><text class="row__label">{{T.mine_text}}</text></view>
+      <view class="row__chips">
         <view wx:for="{{langOpts}}" wx:key="v"
           class="chip {{langPref === item.v ? 'chip--on' : ''}}"
           data-v="{{item.v}}" bindtap="pickLangOpt">{{item.label}}</view>
