@@ -72,6 +72,21 @@
     color: var(--ink-3);
 }
 
+/* ---------- 行左侧 lead：占满 .row 预留的 46rpx 图标槽 ----------
+   .row 左侧 padding 已给图标留了 46rpx 槽位；lead 固定 46rpx 宽，
+   图标落槽、文字紧随其后，保证「图标+文字」始终同行不换行 */
+.row__lead {
+    display: flex;
+    align-items: center;
+    width: 46rpx;
+    flex: none;
+}
+.row__lead .row__ic {
+    width: 36rpx;
+    height: 36rpx;
+    margin-right: var(--s-2);
+}
+
 /* ---------- 行右侧尾巴：当前值/数量 + 箭头，左段与右段对齐 ---------- */
 .row__tail {
     flex: 1;
