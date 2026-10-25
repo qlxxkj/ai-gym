@@ -72,61 +72,59 @@
     color: var(--ink-3);
 }
 
-/* ---------- 收藏分组小标题（顶到行的图标位，与下方行的图标左对齐） ---------- */
-.group-lb {
-    padding: var(--s-3) calc(var(--s-4) + 46rpx) var(--s-1);
-    font-size: var(--t-cap);
-    letter-spacing: 2rpx;
-    color: var(--ink-3);
-}
-
-/* ---------- 设置行：与分享行一致的两段式（左 图标+文字，右 选项） ---------- */
-.row--set {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--s-2);
-}
-.row--set .row__label { flex: none; }
-.row__chips {
-    display: flex;
-    gap: var(--s-1);
-    flex: none;
-}
-
-/* ---------- 空态图标 ---------- */
-.state__ic {
-    width: 72rpx;
-    height: 72rpx;
-    margin: 0 auto var(--s-3);
-    opacity: 0.5;
-}
-
-/* ---------- 分享行：button 只做触发，布局交给 view ---------- */
-.row__share {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 112rpx;
-    padding: 0 var(--s-4);
-}
-.row__share-btn {
+/* ---------- 行右侧尾巴：当前值/数量 + 箭头，左段与右段对齐 ---------- */
+.row__tail {
     flex: 1;
     min-width: 0;
     display: flex;
     align-items: center;
-    padding: 0;
-    margin: 0;
-    background: transparent;
-    font-weight: 400;
-    text-align: left;
+    justify-content: flex-end;
+    gap: var(--s-2);
 }
-.row__share-btn::after { border: none; }
-.row__lead {
+.row__tail .row__value {
+    flex: none;
+    margin-left: 0;
+}
+
+/* ---------- 弹层：收藏明细 / 设置选档 ---------- */
+.sheet__mask {
+    position: fixed;
+    left: 0; top: 0; right: 0; bottom: 0;
+    background: var(--mask);
+    z-index: 99;
+    display: flex;
+    align-items: flex-end;
+}
+.sheet {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--card);
+    color: var(--ink);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    padding: var(--s-5) var(--s-4) calc(var(--s-5) + 104rpx + env(safe-area-inset-bottom));
+    max-height: 70vh;
+    overflow-y: auto;
+}
+.sheet__t { font-size: var(--t-title); font-weight: 600; text-align: center; margin-bottom: var(--s-3); }
+.sheet__empty {
+    padding: var(--s-5) 0;
+    text-align: center;
+    font-size: var(--t-sm);
+    color: var(--ink-3);
+}
+
+/* 设置弹层选项行 */
+.opt {
     display: flex;
     align-items: center;
-    min-width: 0;
+    justify-content: space-between;
+    min-height: 112rpx;
+    padding: 0 var(--s-3);
+    border-bottom: 1rpx solid var(--line);
 }
+.opt:last-child { border-bottom: none; }
+.opt__lb { font-size: var(--t-body); color: var(--ink); }
+.opt__check { font-size: var(--t-body); font-weight: 700; color: var(--accent); }
 
 /* ---------- 页脚 ---------- */
 .about {

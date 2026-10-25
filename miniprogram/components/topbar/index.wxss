@@ -1,17 +1,15 @@
 /* 组件自带 token：样式隔离下页面的 .t-dark 够不到组件，深浅由 theme 属性切 */
 .tb {
-    --card: #F9F6F5;
     --ink: #241D1B;
     --ink-3: #766D6A;
 
-    background: var(--card); /* 浅色：浅填充，与 page 同色 */
+    background: #F9F6F5; /* 浅色：浅填充，与 page 背景同色，不透明 */
 }
 .tb--dark {
-    --card: #141110;
     --ink: #F2EBE9;
     --ink-3: #B2AAA8;
 
-    background: var(--card); /* 深色：深底，与 page 同色 */
+    background: #141110; /* 深色：深填充，与 page 背景同色 */
 }
 
 .tb__t {

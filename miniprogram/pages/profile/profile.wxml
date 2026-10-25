@@ -13,54 +13,42 @@
     </view>
   </view>
 
-  <!-- ---------- 我的收藏：一张卡，行内小标题分两组 ---------- -->
+  <!-- ---------- 我的收藏：左 图标+文字，右 箭头（与分享行同款两段） ---------- -->
   <view class="section-title section-title--gap">{{T.sec_fav}}</view>
   <view class="card group rise">
-    <block wx:if="{{favPlans.length || favExercises.length}}">
-      <block wx:if="{{favPlans.length}}">
-        <view class="group-lb">{{T.sec_fav_plans}}</view>
-        <view class="row" wx:for="{{favPlans}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavPlan">
-          <view class="ic ic-book row__ic"></view>
-          <text class="row__label">{{item.title}}</text>
-          <text class="row__value">{{item.goal}}</text>
-          <view class="ic ic-chevron row__arrow"></view>
-        </view>
-      </block>
-      <block wx:if="{{favExercises.length}}">
-        <view class="group-lb">{{T.sec_fav_ex}}</view>
-        <view class="row" wx:for="{{favExercises}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavEx">
-          <view class="ic ic-dumbbell row__ic"></view>
-          <text class="row__label">{{item.name}}</text>
-          <view class="ic ic-chevron row__arrow"></view>
-        </view>
-      </block>
-    </block>
-    <block wx:else>
-      <view class="state">
-        <view class="ic ic-heart state__ic"></view>
-        <view class="state__text">{{T.mine_fav_empty}}</view>
-      </view>
-    </block>
-  </view>
-
-  <!-- ---------- 我的设置：三档 chip，行内切换 ---------- -->
-  <view class="section-title section-title--gap">{{T.sec_settings}}</view>
-  <view class="card group rise">
-    <view class="row row--set">
-      <view class="row__lead"><view class="ic ic-sun row__ic"></view><text class="row__label">{{T.mine_appearance}}</text></view>
-      <view class="row__chips">
-        <view wx:for="{{themeOpts}}" wx:key="v"
-          class="chip {{themePref === item.v ? 'chip--on' : ''}}"
-          data-v="{{item.v}}" bindtap="pickThemeOpt">{{item.label}}</view>
+    <view class="row" bindtap="openFavSec" data-sec="plan">
+      <view class="row__lead"><view class="ic ic-book row__ic"></view><text class="row__label">{{T.sec_fav_plans}}</text></view>
+      <view class="row__tail">
+        <text wx:if="{{favPlans.length}}" class="row__value">{{favPlans.length}}</text>
+        <view class="ic ic-chevron row__arrow"></view>
       </view>
     </view>
     <view class="hr"></view>
-    <view class="row row--set">
+    <view class="row" bindtap="openFavSec" data-sec="ex">
+      <view class="row__lead"><view class="ic ic-dumbbell row__ic"></view><text class="row__label">{{T.sec_fav_ex}}</text></view>
+      <view class="row__tail">
+        <text wx:if="{{favExercises.length}}" class="row__value">{{favExercises.length}}</text>
+        <view class="ic ic-chevron row__arrow"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ---------- 我的设置：左 图标+文字，右 当前值+箭头，点行进弹层选档 ---------- -->
+  <view class="section-title section-title--gap">{{T.sec_settings}}</view>
+  <view class="card group rise">
+    <view class="row" bindtap="openSetting" data-sec="theme">
+      <view class="row__lead"><view class="ic ic-sun row__ic"></view><text class="row__label">{{T.mine_appearance}}</text></view>
+      <view class="row__tail">
+        <text class="row__value">{{themeCur}}</text>
+        <view class="ic ic-chevron row__arrow"></view>
+      </view>
+    </view>
+    <view class="hr"></view>
+    <view class="row" bindtap="openSetting" data-sec="lang">
       <view class="row__lead"><view class="ic ic-lang row__ic"></view><text class="row__label">{{T.mine_text}}</text></view>
-      <view class="row__chips">
-        <view wx:for="{{langOpts}}" wx:key="v"
-          class="chip {{langPref === item.v ? 'chip--on' : ''}}"
-          data-v="{{item.v}}" bindtap="pickLangOpt">{{item.label}}</view>
+      <view class="row__tail">
+        <text class="row__value">{{langCur}}</text>
+        <view class="ic ic-chevron row__arrow"></view>
       </view>
     </view>
   </view>
@@ -92,5 +80,41 @@
   <view class="about">
     <view class="about__brand">{{T.about_brand}}</view>
     <view class="about__desc">{{T.about_desc}}</view>
+  </view>
+
+  <!-- ---------- 弹层：收藏明细 / 设置选档 ---------- -->
+  <view class="sheet__mask" wx:if="{{sheet}}" bindtap="closeSheet">
+    <view class="sheet" catchtap="">
+      <view class="sheet__t">{{sheetT}}</view>
+
+      <!-- 收藏：训练计划 / 动作 -->
+      <block wx:if="{{sheet === 'fav'}}">
+        <view wx:if="{{sheetSec === 'plan'}}">
+          <view class="row" wx:if="{{favPlans.length}}" wx:for="{{favPlans}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavPlan">
+            <view class="ic ic-book row__ic"></view>
+            <text class="row__label">{{item.title}}</text>
+            <text class="row__value">{{item.goal}}</text>
+          </view>
+          <view class="sheet__empty" wx:else>{{T.sheet_fav_empty_plan}}</view>
+        </view>
+        <view wx:else>
+          <view class="row" wx:if="{{favExercises.length}}" wx:for="{{favExercises}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavEx">
+            <view class="ic ic-dumbbell row__ic"></view>
+            <text class="row__label">{{item.name}}</text>
+            <text class="row__value"></text>
+          </view>
+          <view class="sheet__empty" wx:else>{{T.sheet_fav_empty_ex}}</view>
+        </view>
+      </block>
+
+      <!-- 设置：外观三档 / 语言两档，选中打勾 -->
+      <block wx:else>
+        <view class="opt" wx:for="{{sheet === 'theme' ? themeOpts : langOpts}}" wx:key="v"
+          data-v="{{item.v}}" bindtap="pickSheetOpt">
+          <text class="opt__lb">{{item.label}}</text>
+          <text wx:if="{{(sheet === 'theme' ? themePref : langPref) === item.v}}" class="opt__check">✓</text>
+        </view>
+      </block>
+    </view>
   </view>
 </view>

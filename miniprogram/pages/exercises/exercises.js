@@ -240,6 +240,12 @@ Page({
     if (!d) return;
     user.toggleFavEx(d.id);
     this.setData({ faved: user.isFavEx(d.id) });
+    // 轻反馈 + 提示已进「我的」收藏
+    wx.vibrateShort({ type: "light" });
+    wx.showToast({
+      title: this.data.lang === "en" ? (this.data.faved ? "Favorited" : "Removed") : this.data.faved ? "已加入收藏" : "已取消收藏",
+      icon: "none",
+    });
   },
 
   closeSheet() {

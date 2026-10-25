@@ -10,11 +10,17 @@ Page({
     version: user.VERSION,
     themePref: "auto",
     langPref: "zh",
+    themeCur: "",
+    langCur: "",
     themeOpts: [],
     langOpts: [],
     favPlans: [],
     favExercises: [],
     favCount: 0,
+    // 弹层：'' | 'fav' | 'theme' | 'lang'
+    sheet: "",
+    sheetSec: "plan",
+    sheetT: "",
   },
 
   onShow() {
@@ -25,21 +31,30 @@ Page({
     this.refreshNick();
     this.refreshFav();
     exdict.load(() => this.refreshFav());
-    if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.refreshOpts(); });
+    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => this.refreshOpts());
+    if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.refreshOpts(); this.refreshFav(); });
   },
 
   refreshOpts() {
     const T = this.data.T || {};
+    const themeOpts = [
+      { v: "auto", label: T.theme_auto },
+      { v: "light", label: T.theme_light },
+      { v: "dark", label: T.theme_dark },
+    ];
+    const langOpts = [
+      { v: "zh", label: T.lang_zh },
+      { v: "en", label: T.lang_en },
+    ];
+    const themePref = theme.pref() === "dark" || theme.pref() === "light" ? theme.pref() : "auto";
+    const langPref = this.data.lang === "en" ? "en" : "zh";
     this.setData({
-      themeOpts: [
-        { v: "auto", label: T.theme_auto },
-        { v: "light", label: T.theme_light },
-        { v: "dark", label: T.theme_dark },
-      ],
-      langOpts: [
-        { v: "zh", label: T.lang_zh },
-        { v: "en", label: T.lang_en },
-      ],
+      themePref,
+      langPref,
+      themeOpts,
+      langOpts,
+      themeCur: themeOpts.find((o) => o.v === themePref) ? themeOpts.find((o) => o.v === themePref).label : "",
+      langCur: langOpts.find((o) => o.v === langPref) ? langOpts.find((o) => o.v === langPref).label : "",
     });
   },
 
@@ -66,7 +81,7 @@ Page({
     const favExercises = user.favExercises().map((id) => ({
       id,
       // en 模式用英文原名，zh 用本地字典中文名
-      name: lang === "en" ? exdict.nameEn(id) || "#" + id : dict[id] || exdict.nameEn(id) || "#" + id,
+      name: en ? exdict.nameEn(id) || "#" + id : dict[id] || exdict.nameEn(id) || "#" + id,
     }));
     this.setData({
       favPlans,
@@ -75,22 +90,40 @@ Page({
     });
   },
 
-  // 外观：点 chip 直接选档
-  pickThemeOpt(e) {
-    theme.set(e.currentTarget.dataset.v);
-    this.setData({ themePref: e.currentTarget.dataset.v });
-    theme.sync(this);
-    i18n.sync(this);
-    this.refreshOpts();
+  // ---------- 收藏两段行：点行进弹层看明细 ----------
+  openFavSec(e) {
+    const T = this.data.T || {};
+    const sec = e.currentTarget.dataset.sec === "ex" ? "ex" : "plan";
+    this.setData({ sheet: "fav", sheetSec: sec, sheetT: T[sec === "ex" ? "sec_fav_ex" : "sec_fav_plans"] });
   },
 
-  // 语言：点 chip 直接选档（没有「跟随系统」）
-  pickLangOpt(e) {
-    i18n.setLang(e.currentTarget.dataset.v);
-    this.setData({ langPref: e.currentTarget.dataset.v });
-    i18n.sync(this);
-    this.refreshOpts();
-    this.refreshFav();
+  // ---------- 设置两段行：点行进弹层选档 ----------
+  openSetting(e) {
+    const T = this.data.T || {};
+    const sec = e.currentTarget.dataset.sec === "lang" ? "lang" : "theme";
+    this.setData({ sheet: sec, sheetT: T[sec === "lang" ? "mine_text" : "mine_appearance"] });
+  },
+
+  // 弹层里点选项：外观/语言
+  pickSheetOpt(e) {
+    const v = e.currentTarget.dataset.v;
+    if (this.data.sheet === "theme") {
+      theme.set(v);
+      this.setData({ themePref: v, sheet: "" });
+      theme.sync(this);
+      i18n.sync(this);
+      this.refreshOpts();
+    } else if (this.data.sheet === "lang") {
+      i18n.setLang(v);
+      this.setData({ langPref: v, sheet: "" });
+      i18n.sync(this);
+      this.refreshOpts();
+      this.refreshFav();
+    }
+  },
+
+  closeSheet() {
+    this.setData({ sheet: "" });
   },
 
   pickAvatar() {
@@ -140,11 +173,13 @@ Page({
 
   openFavPlan(e) {
     wx.setStorageSync("profileOpenPlan", e.currentTarget.dataset.id);
+    this.setData({ sheet: "" });
     wx.switchTab({ url: "/pages/plan/plan" });
   },
 
   openFavEx(e) {
     wx.setStorageSync("openExId", e.currentTarget.dataset.id);
+    this.setData({ sheet: "" });
     wx.switchTab({ url: "/pages/exercises/exercises" });
   },
 

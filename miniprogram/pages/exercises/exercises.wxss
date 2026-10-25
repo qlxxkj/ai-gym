@@ -85,16 +85,20 @@
 .cell__lb { font-size: var(--t-cap); color: var(--ink-3); margin-bottom: var(--s-1); }
 .cell__val { font-size: var(--t-sm); color: var(--ink); word-break: break-all; }
 
-/* 弹层底部：关闭 + 收藏 */
+/* 弹层底部：关闭 + 收藏（两枚等宽按钮，与 .btn 同尺寸同样式） */
 .sheet__acts { display: flex; align-items: center; gap: var(--s-2); margin-top: var(--s-4); }
 .fav {
-  text-align: center;
-  padding: 0 var(--s-5);
+  flex: 1;
+  height: 92rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--r-md);
   font-size: var(--t-body);
   font-weight: 500;
   background: var(--accent-bg);
   color: var(--accent);
   transition: background var(--dur-1) var(--ease);
+  box-sizing: border-box;
 }
 .fav--on { background: var(--accent); color: var(--on-solid); }
