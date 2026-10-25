@@ -87,24 +87,24 @@
     <view class="sheet" catchtap="">
       <view class="sheet__t">{{sheetT}}</view>
 
-      <!-- 收藏：训练计划 / 动作 -->
+      <!-- 收藏：训练计划 / 动作（空态提示） -->
       <block wx:if="{{sheet === 'fav'}}">
-        <view wx:if="{{sheetSec === 'plan'}}">
-          <view class="row" wx:if="{{favPlans.length}}" wx:for="{{favPlans}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavPlan">
+        <block wx:if="{{sheetSec === 'plan'}}">
+          <view class="row" wx:for="{{favPlans}}" wx:if="{{favPlans.length}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavPlan">
             <view class="ic ic-book row__ic"></view>
             <text class="row__label">{{item.title}}</text>
             <text class="row__value">{{item.goal}}</text>
           </view>
-          <view class="sheet__empty" wx:else>{{T.sheet_fav_empty_plan}}</view>
-        </view>
-        <view wx:else>
-          <view class="row" wx:if="{{favExercises.length}}" wx:for="{{favExercises}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavEx">
+          <block wx:if="{{!favPlans.length}}"><view class="sheet__empty">{{T.sheet_fav_empty_plan}}</view></block>
+        </block>
+        <block wx:else>
+          <view class="row" wx:for="{{favExercises}}" wx:if="{{favExercises.length}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavEx">
             <view class="ic ic-dumbbell row__ic"></view>
             <text class="row__label">{{item.name}}</text>
             <text class="row__value"></text>
           </view>
-          <view class="sheet__empty" wx:else>{{T.sheet_fav_empty_ex}}</view>
-        </view>
+          <block wx:if="{{!favExercises.length}}"><view class="sheet__empty">{{T.sheet_fav_empty_ex}}</view></block>
+        </block>
       </block>
 
       <!-- 设置：外观三档 / 语言两档，选中打勾 -->
