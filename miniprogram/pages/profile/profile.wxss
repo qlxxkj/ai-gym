@@ -72,33 +72,63 @@
     color: var(--ink-3);
 }
 
-/* ---------- 行左侧 lead：占满 .row 预留的 46rpx 图标槽 ----------
-   .row 左侧 padding 已给图标留了 46rpx 槽位；lead 固定 46rpx 宽，
-   图标落槽、文字紧随其后，保证「图标+文字」始终同行不换行 */
+/* ---------- 行两段式：左段=图标（占槽）+文字（flex:1），右段=值/数量+箭头 ---------- */
+/* lead 只包图标，占满 .row 预留的 46rpx 槽；文字放 lead 外面 flex:1 同行排 */
 .row__lead {
     display: flex;
     align-items: center;
+    justify-content: center;
     width: 46rpx;
     flex: none;
 }
 .row__lead .row__ic {
-    width: 36rpx;
-    height: 36rpx;
-    margin-right: var(--s-2);
+    width: 40rpx;
+    height: 40rpx;
 }
-
-/* ---------- 行右侧尾巴：当前值/数量 + 箭头，左段与右段对齐 ---------- */
-.row__tail {
+/* 文字紧跟图标，flex:1 撑满剩余空间，与右侧尾巴对齐 */
+.row .row__label {
     flex: 1;
     min-width: 0;
+}
+
+/* 右侧尾巴：当前值/数量 + 箭头，靠右对齐 */
+.row__tail {
+    flex: none;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: var(--s-2);
 }
 .row__tail .row__value {
     flex: none;
     margin-left: 0;
+}
+
+/* ---------- 分享行：button 只做触发，布局交给 view ----------
+   button 撑满左侧，内部 lead+label 同行；箭头在 button 外面，与文字对齐 */
+.row__share {
+    padding: 0 var(--s-4) 0 calc(var(--s-4) + 46rpx); /* 与其他 .row 同款图标槽 */
+}
+.row__share-btn {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    font-weight: 400;
+    text-align: left;
+}
+.row__share-btn::after { border: none; }
+/* button 内的 label 同样 flex:1 撑满 */
+.row__share-btn .row__label {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ---------- 弹层内行：图标直接挂 view.ic，不需要 lead 占槽 ---------- */
+.row--sheet {
+    padding: 0 var(--s-4);
 }
 
 /* ---------- 弹层：收藏明细 / 设置选档 ---------- */
