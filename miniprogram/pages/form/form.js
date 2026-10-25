@@ -74,9 +74,13 @@ Page({
 
   onShow() {
     theme.sync(this);
-    i18n.sync(this, { secs: secs(this.data.T || {}, this.data, this.data.lang === "en") });
-    // 切语言：广播回来时重建分组（保留当前选中项）
-    if (!this._offLang) this._offLang = i18n.onChange(() => i18n.sync(this, { secs: secs(this.data.T || {}, this.data, this.data.lang === "en") }));
+    // 先同步 i18n 把 T 写入 data，再构建 secs（否则 T 为空，标题全 undefined）
+    i18n.sync(this);
+    this.setData({ secs: secs(this.data.T, this.data, this.data.lang === "en") });
+    if (!this._offLang) this._offLang = i18n.onChange(() => {
+      i18n.sync(this);
+      this.setData({ secs: secs(this.data.T, this.data, this.data.lang === "en") });
+    });
   },
 
   pick(e) {
