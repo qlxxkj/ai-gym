@@ -8,6 +8,7 @@
       data-path="{{item.path}}"
       bindtap="onTap"
     >
+      <view class="tb__ic ic-{{item.icon}}"></view>
       <text class="tb__text">{{item.text}}</text>
     </view>
   </view>

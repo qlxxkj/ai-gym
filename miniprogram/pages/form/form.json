@@ -1,1 +1,1 @@
-{ "navigationBarTitleText": "新建计划" }
+{ "navigationStyle": "custom", "usingComponents": { "topbar": "/components/topbar/index" } }

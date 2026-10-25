@@ -1,0 +1,8 @@
+<view class="tb {{theme === 'dark' ? 'tb--dark' : ''}}" style="padding-top:{{statusH}}px">
+  <view style="height:{{barH}}px">
+    <view class="tb__row">
+      <view class="tb__ic ic-book"></view>
+      <text class="tb__t" style="padding-right:{{rightPad}}">{{text}}</text>
+    </view>
+  </view>
+</view>

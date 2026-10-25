@@ -1,4 +1,5 @@
 <view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
+  <topbar tkey="tab_exercises" />
   <view class="hero hero--lead">
     <view class="hero__desc">{{T.ex_sub}}</view>
   </view>
@@ -10,7 +11,7 @@
   <view class="chips" style="margin:var(--s-3) 0 var(--s-4)">
     <view wx:for="{{muscles}}" wx:key="*this"
       class="chip {{muscle === item ? 'chip--on' : ''}}"
-      data-m="{{item}}" bindtap="pickMuscle">{{muscleZh[item]}}</view>
+      data-m="{{item}}" bindtap="pickMuscle">{{langEn ? item : muscleZh[item]}}</view>
   </view>
 
   <view class="list">

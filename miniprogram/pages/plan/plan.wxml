@@ -1,4 +1,5 @@
 <view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
+  <topbar tkey="tab_plan" />
   <block wx:if="{{pending}}">
     <view class="state"><view class="state__text">{{T.plan_loading}}</view></view>
   </block>
@@ -23,13 +24,16 @@
       </view>
       <view class="card group">
         <view class="row" wx:for="{{plans}}" wx:key="id" data-id="{{item.id}}" bindtap="openPlan">
+          <view class="ic ic-book row__ic"></view>
           <text class="row__label">{{item.title}}</text>
           <text class="row__value">{{T.plan_goal}} {{item.goal}}</text>
-          <view class="row__arrow">›</view>
+          <view class="ic ic-chevron row__arrow"></view>
         </view>
         <view class="hr"></view>
         <view class="row" bindtap="goForm">
+          <view class="ic ic-plus ic--acc row__ic"></view>
           <text class="row__label" style="color:var(--accent);font-weight:500">{{T.plan_new2}}</text>
+          <view class="ic ic-chevron row__arrow"></view>
         </view>
       </view>
     </block>
@@ -41,19 +45,28 @@
       <view class="hero__desc" style="white-space:normal;margin-top:var(--s-2)">{{current.plan_data.summary}}</view>
     </view>
 
+    <view class="card tips rise" wx:if="{{!langEn && current.plan_data.tips.length}}" style="margin-bottom:var(--s-4)">
+      <view class="section-title">{{T.plan_tips}}</view>
+      <view class="tip" wx:for="{{current.plan_data.tips}}" wx:key="*this">{{item}}</view>
+    </view>
+
     <view class="chips rise" style="margin-bottom:var(--s-4)">
-      <text class="tag tag--accent">{{current.goal}}</text>
+      <text class="tag tag--accent">{{curGoal}}</text>
       <text class="tag">{{T.plan_rest_lb}} {{current.plan_data.rest_seconds}}{{T.plan_rest_s}}</text>
       <text class="tag">{{T.plan_v}} {{current.version}}</text>
       <view style="flex:1"></view>
-      <text class="fav {{faved?'fav--on':''}}" bindtap="toggleFav">{{faved ? T.fav_on : T.fav_off}}</text>
+      <view class="fav {{faved?'fav--on':''}}" bindtap="toggleFav">
+        <view class="ic {{faved ? 'ic-heart-fill' : 'ic-heart'}} {{faved?'ic--acc':''}} fav__ic"></view>
+        <text class="fav__t">{{faved ? T.fav_on : T.fav_off}}</text>
+      </view>
     </view>
 
     <view class="card day rise-item" wx:for="{{current.plan_data.days}}" wx:for-item="day" wx:key="day">
       <view class="row day__head" data-d="{{day.day}}" bindtap="toggleDay">
+        <view class="ic ic-calendar row__ic"></view>
         <text class="row__label">{{T.plan_day}} {{day.day}}{{T.plan_day_suf}}</text>
         <text class="row__value">{{day.label}}</text>
-        <view class="row__arrow">{{openDay === day.day ? '−' : '+'}}</view>
+        <view class="ic {{openDay === day.day ? 'ic-minus' : 'ic-plus'}} row__arrow"></view>
       </view>
       <view class="day__body" wx:if="{{openDay === day.day}}">
         <view class="ex" wx:for="{{day.exercises}}" wx:for-item="ex" wx:key="id">

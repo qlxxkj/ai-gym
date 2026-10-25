@@ -74,19 +74,26 @@ pool.query(`ALTER TABLE exercises ADD COLUMN IF NOT EXISTS name_zh text DEFAULT 
 }
 
 app.get("/exercises", async (req, res) => {
-  const { q, muscle, equipment, cat, limit = 50, offset = 0 } = req.query;
+  // lang=en：搜索直接命中文本（name/muscle），不再命中 name_zh；
+  // lang=zh（默认）：中文搜 name_zh，英文搜 name/muscle
+  const { q, muscle, equipment, cat, limit = 50, offset = 0, lang } = req.query;
   const where = [];
   const args = [];
   if (q) {
     args.push(`%${q}%`);
     const qi = args.length; // 占位符引用统一用 qi，避免插值串里美元符号被意外展开
-    // 中文搜索：命中 name_zh 或 name；英文搜索：命中 name 或 muscle（肌群）
-    const isCjk = /[\u4e00-\u9fff]/.test(q);
-    where.push(
-      isCjk
-        ? `(name ILIKE $${qi} OR name_zh ILIKE $${qi})`
-        : `(name ILIKE $${qi} OR muscle ILIKE $${qi})`
-    );
+    // 英文模式（lang=en）：只命中 name/muscle，保证结果里可无中文展示；
+    // 中文模式：中文搜 name_zh，英文搜 name/muscle
+    if (lang === "en") {
+      where.push(`(name ILIKE $${qi} OR muscle ILIKE $${qi})`);
+    } else {
+      const isCjk = /[\u4e00-\u9fff]/.test(q);
+      where.push(
+        isCjk
+          ? `(name ILIKE $${qi} OR name_zh ILIKE $${qi})`
+          : `(name ILIKE $${qi} OR muscle ILIKE $${qi})`
+      );
+    }
   }
   if (muscle) {
     args.push(muscle);
@@ -121,6 +128,16 @@ app.get("/exercises", async (req, res) => {
 });
 
 // ---------- 计划 ----------
+// 计划行补英文字段：goal_en 由 goal 值映射；plan_data 里的英文展示字段
+// （title_en/summary_en/label_en/note_en）新计划生成时就带，旧计划缺失时
+// 前端回退原值，不再逐条查库翻译
+const GOAL_EN = { 增肌: "Hypertrophy", 减脂: "Fat Loss", 力量: "Strength", 体能: "Conditioning", 塑形: "Toning" };
+function planRow(row) {
+  const p = { ...row };
+  p.goal_en = GOAL_EN[row.goal] || String(row.goal || "");
+  return p;
+}
+
 app.get("/plans", reqOpenid, async (req, res) => {
   await ensureUser(req.openid);
   const r = await pool.query(
@@ -129,7 +146,7 @@ app.get("/plans", reqOpenid, async (req, res) => {
      FROM plans WHERE user_id = $1 ORDER BY updated_at DESC`,
     [req.openid]
   );
-  res.json(r.rows);
+  res.json(r.rows.map(planRow));
 });
 
 app.get("/plans/:id", reqOpenid, async (req, res) => {
@@ -139,7 +156,7 @@ app.get("/plans/:id", reqOpenid, async (req, res) => {
     [req.params.id, req.openid]
   );
   if (!r.rows.length) return res.status(404).json({ error: "not found" });
-  res.json(r.rows[0]);
+  res.json(planRow(r.rows[0]));
 });
 
 // 生成计划：body = { goal, days_per_week, level, time_per_session, equipment, focus, notes }

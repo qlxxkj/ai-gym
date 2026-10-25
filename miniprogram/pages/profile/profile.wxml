@@ -1,10 +1,11 @@
 <view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
+  <topbar tkey="tab_profile" />
   <!-- ---------- 头像 / 昵称 ---------- -->
   <view class="card me rise">
     <view class="me__avatar-btn" bindtap="pickAvatar">
       <image wx:if="{{avatar}}" class="me__avatar" src="{{avatar}}" mode="aspectFill"></image>
       <view wx:else class="me__avatar me__avatar-ph">{{nick ? nick[0] : '?'}}</view>
-      <view class="me__badge"><text class="me__badge-t">✎</text></view>
+      <view class="me__badge"><view class="ic ic-camera me__badge-ic"></view></view>
     </view>
     <view class="me__info">
       <view class="me__name" bindtap="pickNick">{{nick}}</view>
@@ -12,64 +13,77 @@
     </view>
   </view>
 
-  <!-- ---------- 我的收藏 ---------- -->
+  <!-- ---------- 我的收藏：一张卡，行内小标题分两组 ---------- -->
   <view class="section-title section-title--gap">{{T.sec_fav}}</view>
-  <view class="card group">
+  <view class="card group rise">
     <block wx:if="{{favPlans.length || favExercises.length}}">
       <block wx:if="{{favPlans.length}}">
-        <view class="group-lb" wx:if="{{favPlans.length}}">{{T.sec_fav_plans}}</view>
+        <view class="group-lb">{{T.sec_fav_plans}}</view>
         <view class="row" wx:for="{{favPlans}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavPlan">
+          <view class="ic ic-book row__ic"></view>
           <text class="row__label">{{item.title}}</text>
-          <view class="row__arrow">›</view>
+          <text class="row__value">{{item.goal}}</text>
+          <view class="ic ic-chevron row__arrow"></view>
         </view>
       </block>
       <block wx:if="{{favExercises.length}}">
-        <view class="hr" wx:if="{{favPlans.length}}"></view>
         <view class="group-lb">{{T.sec_fav_ex}}</view>
         <view class="row" wx:for="{{favExercises}}" wx:key="id" data-id="{{item.id}}" bindtap="openFavEx">
-          <text class="row__label">{{item.name_zh}}</text>
-          <view class="row__arrow">›</view>
+          <view class="ic ic-dumbbell row__ic"></view>
+          <text class="row__label">{{item.name}}</text>
+          <view class="ic ic-chevron row__arrow"></view>
         </view>
       </block>
     </block>
-    <view wx:else class="state">
-      <view class="state__text">{{T.mine_fav_empty}}</view>
-    </view>
+    <block wx:else>
+      <view class="state">
+        <view class="ic ic-heart state__ic"></view>
+        <view class="state__text">{{T.mine_fav_empty}}</view>
+      </view>
+    </block>
   </view>
 
-  <!-- ---------- 我的设置 ---------- -->
+  <!-- ---------- 我的设置：三档 chip，行内切换 ---------- -->
   <view class="section-title section-title--gap">{{T.sec_settings}}</view>
-  <view class="card group">
-    <view class="row" bindtap="pickTheme">
-      <text class="row__label">{{T.mine_appearance}}</text>
-      <text class="row__value">{{themeLabel}}</text>
-      <view class="row__arrow">›</view>
+  <view class="card rise">
+    <view class="set">
+      <view class="set__lb"><view class="ic ic-sun set__ic"></view>{{T.mine_appearance}}</view>
+      <view class="chips">
+        <view wx:for="{{themeOpts}}" wx:key="v"
+          class="chip {{themePref === item.v ? 'chip--on' : ''}}"
+          data-v="{{item.v}}" bindtap="pickThemeOpt">{{item.label}}</view>
+      </view>
     </view>
     <view class="hr"></view>
-    <view class="row" bindtap="pickLang">
-      <text class="row__label">{{T.mine_text}}</text>
-      <text class="row__value">{{langLabel}}</text>
-      <view class="row__arrow">›</view>
+    <view class="set">
+      <view class="set__lb"><view class="ic ic-lang set__ic"></view>{{T.mine_text}}</view>
+      <view class="chips">
+        <view wx:for="{{langOpts}}" wx:key="v"
+          class="chip {{langPref === item.v ? 'chip--on' : ''}}"
+          data-v="{{item.v}}" bindtap="pickLangOpt">{{item.label}}</view>
+      </view>
     </view>
   </view>
 
   <!-- ---------- 分享 ---------- -->
   <view class="section-title section-title--gap">{{T.sec_share}}</view>
-  <view class="card group">
+  <view class="card group rise">
     <view class="row row__share">
       <button class="row__share-btn" open-type="share">
         <view class="row__lead">
+          <view class="ic ic-share row__ic"></view>
           <text class="row__label">{{T.share_friend}}</text>
         </view>
       </button>
-      <view class="row__arrow">›</view>
+      <view class="ic ic-chevron row__arrow"></view>
     </view>
   </view>
 
   <!-- ---------- 关于 ---------- -->
   <view class="section-title section-title--gap">{{T.sec_about}}</view>
-  <view class="card group">
+  <view class="card group rise">
     <view class="row">
+      <view class="ic ic-info row__ic"></view>
       <text class="row__label">{{T.about_version}}</text>
       <text class="row__value">{{version}}</text>
     </view>

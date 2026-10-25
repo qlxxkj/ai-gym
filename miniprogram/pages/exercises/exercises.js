@@ -107,6 +107,7 @@ Page({
   data: {
     q: "",
     muscle: "",
+    langEn: false,
     // 值必须是 DB 里的英文 muscle（"back" 查不到，DB 用 "upper back"）
     muscles: ["quadriceps", "hamstrings", "glutes", "core", "shoulders", "chest", "upper back", "biceps", "triceps"],
     muscleZh: MUSCLE_ZH,
@@ -136,8 +137,14 @@ Page({
     if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 2 });
     theme.sync(this);
     i18n.sync(this);
-    if (!this._offLang) this._offLang = i18n.onChange(() => i18n.sync(this));
-    exdict.load(() => {});
+    this.setData({ langEn: this.data.lang === "en" });
+    // 切语言：重建当前语言展示（字典名/肌群器材标签全跟语言走）
+    if (!this._offLang) this._offLang = i18n.onChange(() => {
+      i18n.sync(this);
+      this.setData({ langEn: this.data.lang === "en" });
+      this.relang();
+    });
+    exdict.load(() => this.relang());
     // 从「我的」页点收藏动作跳来：自动弹该动作详情
     const openId = wx.getStorageSync("openExId");
     if (openId) {
@@ -150,10 +157,12 @@ Page({
 
   // 打开详情前先显示占位（字典名），后台拉列表命中后补全 media/器材字段
   openByExId(id) {
+    const en = this.data.lang === "en";
+    const nm = en ? exdict.nameEn(id) : exdict.nameZh(id) || exdict.nameEn(id);
     const fallback = {
       id: String(id),
-      name: exdict.nameZh(id) || "#" + id,
-      name_zh: exdict.nameZh(id) || "#" + id,
+      name: nm || "#" + id,
+      name_zh: nm || "#" + id,
       img_url: "",
       clip_url: "",
     };
@@ -168,6 +177,14 @@ Page({
       .catch(() => {});
   },
 
+  // 字典到位 / 切语言后按当前语言重刷展示
+  relang() {
+    const list = this.decorate(this.data.list);
+    const patch = { list };
+    if (this.data.detail) patch.detail = this.decorate([this.data.detail])[0];
+    this.setData(patch);
+  },
+
   onSearch(e) {
     this.setData({ q: e.detail.value });
     this.search(e.detail.value);
@@ -179,26 +196,32 @@ Page({
     this.search(this.data.q);
   },
 
-  // 把每条 list 的英文字段映射成中文展示字段
+  // 把每条 list 的英文字段映射成当前语言展示字段（en 保持英文，zh 用中文表）
   decorate(list) {
+    const en = this.data.lang === "en";
     return (list || []).map((x) => ({
       ...x,
-      equipment_zh: zh(x.equipment, this.data.equipZh),
-      muscle_zh: zh(x.muscle, this.data.partZh),
-      cat_zh: zh(x.cat, this.data.catZh),
-      muscles_zh: zh(x.muscles, this.data.partZh),
-      name_zh: exdict.nameZh(x.id) || x.name_zh || x.name,
+      equipment_zh: en ? zh(x.equipment, {}) : zh(x.equipment, this.data.equipZh),
+      muscle_zh: en ? zh(x.muscle, {}) : zh(x.muscle, this.data.partZh),
+      cat_zh: en ? zh(x.cat, {}) : zh(x.cat, this.data.catZh),
+      muscles_zh: en ? zh(x.muscles, {}) : zh(x.muscles, this.data.partZh),
+      name_zh: en ? exdict.nameEn(x.id) || x.name : exdict.nameZh(x.id) || x.name_zh || x.name,
     }));
   },
 
   async search(q) {
     this.setData({ loading: true });
     try {
-      const raw = await api.exercises({ q: q || undefined, muscle: this.data.muscle || undefined, limit: 60 });
+      const raw = await api.exercises({
+        q: q || undefined,
+        muscle: this.data.muscle || undefined,
+        lang: this.data.lang, // 英文模式搜索不命中中文名
+        limit: 60,
+      });
       this.setData({ list: this.decorate(raw), loading: false, detail: null });
     } catch (e) {
       this.setData({ loading: false });
-      wx.showToast({ title: "搜索失败", icon: "none" });
+      wx.showToast({ title: this.data.lang === "en" ? "Search failed" : "搜索失败", icon: "none" });
     }
   },
 

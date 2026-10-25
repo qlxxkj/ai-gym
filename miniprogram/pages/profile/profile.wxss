@@ -1,4 +1,4 @@
-/* .hero* / .card / .row* / .section-title 已在 app.wxss。本页只写差异 */
+/* .hero* / .card / .row* / .section-title / .ic* 已在 app.wxss。本页只写差异 */
 
 /* ---------- 头部：头像 + 昵称 ---------- */
 .me {
@@ -49,7 +49,11 @@
     background: var(--card);
     box-shadow: 0 2rpx 10rpx rgba(36, 29, 27, 0.14);
 }
-.me__badge-t { font-size: 24rpx; color: var(--ink-3); }
+.me__badge-ic {
+    width: 28rpx;
+    height: 28rpx;
+    --ic: var(--ink-3);
+}
 
 .me__info {
     flex: 1;
@@ -68,12 +72,38 @@
     color: var(--ink-3);
 }
 
-/* ---------- 收藏分组小标题 ---------- */
+/* ---------- 收藏分组小标题（顶到行的图标位，与下方行的图标左对齐） ---------- */
 .group-lb {
-    padding: var(--s-3) var(--s-4) var(--s-1);
+    padding: var(--s-3) calc(var(--s-4) + 46rpx) var(--s-1);
     font-size: var(--t-cap);
     letter-spacing: 2rpx;
     color: var(--ink-3);
+}
+
+/* ---------- 设置区：标签 + chip 行内切换 ---------- */
+.set {
+    padding: var(--s-4);
+}
+.set__lb {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-size: var(--t-body);
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: var(--s-3);
+}
+.set__ic {
+    width: 34rpx;
+    height: 34rpx;
+}
+
+/* ---------- 空态图标 ---------- */
+.state__ic {
+    width: 72rpx;
+    height: 72rpx;
+    margin: 0 auto var(--s-3);
+    opacity: 0.5;
 }
 
 /* ---------- 分享行：button 只做触发，布局交给 view ---------- */
@@ -96,6 +126,11 @@
     text-align: left;
 }
 .row__share-btn::after { border: none; }
+.row__lead {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
 
 /* ---------- 页脚 ---------- */
 .about {

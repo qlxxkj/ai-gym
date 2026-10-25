@@ -56,17 +56,20 @@ if (wx.onThemeChange) {
   wx.onThemeChange(() => fire());
 }
 
-// 页面/组件之外的那些「壳」：page 背景色 + 导航栏
+// 页面/组件之外的那些「壳」：page 背景色 + 导航栏。
+// 浅色：导航栏透明，只留状态栏/导航栏的深色文字（没有黑块）；
+// 深色：导航栏和 page 同为深底 #141110，白字。
 function paintChrome(t) {
   const dark = t === "dark";
   const bg = dark ? "#141110" : "#F9F6F5";
+  const navBg = dark ? "#141110" : "#00000000"; // 浅色=全透明
   try {
     wx.setBackgroundColor({ backgroundColor: bg, backgroundColorTop: bg, backgroundColorBottom: bg });
   } catch (e) {
     /* 部分基础库不支持 top/bottom，忽略 */
   }
   try {
-    wx.setNavigationBarColor({ frontColor: dark ? "#ffffff" : "#000000", backgroundColor: bg });
+    wx.setNavigationBarColor({ frontColor: dark ? "#ffffff" : "#000000", backgroundColor: navBg });
   } catch (e) {
     /* 忽略 */
   }

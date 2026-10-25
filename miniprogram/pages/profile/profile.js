@@ -9,9 +9,9 @@ Page({
     nick: "",
     version: user.VERSION,
     themePref: "auto",
-    langPref: "auto",
-    themeLabel: "",
-    langLabel: "",
+    langPref: "zh",
+    themeOpts: [],
+    langOpts: [],
     favPlans: [],
     favExercises: [],
     favCount: 0,
@@ -21,40 +21,52 @@ Page({
     if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 3 });
     theme.sync(this);
     i18n.sync(this);
-    this.refreshLabels();
+    this.refreshOpts();
+    this.refreshNick();
     this.refreshFav();
     exdict.load(() => this.refreshFav());
-    // 切语言：广播回来时刷新 T/标签/收藏名
-    if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.refreshLabels(); this.refreshFav(); });
+    if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.refreshOpts(); });
   },
 
-  refreshLabels() {
+  refreshOpts() {
     const T = this.data.T || {};
-    const themePref = this.data.themePref;
-    const langPref = this.data.langPref;
-    const themeLabel =
-      themePref === "light" ? T.theme_light || "浅色" :
-      themePref === "dark" ? T.theme_dark || "深色" :
-      T.theme_auto || "跟随系统";
-    const langLabel =
-      langPref === "zh" ? T.lang_zh || "中文" :
-      langPref === "en" ? T.lang_en || "英文" :
-      T.lang_auto || "跟随系统";
-    this.setData({ themeLabel, langLabel, avatar: user.avatar(), nick: user.nick() });
+    this.setData({
+      themeOpts: [
+        { v: "auto", label: T.theme_auto },
+        { v: "light", label: T.theme_light },
+        { v: "dark", label: T.theme_dark },
+      ],
+      langOpts: [
+        { v: "zh", label: T.lang_zh },
+        { v: "en", label: T.lang_en },
+      ],
+    });
+  },
+
+  refreshNick() {
+    const T = this.data.T || {};
+    this.setData({ nick: user.nick() || T.mine_title });
   },
 
   refreshFav() {
     const T = this.data.T || {};
-    // 计划标题：cachedPlan 命中就显示标题，否则 #id
-    const list = user.favPlans();
+    const en = this.data.lang === "en";
     const cached = wx.getStorageSync("cachedPlan");
-    const favPlans = list.map((id) => ({
-      id,
-      title: cached && cached.id === id ? cached.title || "#" + id : "#" + id,
-    }));
+    const dict = exdict.dict();
+    const favPlans = user.favPlans().map((id) => {
+      const hit = cached && cached.id === id ? cached : null;
+      // 全英文模式：计划标题/目标显示英文（goal_en/title_en，后端补的字段），
+      // 缓存里没有就用 #id 占位，不留中文
+      return {
+        id,
+        title: en ? (hit && hit.title_en ? hit.title_en : hit ? hit.title || "#" + id : "#" + id) : (hit ? hit.title || "#" + id : "#" + id),
+        goal: hit ? (en ? hit.goal_en || "" : hit.goal || "") : "",
+      };
+    });
     const favExercises = user.favExercises().map((id) => ({
       id,
-      name_zh: exdict.nameZh(id) || "#" + id,
+      // en 模式用英文原名，zh 用本地字典中文名
+      name: lang === "en" ? exdict.nameEn(id) || "#" + id : dict[id] || exdict.nameEn(id) || "#" + id,
     }));
     this.setData({
       favPlans,
@@ -63,27 +75,21 @@ Page({
     });
   },
 
-  // 外观：点「外观」行循环切换 auto→light→dark（对齐 daily-poetry 的行内切换）
-  pickTheme() {
-    const order = ["auto", "light", "dark"];
-    const cur = this.data.themePref || "auto";
-    const next = order[(order.indexOf(cur) + 1) % order.length];
-    theme.set(next);
-    this.setData({ themePref: next });
+  // 外观：点 chip 直接选档
+  pickThemeOpt(e) {
+    theme.set(e.currentTarget.dataset.v);
+    this.setData({ themePref: e.currentTarget.dataset.v });
     theme.sync(this);
     i18n.sync(this);
-    this.refreshLabels();
+    this.refreshOpts();
   },
 
-  // 语言：循环 auto→zh→en
-  pickLang() {
-    const order = ["auto", "zh", "en"];
-    const cur = this.data.langPref || "auto";
-    const next = order[(order.indexOf(cur) + 1) % order.length];
-    i18n.setLang(next === "auto" ? "auto" : next);
-    this.setData({ langPref: next });
+  // 语言：点 chip 直接选档（没有「跟随系统」）
+  pickLangOpt(e) {
+    i18n.setLang(e.currentTarget.dataset.v);
+    this.setData({ langPref: e.currentTarget.dataset.v });
     i18n.sync(this);
-    this.refreshLabels();
+    this.refreshOpts();
     this.refreshFav();
   },
 
@@ -117,9 +123,10 @@ Page({
   },
 
   pickNick() {
+    const en = this.data.lang === "en";
     const T = this.data.T || {};
     wx.showModal({
-      title: T.mine_nick_ph || "设置昵称",
+      title: en ? "Set nickname" : T.mine_nick_ph || "设置昵称",
       editable: true,
       placeholderText: this.data.nick,
       success: (r) => {

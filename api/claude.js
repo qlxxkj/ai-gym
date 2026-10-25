@@ -31,6 +31,33 @@ async function chat(messages) {
   return text;
 }
 
+// 中文标签 → 英文（计划里 label/提示用）
+const LABEL_EN = {
+  推: "Push", 拉: "Pull", 腿: "Legs", 肩: "Shoulder", 臂: "Arm", 背: "Back",
+  胸: "Chest", 核心: "Core", 全身: "Full Body", 有氧: "Cardio", 休息: "Rest",
+};
+function labelEn(label) {
+  const s = String(label || "");
+  const hit = Object.keys(LABEL_EN).find((k) => s.indexOf(k) >= 0);
+  return hit ? s.replace(hit, LABEL_EN[hit]) : s;
+}
+// 给 plan_data 补英文字段（title_en/goal_en/summary_en/weekly_goals_en/label_en/note_en），
+// 前端全英文模式读这些；中文原文留在 title/goal/summary/label/note
+function withEn(plan) {
+  const p = JSON.parse(JSON.stringify(plan || {}));
+  p.title_en = p.title || "";
+  p.summary_en = p.summary || "";
+  p.weekly_goals_en = (p.weekly_goals || []).map((x) => String(x));
+  (p.days || []).forEach((d) => {
+    d.label_en = labelEn(d.label);
+    (d.exercises || []).forEach((e) => (e.note_en = e.note || ""));
+  });
+  return p;
+}
+
+// goal 值英文映射（前端提交的是中文 goal）
+const GOAL_EN = { 增肌: "Hypertrophy", 减脂: "Fat Loss", 力量: "Strength", 体能: "Conditioning", 塑形: "Toning" };
+
 function planPrompt(user, exercises) {
   return [
     "你是一名专业健身教练。请根据用户需求和可用动作库，制定一份可执行的训练计划。",
@@ -127,7 +154,9 @@ async function generatePlan(user, exercises) {
   for (const d of parsed.days) {
     d.exercises = (d.exercises || []).filter(e => valid.has(e.id)).slice(0, 6);
   }
-  return parsed;
+  // 英文字段：goal_en 按 goal 值映射；label_en/note_en 由中文标签推导
+  parsed.goal_en = GOAL_EN[user.goal] || String(user.goal || "");
+  return withEn(parsed);
 }
 
 async function revisePlan(plan, adjustments, exercises) {
@@ -138,7 +167,9 @@ async function revisePlan(plan, adjustments, exercises) {
   for (const d of parsed.days) {
     d.exercises = (d.exercises || []).filter(e => valid.has(e.id));
   }
-  return parsed;
+  // 英文字段沿用上版计划的 goal_en（label_en/note_en 重新推导）
+  parsed.goal_en = plan.goal_en || "";
+  return withEn(parsed);
 }
 
 async function weeklyReview(plan, sessions, sets, extra) {

@@ -8,9 +8,10 @@
   ],
   "window": {
     "navigationBarTitleText": "AI 健身教练",
-    "navigationBarBackgroundColor": "#F9F6F5",
-    "navigationBarTextStyle": "black",
-    "backgroundColor": "#F9F6F5"
+    "navigationStyle": "custom",
+    "backgroundColor": "#F9F6F5",
+    "backgroundColorTop": "#F9F6F5",
+    "backgroundColorBottom": "#F9F6F5"
   },
   "tabBar": {
     "custom": true,

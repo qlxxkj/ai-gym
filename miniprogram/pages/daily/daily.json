@@ -1,1 +1,1 @@
-{ "navigationBarTitleText": "今天训练" }
+{ "navigationStyle": "custom", "usingComponents": { "topbar": "/components/topbar/index" } }

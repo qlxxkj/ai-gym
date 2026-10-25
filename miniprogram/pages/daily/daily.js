@@ -27,6 +27,7 @@ Page({
     plan: null,
     dayLabel: "",
     session: null,
+    langEn: false,
     today: todayStr(),
     exercises: [],
     doneSets: {}, // { "exercise_id:set_no": true }
@@ -42,20 +43,43 @@ Page({
     if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 1 });
     theme.sync(this);
     i18n.sync(this);
-    if (!this._offLang) this._offLang = i18n.onChange(() => i18n.sync(this));
-    // 备动作中文字典：本地命中瞬时；首次后台拉不阻塞，到位后刷新中文名
-    exdict.load(() => this.refreshZhNames());
+    this.setData({ langEn: this.data.lang === "en" });
+    // 切语言：重建当前训练内容（动作名/天标签/计划标题按语言取）
+    if (!this._offLang) this._offLang = i18n.onChange(() => {
+      i18n.sync(this);
+      this.setData({ langEn: this.data.lang === "en" });
+      this.reloadLang();
+    });
+    // 备动作名字典：本地命中瞬时；首次后台拉不阻塞，到位后按当前语言刷新
+    exdict.load(() => this.refreshNames());
     this.load();
   },
 
-  // 后台字典到位后，把当前动作列表的中文名补上
-  refreshZhNames() {
+  // 后台字典到位 / 切语言后按当前语言补动作名
+  refreshNames() {
     if (!this.data.exercises.length) return;
+    const en = this.data.lang === "en";
     const list = this.data.exercises.map((ex) => ({
       ...ex,
-      name_zh: exdict.nameZh(ex.id) || ex.name,
+      name_zh: en ? exdict.nameEn(ex.id) || ex.name : exdict.nameZh(ex.id) || ex.name,
     }));
     this.setData({ exercises: list });
+  },
+
+  // 切语言：当天标签/计划标题/动作名按新语言重建
+  reloadLang() {
+    const en = this.data.lang === "en";
+    const p = this.data.plan;
+    if (!p) return;
+    const day = p.plan_data && ((p.plan_data.days || []).find((d) => d.day === this._dayNo) || {});
+    const patch = {
+      dayLabel: en ? day.label_en || day.label : day.label || "",
+      exercises: (this.data.exercises || []).map((ex) => ({
+        ...ex,
+        name_zh: en ? exdict.nameEn(ex.id) || ex.name : exdict.nameZh(ex.id) || ex.name,
+      })),
+    };
+    this.setData(patch);
   },
 
   onUnload() {
@@ -91,6 +115,7 @@ Page({
       const days = (plan.plan_data || {}).days || [];
       // 按今天是周几选 day：day 编号 1..N，周一=1
       const dayNo = (new Date().getDay() + 6) % 7 + 1;
+      this._dayNo = dayNo;
       let idx = days.findIndex((d) => d.day === dayNo);
       if (idx < 0) idx = 0; // 没有对应天就用第一天
       const day = days[idx];
@@ -120,17 +145,23 @@ Page({
         console.error("打卡记录加载失败（不影响计划展示）:", se);
       }
 
+      const lang = this.data.lang;
+      const en = lang === "en";
+      const exName = (ex) =>
+        en ? exdict.nameEn(ex.id) || ex.name : exdict.nameZh(ex.id) || ex.name;
       const exercises = ((day && day.exercises) || []).map((ex) => ({
         ...ex,
-        // 动作名查本地字典，还没有就先用英文原名占位，后台字典到位后 refreshZhNames 补上
-        name_zh: exdict.nameZh(ex.id) || ex.name,
+        // 动作名按语言取；还没有就先用英文原名占位，后台字典到位后 refreshNames 补上
+        name_zh: exName(ex),
         img_url: config.mediaStill(ex.id),
         clip_url: config.mediaClip(ex.id),
         setStates: ex.sets.map((_, i) => doneSets[ex.id + ":" + (i + 1)] || false),
       }));
       this.setData({
         plan,
-        dayLabel: day ? day.label : "",
+        langEn: en,
+        // 天标签/计划标题按语言取：en 优先 *_en 字段，缺省回退原值
+        dayLabel: en ? (day ? day.label_en || day.label : "") : day ? day.label : "",
         session: sessionId,
         exercises,
         restDefault: plan.plan_data.rest_seconds || 90,
@@ -200,6 +231,6 @@ Page({
     if (!id) return;
     await api.markDone(id).catch(() => {});
     this.setData({ allDone: true });
-    wx.showToast({ title: "今日完成，打卡成功" });
+    wx.showToast({ title: this.data.lang === "en" ? "Done, check-in successful" : "今日完成，打卡成功" });
   },
 });

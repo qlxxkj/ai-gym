@@ -4,10 +4,10 @@ const i18n = require("../i18n");
 const theme = require("../theme");
 
 const TABS = [
-  { key: "plan", path: "/pages/plan/plan", tkey: "tab_plan" },
-  { key: "daily", path: "/pages/daily/daily", tkey: "tab_daily" },
-  { key: "exercises", path: "/pages/exercises/exercises", tkey: "tab_exercises" },
-  { key: "profile", path: "/pages/profile/profile", tkey: "tab_profile" },
+  { key: "plan", path: "/pages/plan/plan", tkey: "tab_plan", icon: "clipboard" },
+  { key: "daily", path: "/pages/daily/daily", tkey: "tab_daily", icon: "calendar" },
+  { key: "exercises", path: "/pages/exercises/exercises", tkey: "tab_exercises", icon: "dumbbell" },
+  { key: "profile", path: "/pages/profile/profile", tkey: "tab_profile", icon: "user" },
 ];
 
 function withText() {
@@ -24,6 +24,7 @@ Component({
   lifetimes: {
     attached() {
       this.refresh();
+      // 语言/外观都是 storage 持久化 + 广播，tabBar 常驻：监听广播即可跟上
       this._offLang = i18n.onChange(() => this.refresh());
       this._offTheme = theme.onThemeChange(() => this.refresh());
     },

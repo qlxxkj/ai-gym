@@ -5,24 +5,41 @@ const theme = require("../../theme");
 const i18n = require("../../i18n");
 const user = require("../../user");
 
-// 给 AI 计划里的动作补图片/视频/中文名（用 openGym id 拼 media URL，名字查本地字典）
-function enrichPlan(full) {
+// 给 AI 计划里的动作补图片/视频/名称（用 openGym id 拼 media URL，名字查本地字典）
+// 全英文模式下 name_zh 字段塞英文原名，wxml 不动
+function enrichPlan(full, lang) {
   if (!full || !full.plan_data) return full;
   const cur = JSON.parse(JSON.stringify(full)); // 深拷贝避免污染 storage
+  const en = lang === "en";
   (cur.plan_data.days || []).forEach((d) => {
     (d.exercises || []).forEach((e) => {
       e.img_url = config.mediaStill(e.id);
       e.clip_url = config.mediaClip(e.id);
-      e.name_zh = exdict.nameZh(e.id) || e.name;
+      e.name_zh = en ? e.name : exdict.nameZh(e.id) || e.name;
     });
   });
   return cur;
+}
+
+// 计划显示用名称：en 用英文（标题/目标/摘要/天标签），zh 用原值
+function locPlan(full, lang) {
+  if (!full) return full;
+  if (lang !== "en") return full;
+  const c = JSON.parse(JSON.stringify(full));
+  c.title = full.title_en || full.title;
+  const d = c.plan_data || {};
+  d.goal = full.goal_en || full.goal;
+  d.summary = full.summary_en || d.summary;
+  (d.days || []).forEach((day) => (day.label = day.label_en || day.label));
+  return c;
 }
 
 Page({
   data: {
     plans: [],
     current: null,
+    curGoal: "",
+    langEn: false,
     openDay: 0,
     reviewText: "",
     reviewing: false,
@@ -38,8 +55,9 @@ Page({
     if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 0 });
     theme.sync(this);
     i18n.sync(this);
-    if (!this._offLang) this._offLang = i18n.onChange(() => i18n.sync(this));
-    // 备动作中文字典：本地命中则瞬时；首次后台拉，不阻塞渲染，到位后回写中文名
+    // 切语言：重建当前计划（动作名/标题按语言取），tabBar 文案另走广播
+    if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.setData({ langEn: this.data.lang === "en" }); this.reloadLang(); });
+    // 备动作中文字典：本地命中则瞬时；首次后台拉，不阻塞渲染，到位后回写名称
     exdict.load(() => this.applyZhNames());
     // 从「我的」页点收藏计划跳来：读 key 直接打开该计划
     const openId = wx.getStorageSync("profileOpenPlan");
@@ -51,25 +69,40 @@ Page({
     this.load();
   },
 
-  // 后台字典到位后回写当前计划动作的中文名
+  // 后台字典到位后回写当前计划动作的名称（按当前语言）
   applyZhNames() {
     const cur = this.data.current;
     if (!cur) return;
-    this.setData({ current: enrichPlan(cur) });
+    this.setData({ current: enrichPlan(cur, this.data.lang) });
+  },
+
+  // 切语言后按新语言重建当前计划显示（标题/目标/摘要/天标签/动作名）
+  reloadLang() {
+    const lang = this.data.lang;
+    this.setData({ plans: this.data.plans.map((p) => locPlan(p, lang)) });
+    const cur = this.data.current;
+    if (cur) {
+      const fresh = enrichPlan(locPlan(cur, lang), lang);
+      this.setData({ current: fresh, curGoal: (fresh.plan_data || {}).goal || "" });
+    }
   },
 
   async load() {
     try {
       this.setData({ pending: true, loadErr: "" });
-      const plans = await api.plans();
+      const lang = this.data.lang;
+      const rawPlans = await api.plans();
+      const plans = rawPlans.map((p) => locPlan(p, lang));
       const cur = wx.getStorageSync("currentPlanId");
       const current = plans.find((p) => p.id === cur) || plans[0] || null;
       if (current) wx.setStorageSync("currentPlanId", current.id);
-      // enrichPlan 现在是同步的（中文名取自本地字典），不再串行等 500 条动作
-      const full = current ? enrichPlan(await api.plan(current.id)) : null;
+      // enrichPlan 现在是同步的（名称取自本地字典），不再串行等 500 条动作
+      const full = current ? enrichPlan(locPlan(await api.plan(current.id), lang), lang) : null;
       this.setData({
         plans,
         current: full,
+        curGoal: full ? (full.plan_data || {}).goal || "" : "",
+        langEn: lang === "en",
         openDay: -1,
         pending: false,
         faved: full ? user.isFavPlan(full.id) : false,
@@ -78,10 +111,11 @@ Page({
         this.setData({ reviewText: JSON.stringify(full.sup_review, null, 2), showReviewPanel: true });
       }
     } catch (e) {
+      const en = this.data.lang === "en";
       console.error(e);
       this.setData({ pending: false, loadErr: String((e.data && e.data.error) || e.errMsg || e.message) });
       // 加载失败也弹出来，别让用户误以为"计划生成成功但页面空"
-      wx.showModal({ title: "计划加载失败", content: "状态码 " + (e.statusCode || "") + "\n" + String((e.data && e.data.error) || e.errMsg || e.message), showCancel: false });
+      wx.showModal({ title: en ? "Load failed" : "计划加载失败", content: (en ? "Code " : "状态码 ") + (e.statusCode || "") + "\n" + String((e.data && e.data.error) || e.errMsg || e.message), showCancel: false });
     }
   },
 
@@ -90,10 +124,12 @@ Page({
   },
 
   async openPlanById(id) {
-    const p = enrichPlan(await api.plan(id));
+    const lang = this.data.lang;
+    const p = enrichPlan(locPlan(await api.plan(id), lang), lang);
     wx.setStorageSync("currentPlanId", id);
     this.setData({
       current: p,
+      curGoal: (p.plan_data || {}).goal || "",
       openDay: -1,
       reviewText: p.sup_review ? JSON.stringify(p.sup_review, null, 2) : "",
       showReviewPanel: !!p.sup_review,
@@ -115,8 +151,9 @@ Page({
   },
 
   async doReview() {
+    const en = this.data.lang === "en";
     this.setData({ reviewing: true });
-    wx.showLoading({ title: "AI 复盘中..." });
+    wx.showLoading({ title: en ? "AI reviewing..." : "AI 复盘中..." });
     try {
       const r = await api.review(this.data.current.id, {});
       this.setData({
@@ -125,7 +162,7 @@ Page({
       });
     } catch (err) {
       wx.showModal({
-        title: "复盘失败",
+        title: en ? "Review failed" : "复盘失败",
         content: String((err.data && err.data.error) || err.message),
         showCancel: false,
       });
@@ -135,6 +172,7 @@ Page({
   },
 
   async doRevise() {
+    const en = this.data.lang === "en";
     const { current } = this.data;
     const text = await this.promptRevise();
     if (!text) return;
@@ -142,10 +180,10 @@ Page({
     try {
       await api.revise(current.id, { adjustments: [text] });
       this.load();
-      wx.showToast({ title: "计划已更新" });
+      wx.showToast({ title: en ? "Plan updated" : "计划已更新" });
     } catch (err) {
       wx.showModal({
-        title: "修改失败",
+        title: en ? "Adjust failed" : "修改失败",
         content: String((err.data && err.data.error) || err.message),
         showCancel: false,
       });
@@ -154,11 +192,12 @@ Page({
   },
 
   promptRevise() {
+    const en = this.data.lang === "en";
     return new Promise((resolve) => {
       wx.showModal({
-        title: "告诉 AI 想怎么调整",
+        title: en ? "Tell the AI how to adjust" : "告诉 AI 想怎么调整",
         editable: true,
-        placeholderText: "例如：推日换成哑铃动作，组数减到3组",
+        placeholderText: en ? "e.g. switch push day to dumbbells, drop to 3 sets" : "例如：推日换成哑铃动作，组数减到3组",
         success: (r) => resolve(r.confirm ? r.content : null),
         fail: () => resolve(null),
       });
@@ -167,21 +206,22 @@ Page({
 
   // 采纳复盘里的 next_plan_adjustment，让 AI 据此修改计划
   async applyReview() {
+    const en = this.data.lang === "en";
     const p = this.data.current;
     if (!p || !p.sup_review) return;
     const adj = p.sup_review.next_plan_adjustment;
     if (!adj) {
-      wx.showToast({ title: "本次复盘没有计划调整项", icon: "none" });
+      wx.showToast({ title: en ? "No adjustment in this review" : "本次复盘没有计划调整项", icon: "none" });
       return;
     }
     this.setData({ applying: true });
     try {
       await api.revise(p.id, { adjustments: [adj] });
       this.load();
-      wx.showToast({ title: "已按建议更新计划" });
+      wx.showToast({ title: en ? "Updated by suggestion" : "已按建议更新计划" });
     } catch (err) {
       wx.showModal({
-        title: "应用失败",
+        title: en ? "Apply failed" : "应用失败",
         content: String((err.data && err.data.error) || err.message),
         showCancel: false,
       });

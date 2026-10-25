@@ -12,6 +12,7 @@ const DICT = {
     tab_daily: "今天",
     tab_exercises: "动作",
     tab_profile: "我的",
+    tab_form: "新建计划",
 
     nav_plan: "我的计划",
     nav_daily: "今天训练",
@@ -71,6 +72,11 @@ const DICT = {
     ex_fav: "收藏",
     ex_faved: "已收藏",
 
+    mine_title: "健身伙伴",
+    mine_nofav: "去收藏",
+    mine_plan: "计划",
+    mine_ex: "动作",
+
     // 表单页
     form_title: "你的训练计划",
     form_sub: "选几个选项，AI 为你定制专属计划",
@@ -108,9 +114,8 @@ const DICT = {
     theme_auto: "跟随系统",
     theme_light: "浅色",
     theme_dark: "深色",
-    lang_auto: "跟随系统",
     lang_zh: "中文",
-    lang_en: "英文",
+    lang_en: "English",
   },
 
   en: {
@@ -118,6 +123,7 @@ const DICT = {
     tab_daily: "Today",
     tab_exercises: "Moves",
     tab_profile: "Me",
+    tab_form: "New Plan",
 
     nav_plan: "My Plans",
     nav_daily: "Today",
@@ -174,6 +180,11 @@ const DICT = {
     ex_fav: "Favorite",
     ex_faved: "Favorited",
 
+    mine_title: "Gym Buddy",
+    mine_nofav: "No faves",
+    mine_plan: "plan",
+    mine_ex: "move",
+
     form_title: "Your Training Plan",
     form_sub: "Pick a few options",
     form_goal: "Goal",
@@ -209,7 +220,6 @@ const DICT = {
     theme_auto: "System",
     theme_light: "Light",
     theme_dark: "Dark",
-    lang_auto: "System",
     lang_zh: "中文",
     lang_en: "English",
   },
@@ -222,22 +232,11 @@ function isLang(l) {
   return l === "zh" || l === "en";
 }
 
-function sysLang() {
-  try {
-    const w = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
-    return (w.language || "zh").indexOf("en") === 0 ? "en" : "zh";
-  } catch (e) {
-    return "zh";
-  }
-}
-
-function resolve(p) {
-  if (p === "zh" || p === "en") return p;
-  return sysLang();
-}
-
+// 语言只两档：中文 / 英文（产品要求去掉「跟随系统」），默认中文。
+// 主题仍保留跟随系统（那是外观，不是文案）。
 function lang() {
-  return resolve(wx.getStorageSync(KEY) || "auto");
+  const p = wx.getStorageSync(KEY) || "zh";
+  return p === "en" ? "en" : "zh";
 }
 
 function dict() {
@@ -258,7 +257,7 @@ function fallback(key) {
 // 把当前词典写进页面 data.T
 function sync(page, extra) {
   const l = lang();
-  const patch = { T: dict(), lang: l, langPref: wx.getStorageSync(KEY) || "auto" };
+  const patch = { T: dict(), lang: l, langPref: l };
   if (extra) Object.assign(patch, extra);
   if (page && page.setData) page.setData(patch);
   return dict();
@@ -285,9 +284,9 @@ function fire() {
 }
 
 function setLang(l) {
-  if (!isLang(l) && l !== "auto") return;
-  wx.setStorageSync(KEY, l === "auto" ? "auto" : l);
+  if (!isLang(l)) return; // 只有 zh / en，不再有 auto
+  wx.setStorageSync(KEY, l);
   fire();
 }
 
-module.exports = { DICT, lang, dict, t, fallback, sync, onChange, setLang, KEY, resolve };
+module.exports = { DICT, lang, dict, t, fallback, sync, onChange, setLang, KEY };

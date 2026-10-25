@@ -1,0 +1,48 @@
+/* 组件自带 token：样式隔离下页面的 .t-dark 够不到组件，深浅由 theme 属性切 */
+.tb {
+    --card: #F9F6F5;
+    --ink: #241D1B;
+    --ink-3: #766D6A;
+
+    background: transparent; /* 浅色：透明，内容区背景从导航栏底下透出来 */
+}
+.tb--dark {
+    --card: #141110;
+    --ink: #F2EBE9;
+    --ink-3: #B2AAA8;
+
+    background: var(--card); /* 深色：深底，与 page 同色 */
+}
+
+.tb__row {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+    height: 100%;
+    padding: 0 24rpx;
+}
+/* 图标：组件样式隔离，mask 本地写死（book = 计划书） */
+.tb__ic {
+    --ic: var(--ink);
+    background-color: var(--ic);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    width: 36rpx;
+    height: 36rpx;
+    flex: none;
+}
+.tb__t {
+    display: block;
+    font-size: 32rpx;
+    font-weight: 600;
+    letter-spacing: 2rpx;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ic-book{-webkit-mask-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNNCAxOS41QTIuNSAyLjUgMCAwIDEgNi41IDE3SDIwIi8+PHBhdGggZD0iTTYuNSAySDIwdjIwSDYuNUEyLjUgMi41IDAgMCAxIDQgMTkuNXYtMTVBMi41IDIuNSAwIDAgMSA2LjUgMloiLz48L3N2Zz4=");mask-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNNCAxOS41QTIuNSAyLjUgMCAwIDEgNi41IDE3SDIwIi8+PHBhdGggZD0iTTYuNSAySDIwdjIwSDYuNUEyLjUgMi41IDAgMCAxIDQgMTkuNXYtMTVBMi41IDIuNSAwIDAgMSA2LjUgMloiLz48L3N2Zz4=")}

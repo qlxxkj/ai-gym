@@ -1,4 +1,5 @@
 <view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
+  <topbar tkey="tab_daily" />
   <block wx:if="{{!plan}}">
     <view class="state">
       <view class="state__text">{{!loading ? T.daily_empty_s : T.daily_loading}}</view>
@@ -9,7 +10,7 @@
   <block wx:else>
     <view class="hero hero--lead">
       <view class="hero__title" style="font-size:var(--t-title);letter-spacing:2rpx">{{dayLabel}}</view>
-      <view class="hero__desc">{{today}} · {{T.daily_sub}}{{plan.title}}{{T.daily_sub_end}}</view>
+      <view class="hero__desc">{{today}} · {{T.daily_sub}}{{langEn ? (plan.title_en || plan.title) : plan.title}}{{T.daily_sub_end}}</view>
     </view>
 
     <view class="rest rise" wx:if="{{restLeft > 0}}">

@@ -30,9 +30,10 @@
 .ex__set { font-size: var(--t-cap); color: var(--ink-2); margin-top: var(--s-1); }
 .ex__note { font-size: var(--t-cap); color: var(--ink-3); margin-top: var(--s-2); line-height: 1.6; }
 
-/* 收藏标记 */
-.fav { font-size: var(--t-cap); color: var(--ink-3); }
+/* 收藏标记：心形图标 + 文字 */
+.fav { display: inline-flex; align-items: center; gap: var(--s-1); font-size: var(--t-cap); color: var(--ink-3); }
 .fav--on { color: var(--accent); }
+.fav__ic { width: 28rpx; height: 28rpx; }
 
 /* 教练提示 */
 .card.tips { padding: var(--s-4); }
