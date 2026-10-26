@@ -344,5 +344,5 @@ Page({
   goPlan() { wx.switchTab({ url: "/pages/plan/plan" }); },
   goDaily() { wx.switchTab({ url: "/pages/daily/daily" }); },
   goExercises() { wx.switchTab({ url: "/pages/exercises/exercises" }); },
-  goStats() { wx.navigateTo({ url: "/pages/stats/stats" }); },
+  goStats() { wx.switchTab({ url: "/pages/stats/stats" }); }, // stats 是 tab 页
 });

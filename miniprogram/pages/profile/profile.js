@@ -185,7 +185,8 @@ Page({
   },
 
   goStats() {
-    wx.navigateTo({ url: "/pages/stats/stats" });
+    // stats 是 tab 页，navigateTo 静默失败，必须 switchTab
+    wx.switchTab({ url: "/pages/stats/stats" });
   },
 
   onShareAppMessage() {
