@@ -36,12 +36,14 @@ function sysTheme() {
   try {
     const w = win();
     if (w && w.theme === "dark") return "dark";
+    if (w && w.theme === "light") return "light";
   } catch (e) {
     /* 忽略 */
   }
   try {
     const s = wx.getSystemInfoSync();
     if (s && s.theme === "dark") return "dark";
+    if (s && s.theme === "light") return "light";
   } catch (e) {
     /* 忽略 */
   }
@@ -49,10 +51,12 @@ function sysTheme() {
   try {
     const w = win();
     if (w && w.preferredTheme === "dark") return "dark";
+    if (w && w.preferredTheme === "light") return "light";
   } catch (e) {
     /* 忽略 */
   }
-  return "light";
+  // 全部 miss → dark（与 pref() 默认值一致，手机暗色模式下不会露出浅色）
+  return "dark";
 }
 
 // 把 onThemeChange 拿到的主题持久化，跨会话保留

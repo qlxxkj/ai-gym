@@ -31,7 +31,7 @@
 .today__est-cell { display: flex; flex-direction: column; gap: 2rpx; }
 .today__est-num { font-size: 48rpx; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); }
 .today__est-lb { font-size: var(--t-cap); color: var(--ink-2); }
-.today__recov { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-1); }
+.today__recov { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-1); min-width: 0; }
 .recov-ring {
   width: 96rpx;
   height: 96rpx;
@@ -54,7 +54,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--ink);
 }
-.recov-lb { font-size: var(--t-cap); color: var(--ink-2); text-align: right; }
+.recov-lb { font-size: var(--t-cap); color: var(--ink-2); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .recov-lb--good { color: var(--ok); }
 .recov-lb--low { color: var(--warn); }
 
