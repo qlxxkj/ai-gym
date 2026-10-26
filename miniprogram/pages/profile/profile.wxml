@@ -1,4 +1,4 @@
-<view class="page page--tab {{theme === 'ai' ? 't-ai' : theme === 'dark' ? 't-dark' : ''}}">
+<view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
   <topbar tkey="tab_profile" />
   <!-- ---------- 头像 / 昵称 ---------- -->
   <view class="card me rise">

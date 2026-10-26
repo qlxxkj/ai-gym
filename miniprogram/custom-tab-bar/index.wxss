@@ -14,12 +14,6 @@
     box-shadow: 0 -1rpx 0 var(--line);
 }
 .tb--dark {
-    --card: #211D1C;
-    --line: #373230;
-    --ink-3: #B2AAA8;
-    --accent: #00E08A;
-}
-.tb--ai {
     --card: #17191F;
     --line: #262A33;
     --ink-3: #9AA0A8;

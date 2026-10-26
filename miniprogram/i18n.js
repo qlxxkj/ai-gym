@@ -124,10 +124,9 @@ const DICT = {
     about_brand: "AI 健身教练",
     about_desc: "AI 定制计划 · 每日打卡 · 动作库",
 
-    theme_ai: "AI 暗色",
+    theme_dark: "暗色",
     theme_auto: "跟随系统",
     theme_light: "浅色",
-    theme_dark: "深色",
     lang_zh: "中文",
     lang_en: "English",
 
@@ -302,10 +301,9 @@ const DICT = {
     about_brand: "AI Coach",
     about_desc: "AI plans · daily check-in · library",
 
-    theme_ai: "AI Dark",
+    theme_dark: "Dark",
     theme_auto: "System",
     theme_light: "Light",
-    theme_dark: "Dark",
     lang_zh: "中文",
     lang_en: "English",
 

@@ -34,13 +34,12 @@ const SVG_TEMPLATE = [
 ].join("");
 
 const THEMES = {
-  ai:     { ac: "#00E08A", op: "#1E2128", line: "#262A33" },
-  dark:   { ac: "#00E08A", op: "#302B2A", line: "#373230" },
+  dark:   { ac: "#00E08A", op: "#1E2128", line: "#262A33" },
   light:  { ac: "#059E58", op: "#F6F0EF", line: "#EAE5E3" },
 };
 
 function buildBodyMap(radar, theme) {
-  const t = THEMES[theme] || THEMES.ai;
+  const t = THEMES[theme] || THEMES.dark;
   const byKey = {};
   (radar || []).forEach((r) => { byKey[r.key] = r.pct || 0; });
 

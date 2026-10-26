@@ -1,13 +1,13 @@
-// 主题：AI（HUD 暗色，默认）/ 跟随系统 / 浅色 / 深色 四档。
+// 主题：暗色（设计方案 HUD 板，默认）/ 跟随系统 / 浅色 三档。
 //
-// 渲染方式：把解析出的 light|dark|ai 写到页面 data.theme，页面根节点挂对应类
-// （.t-dark / .t-ai），CSS 变量在类里整体替换（见 app.wxss）。
+// 渲染方式：把解析出的 light|dark 写到页面 data.theme，页面根节点挂对应类
+// （.t-dark），CSS 变量在类里整体替换（见 app.wxss）。
 //
 // 另两处必须跟着改，否则切主题会露出浅色底：
 //   1. page 元素本身（我们只能在它内部的 view 上换变量，够不到它）
 //   2. 状态栏/导航栏颜色
 
-const KEY = "gym_theme"; // ai | auto | light | dark
+const KEY = "gym_theme"; // dark | auto | light（老值 ai 按 dark 兼容）
 
 function win() {
   try {
@@ -23,16 +23,19 @@ function sysTheme() {
 }
 
 function pref() {
-  return wx.getStorageSync(KEY) || "ai";
+  return wx.getStorageSync(KEY) || "dark";
 }
 
 function resolve(p) {
-  if (p === "ai" || p === "light" || p === "dark") return p;
-  if (p === "auto") return sysTheme();
-  return "ai"; // 老档值（未设过）按新默认走
+  if (p === "light" || p === "dark") return p;
+  if (p === "auto" || p === "ai") {
+    // 老默认值 ai 与「跟随系统」同解：跟随系统，系统非暗色则浅色
+    return sysTheme() === "dark" ? "dark" : "light";
+  }
+  return "dark";
 }
 
-// 系统主题变化时通知正在显示的页面，避免「切了系统深色但当前页还是浅的」
+// 系统主题变化时通知正在显示的页面，避免「跟随系统档切了系统深色但当前页还是浅的」
 let listeners = [];
 function onThemeChange(fn) {
   listeners.push(fn);
@@ -57,10 +60,10 @@ if (wx.onThemeChange) {
 }
 
 // 页面/组件之外的那些「壳」：page 背景色 + 导航栏。
-// 浅色：浅填充 #F9F6F5；ai：#0E0F13；深色：#141110。全部不透明。
+// 暗色 #0E0F13；浅色 #F9F6F5。全部不透明。
 function paintChrome(t) {
   const dark = t !== "light";
-  const bg = t === "ai" ? "#0E0F13" : t === "dark" ? "#141110" : "#F9F6F5";
+  const bg = dark ? "#0E0F13" : "#F9F6F5";
   try {
     wx.setBackgroundColor({ backgroundColor: bg, backgroundColorTop: bg, backgroundColorBottom: bg });
   } catch (e) {
@@ -94,6 +97,6 @@ function set(p) {
   return resolve(p);
 }
 
-const LABEL = { ai: "AI 暗色", auto: "跟随系统", light: "浅色", dark: "深色" };
+const LABEL = { dark: "暗色", auto: "跟随系统", light: "浅色" };
 
 module.exports = { KEY, pref, set, resolve, current, sync, paintChrome, onThemeChange, LABEL, sysTheme };

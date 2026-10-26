@@ -204,7 +204,7 @@ Page({
       };
     });
     // 同时生成肌群地图（人体轮廓）
-    const t = this.data.theme || "ai";
+    const t = this.data.theme || "dark";
     const url = bodymap.buildBodyMap(radar, t);
     this.setData({ radar, bodyMapUrl: url });
   },
