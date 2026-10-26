@@ -72,10 +72,12 @@
 
     <!-- 动作列表 -->
     <view class="card ex rise-item" wx:for="{{exercises}}" wx:for-item="ex" wx:for-index="exidx" wx:key="id">
-      <video wx:if="{{ex.clip_url}}" class="ex__media" src="{{ex.clip_url}}"
+      <!-- 首屏只放静态图；多路 mp4 并发自动播放会把整页拖死，点按才起视频 -->
+      <image wx:if="{{!playVid[ex.id] && ex.img_url}}" class="ex__media" src="{{ex.img_url}}" mode="aspectFill"
+        catchtap="{{ex.clip_url ? 'playVidTap' : ''}}" data-ex="{{ex.id}}"></image>
+      <video wx:if="{{playVid[ex.id] && ex.clip_url}}" class="ex__media" src="{{ex.clip_url}}"
         loop="{{true}}" controls="{{false}}" autoplay="{{true}}" muted="{{true}}"
         show-center-play-btn="{{false}}" object-fit="cover"></video>
-      <image wx:elif="{{ex.img_url}}" class="ex__media" src="{{ex.img_url}}" mode="aspectFill"></image>
       <view class="ex__head">
         <text class="ex__name">{{ex.name_zh}}</text>
         <text class="ex__count">{{ex.sets.length}} {{T.today_sets_u}}</text>

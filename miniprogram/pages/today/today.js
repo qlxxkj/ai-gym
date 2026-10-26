@@ -64,6 +64,7 @@ Page({
     lastSets: {}, // { exId: { weight, reps, last_date } } 上次重量预填
     rpe: {}, // { "eid:sno": 6-10 } 组 RPE 快选
     rpeOpen: "", // "eid:sno" 正在展开 RPE 快选
+    playVid: {}, // { exId: true } 点按后才起该动作视频（多路 mp4 自动播放会拖死首屏）
   },
 
   onShow() {
@@ -339,6 +340,13 @@ Page({
     this.setData({ rpe, rpeOpen: rpe[key] ? key : "" });
     const sid = this.data.session;
     if (sid && rpe[key]) api.recordSet(sid, { exercise_id: exId, set_no: Number(sno), rpe: rpe[key] }).catch(() => {});
+  },
+
+  // 点按动作卡静态图 → 起该动作视频
+  playVidTap(e) {
+    const id = e.currentTarget.dataset.ex;
+    if (!id) return;
+    this.setData({ playVid: Object.assign({}, this.data.playVid, { [id]: true }) });
   },
 
   // 快捷入口
