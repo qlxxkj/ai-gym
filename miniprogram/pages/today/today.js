@@ -138,32 +138,33 @@ Page({
       if (idx < 0) idx = 0;
       const day = days[idx] || {};
 
-      // 打卡（依赖服务器，失败不影响展示）
+      // 打卡 + 统计并行拉（原来四个请求串行 await，任一个慢整页卡死）
       let sessionId = null;
       let doneSets = {};
-      try {
-        const sess = await api.sessions(plan.id).catch(() => []);
-        const found = (Array.isArray(sess) ? sess : []).find((s) => s.session_date === this.data.today);
-        if (found) {
-          sessionId = found.id;
-          if (found.done) this._dayDone = true;
-        } else {
-          const created = await api.createSession({ plan_id: plan.id, session_date: this.data.today }).catch(() => null);
-          sessionId = created && created.id ? created.id : null;
-        }
-        if (sessionId) {
-          const rows = await api.sessionSets(sessionId).catch(() => []);
-          doneSets = toObj(rows.map((r) => r.exercise_id + ":" + r.set_no));
-        }
-      } catch (e) {
-        console.error("sessions:", e);
-      }
-
-      // 本周进度 + 近 7 天组数（后台拉，失败降级）；先拉统计再渲动作，供「上次重量」预填
       let stats = null;
-      try {
-        stats = await api.stats().catch(() => null);
-      } catch (e) { /* 降级 */ }
+      const [sessRes, statsRes] = await Promise.all([
+        (async () => {
+          try {
+            const sess = await api.sessions(plan.id);
+            const found = (Array.isArray(sess) ? sess : []).find((s) => s.session_date === this.data.today);
+            if (found) {
+              sessionId = found.id;
+              if (found.done) this._dayDone = true;
+            } else {
+              const created = await api.createSession({ plan_id: plan.id, session_date: this.data.today });
+              sessionId = created && created.id ? created.id : null;
+            }
+            if (sessionId) {
+              const rows = await api.sessionSets(sessionId);
+              doneSets = toObj(rows.map((r) => r.exercise_id + ":" + r.set_no));
+            }
+          } catch (e) {
+            console.error("sessions:", e);
+          }
+        })(),
+        api.stats().catch(() => null),
+      ]);
+      stats = statsRes;
 
       const en = this.data.lang === "en";
       const exName = (x) =>

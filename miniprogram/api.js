@@ -7,6 +7,7 @@ function req(method, path, data) {
       method,
       data,
       header: { "X-Openid": app.globalData.openid, "content-type": "application/json" },
+      timeout: 10000, // 弱网下 10s 未回直接 fail，避免页面卡死在「加载中」
       success: resolve,
       fail: reject,
     });
