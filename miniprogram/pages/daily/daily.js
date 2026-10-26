@@ -75,6 +75,8 @@ Page({
     theme.sync(this);
     i18n.sync(this);
     this.setData({ langEn: this.data.lang === "en" });
+    // 跟随系统：系统主题翻转时重跑 sync，页面 class 立即跟上
+    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => theme.sync(this));
     // 切语言：重建当前训练内容（动作名/天标签/计划标题按语言取）
     if (!this._offLang) this._offLang = i18n.onChange(() => {
       i18n.sync(this);

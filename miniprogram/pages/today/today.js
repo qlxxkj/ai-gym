@@ -71,6 +71,8 @@ Page({
     if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 0 });
     theme.sync(this);
     i18n.sync(this);
+    // 跟随系统：系统主题翻转时重跑 sync，页面 class 立即跟上
+    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => theme.sync(this));
     if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.reload(); });
     exdict.load(() => this.reloadNames());
     this.load();
@@ -111,6 +113,11 @@ Page({
     // 计划主体走本地缓存（生成后即落盘），打卡记录走服务器
     let plan = wx.getStorageSync("cachedPlan");
     const planId = wx.getStorageSync("currentPlanId");
+    // 早期落盘的缓存可能缺 id（旧版 generate 没写 id）→ 视为无效，走服务端
+    if (plan && !plan.id) {
+      plan = null;
+      wx.removeStorageSync("cachedPlan");
+    }
     if (plan && plan.id && (planId ? plan.id === planId : true)) {
       planId = plan.id;
     }

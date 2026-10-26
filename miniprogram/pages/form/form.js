@@ -76,6 +76,7 @@ Page({
     theme.sync(this);
     // 先同步 i18n 把 T 写入 data，再构建 secs（否则 T 为空，标题全 undefined）
     i18n.sync(this);
+    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => theme.sync(this));
     this.setData({ secs: secs(this.data.T, this.data, this.data.lang === "en") });
     if (!this._offLang) this._offLang = i18n.onChange(() => {
       i18n.sync(this);

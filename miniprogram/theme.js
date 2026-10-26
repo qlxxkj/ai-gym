@@ -35,7 +35,8 @@ function resolve(p) {
   return "dark";
 }
 
-// 系统主题变化时通知正在显示的页面，避免「跟随系统档切了系统深色但当前页还是浅的」
+// 系统主题变化时通知正在显示的页面，避免「跟随系统档切了系统深色但当前页还是浅的」。
+// 监听者直接调 theme.sync(this)，确保 data.theme 刷新 → wxml class 更新 → 全页变暗。
 let listeners = [];
 function onThemeChange(fn) {
   listeners.push(fn);
@@ -45,10 +46,9 @@ function onThemeChange(fn) {
 }
 
 function fire() {
-  const t = resolve(pref());
   listeners.forEach((fn) => {
     try {
-      fn(t);
+      fn();
     } catch (e) {
       /* 单个页面报错不该影响其它页面 */
     }

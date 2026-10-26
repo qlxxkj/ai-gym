@@ -87,6 +87,7 @@ Page({
     if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 3 });
     theme.sync(this);
     i18n.sync(this);
+    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => theme.sync(this));
     exdict.load(() => this.refreshExNames());
     this.load();
   },

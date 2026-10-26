@@ -31,7 +31,7 @@ Page({
     this.refreshNick();
     this.refreshFav();
     exdict.load(() => this.refreshFav());
-    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => this.refreshOpts());
+    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => { theme.sync(this); this.refreshOpts(); });
     if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.refreshOpts(); this.refreshFav(); });
   },
 

@@ -73,6 +73,8 @@ Page({
     if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 1 });
     theme.sync(this);
     i18n.sync(this);
+    // 跟随系统：系统主题翻转时重跑 sync，页面 class 立即跟上
+    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => theme.sync(this));
     // 切语言：重建当前计划（动作名/标题按语言取），tabBar 文案另走广播
     if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.setData({ langEn: this.data.lang === "en" }); this.reloadLang(); });
     // 备动作中文字典：本地命中则瞬时；首次后台拉，不阻塞渲染，到位后回写名称
