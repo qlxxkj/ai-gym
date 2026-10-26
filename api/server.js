@@ -274,7 +274,7 @@ app.post("/sessions/:id/sets", reqOpenid, async (req, res) => {
   await ensureUser(req.openid);
   const { exercise_id, set_no, reps, weight, done = true, rpe } = req.body;
   const r = await pool.query(
-    `SELECT s FROM sessions WHERE id = $1 AND user_id = $2`,
+    `SELECT id FROM sessions WHERE id = $1 AND user_id = $2`,
     [req.params.id, req.openid]
   );
   if (!r.rows.length) return res.status(404).json({ error: "session not found" });
