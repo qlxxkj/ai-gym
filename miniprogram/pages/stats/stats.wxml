@@ -143,7 +143,7 @@
         </block>
       </view>
       <view class="wt__row">
-        <input class="wt__input" type="digit" placeholder="{{T.st_weight_ph}}" value="{{weightInput}}" bindinput="onWeightInput" />
+        <input class="wt__input" type="digit" placeholder="{{T.st_weight_ph}}" placeholder-class="wt__ph" value="{{weightInput}}" bindinput="onWeightInput" />
         <button class="btn btn--accent wt__btn" size="mini" disabled="{{saving}}" bindtap="saveWeight">
           {{saving ? T.st_weight_saving : T.st_weight_save}}
         </button>
@@ -152,7 +152,7 @@
       <view class="wt__target">
         <view class="wt__target__row">
           <text class="wt__target__lb">{{T.st_weight_target}}</text>
-          <input class="wt__input wt__target__input" type="digit" placeholder="{{T.st_weight_target_ph}}"
+          <input class="wt__input wt__target__input" type="digit" placeholder="{{T.st_weight_target_ph}}" placeholder-class="wt__ph"
             value="{{weightTarget}}" bindinput="onWeightTargetInput" bindblur="saveWeightTarget" />
         </view>
         <view class="wt__target__diff" wx:if="{{weightTargetDiff}}">

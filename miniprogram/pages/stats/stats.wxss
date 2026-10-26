@@ -192,7 +192,9 @@
   border-radius: var(--r-md);
   padding: var(--s-2) var(--s-3);
   font-size: var(--t-body);
+  color: var(--ink); /* 原生 input 默认黑字，暗色下需挂主题变量 */
 }
+.wt__ph { color: var(--ink-3); }
 .wt__btn { flex: none; }
 /* 目标体重 */
 .wt__target {
@@ -208,7 +210,7 @@
   padding: var(--s-2) 0;
 }
 .wt__target__lb { font-size: var(--t-cap); color: var(--ink-3); flex: none; }
-.wt__target__input { flex: 1; background: var(--card); }
+.wt__target__input { flex: 1; background: var(--card); color: var(--ink); }
 .wt__target__diff { font-size: var(--t-cap); color: var(--ink-3); padding-top: var(--s-1); }
 .wt__target__pct { margin-left: var(--s-1); }
 .wt__note {
