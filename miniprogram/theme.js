@@ -18,11 +18,11 @@ function win() {
   }
 }
 
-// 系统暗色探测。按序取第一个 "dark"，全 miss → light：
+// 系统主题探测。按序取第一个确定值，全 miss → 回退 pref()（手动选了什么就显示什么）：
 //   1. wx.onThemeChange 拿到的缓存值（最可靠，真机系统深色时一定有）
 //   2. 实时探测 getWindowInfo().theme / getSystemInfoSync().theme
 //   3. window.preferredTheme（开发者工具/模拟器的偏好主题）
-// 已知坑：安卓真机上 getWindowInfo().theme 经常 undefined（拿不到系统深色），
+// 已知坑：安卓真机上 getWindowInfo().theme 经常 undefined（拿不到系统主题），
 // 但 wx.onThemeChange 回调里能拿到主题值（res.theme），所以用 storage 缓存兜底。
 function sysTheme() {
   // 1. 缓存值（onThemeChange 触发时写入）
@@ -55,8 +55,9 @@ function sysTheme() {
   } catch (e) {
     /* 忽略 */
   }
-  // 全部 miss → dark（与 pref() 默认值一致，手机暗色模式下不会露出浅色）
-  return "dark";
+  // 全部 miss → 回退到用户手动选择（pref()）；若也是 auto 则 fallback light（白天居多）
+  const p = pref();
+  return p === "dark" ? "dark" : p === "light" ? "light" : "light";
 }
 
 // 把 onThemeChange 拿到的主题持久化，跨会话保留
@@ -75,8 +76,8 @@ function pref() {
 function resolve(p) {
   if (p === "light" || p === "dark") return p;
   if (p === "auto" || p === "ai") {
-    // 老默认值 ai 与「跟随系统」同解：跟随系统，系统非暗色则浅色
-    return sysTheme() === "dark" ? "dark" : "light";
+    // 老默认值 ai 与「跟随系统」同解；sysTheme() 全 miss 时回退用户手动选择
+    return sysTheme();
   }
   return "dark";
 }
