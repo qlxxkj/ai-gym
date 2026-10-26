@@ -3,6 +3,23 @@
 /* 休息日建议卡（.card 默认无 margin，手动补） */
 .today__restday { margin: var(--s-2) 0 var(--s-3); }
 
+/* 懒加载骨架：浅灰呼吸块（浅/暗色主题自动跟随 --fill） */
+@keyframes skpulse {
+  from { opacity: 1; }
+  to { opacity: 0.35; }
+}
+.sk {
+  background: var(--fill);
+  border-radius: var(--r-md);
+  animation: skpulse 1.4s ease-in-out infinite alternate;
+  height: 20rpx;
+  width: 40%;
+  margin: var(--s-2) var(--s-4);
+}
+.sk__title { height: 36rpx; width: 55%; margin: var(--s-3) var(--s-4); }
+.sk__bar { height: 16rpx; width: 70%; margin: 0 var(--s-4) var(--s-3); }
+.sk__card { height: 200rpx; width: auto; margin: var(--s-3) var(--s-4); }
+
 /* 预计量 / 恢复环 */
 .today__est {
   display: flex;

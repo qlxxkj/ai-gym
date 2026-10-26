@@ -1,4 +1,5 @@
 const config = require("./config");
+const theme = require("./theme");
 
 App({
   globalData: {
@@ -9,5 +10,6 @@ App({
   // 微信里 App.onLaunch 才会自动执行（原先写成 init() 没人调，openid 一直是空 → 全 401）。
   onLaunch() {
     this.globalData.openid = "dev-default";
+    theme.hookAppLifecycle(); // 回前台时重新探测系统主题（跟随系统兜底）
   },
 });

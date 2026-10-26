@@ -1,8 +1,15 @@
 <view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
   <topbar tkey="tab_today" />
 
+  <!-- 懒加载骨架：先出当天动作，统计/打卡后到，不再整页转圈 -->
   <block wx:if="{{loading}}">
-    <view class="state"><view class="state__text">{{T.loading}}</view></view>
+    <view class="hero hero--lead">
+      <view class="sk sk__title"></view>
+      <view class="sk sk__bar"></view>
+    </view>
+    <view class="sk sk__card"></view>
+    <view class="sk sk__card"></view>
+    <view class="sk sk__card"></view>
   </block>
 
   <block wx:elif="{{!planRaw}}">

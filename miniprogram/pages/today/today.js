@@ -115,10 +115,14 @@ Page({
   },
 
   async load() {
-    this.setData({ loading: true });
-    // 计划主体走本地缓存（生成后即落盘），打卡记录走服务器
+    this._reqId = (this._reqId || 0) + 1;
+    const rid = this._reqId;
+    // 懒加载：先出当天动作（本地缓存/静态兜底），统计/打卡后到
+    this.setData({ loading: true, planErr: false });
+
+    // 1. 计划主体（本地缓存优先，无缓存走服务端）
     let plan = wx.getStorageSync("cachedPlan");
-    const planId = wx.getStorageSync("currentPlanId");
+    let planId = wx.getStorageSync("currentPlanId");
     // 早期落盘的缓存可能缺 id（旧版 generate 没写 id）→ 视为无效，走服务端
     if (plan && !plan.id) {
       plan = null;
@@ -128,135 +132,146 @@ Page({
       planId = plan.id;
     }
     if (!planId) {
-      const plans = await api.plans().catch(() => []);
-      const cur = plans.find((p) => p.id === planId) || plans[0];
-      if (cur) {
-        plan = await api.plan(cur.id).catch(() => null);
-        planId = cur.id;
-        if (plan) {
-          wx.setStorageSync("cachedPlan", plan);
-          wx.setStorageSync("currentPlanId", planId);
+      try {
+        const plans = await api.plans();
+        const cur = plans.find((p) => p.id === planId) || plans[0];
+        if (cur) {
+          plan = await api.plan(cur.id).catch(() => null);
+          planId = cur.id;
+          if (plan) {
+            wx.setStorageSync("cachedPlan", plan);
+            wx.setStorageSync("currentPlanId", planId);
+          }
         }
+      } catch (e) {
+        console.error("plans:", e);
       }
     }
+    if (rid !== this._reqId) return; // 页面已重载，丢弃本次结果
+
     if (!plan) {
-      // 有旧缓存但取不到有效计划：清掉，下开重拉
       wx.removeStorageSync("cachedPlan");
       wx.removeStorageSync("currentPlanId");
       this.setData({ loading: false, planRaw: null, planErr: true });
       return;
     }
-    try {
-      const lp = this.locPlan(plan, this.data.lang);
-      const days = (lp.plan_data || {}).days || [];
-      const dayNo = (new Date().getDay() + 6) % 7 + 1; // 周一=1
-      this._dayNo = dayNo;
-      let idx = days.findIndex((d) => d.day === dayNo);
-      if (idx < 0) idx = 0;
-      const day = days[idx] || {};
 
-      // 打卡 + 统计并行拉（原来四个请求串行 await，任一个慢整页卡死）
-      let sessionId = null;
-      let doneSets = {};
-      let stats = null;
-      const [sessRes, statsRes] = await Promise.all([
-        (async () => {
-          try {
-            const sess = await api.sessions(plan.id);
-            const found = (Array.isArray(sess) ? sess : []).find((s) => s.session_date === this.data.today);
-            if (found) {
-              sessionId = found.id;
-              if (found.done) this._dayDone = true;
-            } else {
-              const created = await api.createSession({ plan_id: plan.id, session_date: this.data.today });
-              sessionId = created && created.id ? created.id : null;
-            }
-            if (sessionId) {
-              const rows = await api.sessionSets(sessionId);
-              doneSets = toObj(rows.map((r) => r.exercise_id + ":" + r.set_no));
-            }
-          } catch (e) {
-            console.error("sessions:", e);
+    // 2. 立刻把当天动作铺出来（骨架屏 → 内容），不等统计
+    const lp = this.locPlan(plan, this.data.lang);
+    const days = (lp.plan_data || {}).days || [];
+    const dayNo = (new Date().getDay() + 6) % 7 + 1; // 周一=1
+    this._dayNo = dayNo;
+    let idx = days.findIndex((d) => d.day === dayNo);
+    const realIdx = idx;
+    if (idx < 0) idx = 0;
+    const day = days[idx] || {};
+    const restDay = realIdx < 0 && dayNo > 0 && !(day && day.exercises && day.exercises.length);
+
+    const en = this.data.lang === "en";
+    const exName = (x) =>
+      en ? exdict.nameEn(x.id) || x.name : exdict.nameZh(x.id) || x.name;
+    const exercises = ((day.exercises) || []).map((ex) => ({
+      ...ex,
+      name_zh: exName(ex),
+      img_url: config.mediaStill(ex.id),
+      clip_url: config.mediaClip(ex.id),
+      faved: user.isFavEx(ex.id),
+      setStates: ex.sets.map(() => false), // 打卡状态由下面并行请求回填
+      last: null, // 由 stats 回填
+    }));
+    const totalSets = exercises.reduce((n, ex) => n + ex.sets.length, 0);
+    const restAvg = ((lp.plan_data || {}).rest_seconds) || 90;
+    const estMin = Math.round((totalSets * (40 + restAvg)) / 60 + totalSets * 0.2);
+
+    this.setData({
+      planRaw: lp,
+      dayLabel: day.label || "",
+      planTitle: lp.title || "",
+      planGoal: (lp.plan_data || {}).goal || "",
+      exercises,
+      totalSets,
+      totalEx: exercises.length,
+      estMin,
+      restDay,
+      loading: false, // 主体已出，统计后到
+    });
+
+    // 3. 统计 + 打卡记录并行拉（慢也不挡主体）
+    let sessionId = null;
+    let doneSets = {};
+    let stats = null;
+    const [sessRes, statsRes] = await Promise.all([
+      (async () => {
+        try {
+          const sess = await api.sessions(plan.id);
+          const found = (Array.isArray(sess) ? sess : []).find((s) => s.session_date === this.data.today);
+          if (found) {
+            sessionId = found.id;
+            if (found.done) this._dayDone = true;
+          } else {
+            const created = await api.createSession({ plan_id: plan.id, session_date: this.data.today });
+            sessionId = created && created.id ? created.id : null;
           }
-        })(),
-        api.stats().catch(() => null),
-      ]);
-      stats = statsRes;
+          if (sessionId) {
+            const rows = await api.sessionSets(sessionId);
+            doneSets = toObj(rows.map((r) => r.exercise_id + ":" + r.set_no));
+          }
+        } catch (e) {
+          console.error("sessions:", e);
+        }
+      })(),
+      api.stats().catch(() => null),
+    ]);
+    stats = statsRes;
+    if (rid !== this._reqId) return;
 
-      const en = this.data.lang === "en";
-      const exName = (x) =>
-        en ? exdict.nameEn(x.id) || x.name : exdict.nameZh(x.id) || x.name;
-      const exercises = ((day.exercises) || []).map((ex) => ({
-        ...ex,
-        name_zh: exName(ex),
-        img_url: config.mediaStill(ex.id),
-        clip_url: config.mediaClip(ex.id),
-        faved: user.isFavEx(ex.id),
-        setStates: ex.sets.map((_, i) => doneSets[ex.id + ":" + (i + 1)] || false),
-        // 上次重量预填（来自 stats.last_sets，近 30 天）
-        last: (stats && stats.last_sets || []).find((x) => String(x.exercise_id) === String(ex.id)) || null,
-      }));
-      const totalSets = exercises.reduce((n, ex) => n + ex.sets.length, 0);
-      // 预计时长：组数 × 平均组耗（含间歇）；动作多时加 10% 换动作时间
-      const restAvg = ((lp.plan_data || {}).rest_seconds) || 90;
-      const estMin = Math.round((totalSets * (40 + restAvg)) / 60 + totalSets * 0.2);
-      const weekGoal = stats && stats.goal ? stats.goal.per_week : 0;
-      const weekDone = stats && stats.goal ? stats.goal.this_week : 0;
-      const sets7 = (stats && stats.week7 || []).reduce((n, x) => n + Number(x.sets || 0), 0);
+    // 4. 回填：打卡状态 / 上次重量 / 周进度 / 恢复环 / 教练一句话
+    const exercises2 = this.data.exercises.map((ex, i) => {
+      const orig = exercises[i];
+      return {
+        ...orig,
+        setStates: orig.sets.map((_, si) => doneSets[orig.id + ":" + (si + 1)] || false),
+        last: (stats && stats.last_sets || []).find((x) => String(x.exercise_id) === String(orig.id)) || null,
+      };
+    });
+    const weekGoal = stats && stats.goal ? stats.goal.per_week : 0;
+    const weekDone = stats && stats.goal ? stats.goal.this_week : 0;
+    const sets7 = (stats && stats.week7 || []).reduce((n, x) => n + Number(x.sets || 0), 0);
+    const weekTarget = Math.max(weekGoal || 3, 3);
+    const loadRecent = Math.min(1.5, sets7 / (weekTarget * 8 || 8));
+    const recover = Math.round(100 - Math.min(100, loadRecent * 60 - Math.min(weekDone, weekTarget) * 5));
+    const recoverLb = recover >= 80 ? "good" : recover >= 55 ? "mid" : "low";
 
-      // 休息日（今天计划里没有对应 day）→ 给轻活动建议，不说"别练"
-      const restDay = idx < 0 && dayNo > 0 && !(day && day.exercises && day.exercises.length);
-      // 恢复状态（0-100 估算）：近 7 天训练量大 + 本周已满勤 → 偏低；反之偏高
-      const weekTarget = Math.max(weekGoal || 3, 3);
-      const loadRecent = Math.min(1.5, sets7 / (weekTarget * 8 || 8)); // 7 天组数 / 理想周容量
-      const recover = Math.round(100 - Math.min(100, loadRecent * 60 - Math.min(weekDone, weekTarget) * 5));
-      const recoverLb = recover >= 80 ? "good" : recover >= 55 ? "mid" : "low";
-
-      // AI 教练一句话：纯规则可解释（不用模型，训练中只给关键话）
-      let coachTip = "";
-      let coachTipKey = "";
-      if (restDay) {
-        coachTipKey = "coach_rest";
-      } else if (recover < 55 && totalSets > 0) {
-        coachTipKey = "coach_low_rec"; // 恢复偏低 → 建议减量
-        coachTip = en
-          ? "You've trained hard lately - drop the last exercise to optional and keep rests short."
-          : "最近训练量大，最后一个动作可改选做，间歇保持 60s 内。";
-      } else if (sets7 === 0 && totalSets > 0) {
-        coachTipKey = "coach_streak";
-      } else if (totalSets > 0) {
-        coachTipKey = "coach_ready";
-      }
-
-      this.setData({
-        planRaw: lp,
-        planErr: false,
-        dayLabel: day.label || "",
-        planTitle: lp.title || "",
-        planGoal: (lp.plan_data || {}).goal || "",
-        exercises,
-        totalSets,
-        totalEx: exercises.length,
-        estMin,
-        recover,
-        recoverLb,
-        coachTip,
-        coachTipKey,
-        restDay,
-        lastSets: ((stats && stats.last_sets) || []).reduce((o, x) => { o[x.exercise_id] = x; return o; }, {}),
-        session: sessionId,
-        doneSets,
-        allDone: totalSets > 0 && Object.keys(doneSets).length >= totalSets,
-        weekGoal,
-        weekDone,
-        weekPct: weekGoal ? Math.min(100, Math.round((weekDone / weekGoal) * 100)) : 0,
-        sets7,
-        loading: false,
-      });
-    } catch (e) {
-      console.error(e);
-      this.setData({ loading: false, planErr: true });
+    let coachTip = "";
+    let coachTipKey = "";
+    if (restDay) {
+      coachTipKey = "coach_rest";
+    } else if (recover < 55 && totalSets > 0) {
+      coachTipKey = "coach_low_rec";
+      coachTip = en
+        ? "You've trained hard lately - drop the last exercise to optional and keep rests short."
+        : "最近训练量大，最后一个动作可改选做，间歇保持 60s 内。";
+    } else if (sets7 === 0 && totalSets > 0) {
+      coachTipKey = "coach_streak";
+    } else if (totalSets > 0) {
+      coachTipKey = "coach_ready";
     }
+
+    this.setData({
+      exercises: exercises2,
+      doneSets,
+      session: sessionId,
+      allDone: totalSets > 0 && Object.keys(doneSets).length >= totalSets,
+      weekGoal,
+      weekDone,
+      weekPct: weekGoal ? Math.min(100, Math.round((weekDone / weekGoal) * 100)) : 0,
+      sets7,
+      recover,
+      recoverLb,
+      coachTip,
+      coachTipKey,
+      lastSets: ((stats && stats.last_sets) || []).reduce((o, x) => { o[x.exercise_id] = x; return o; }, {}),
+    });
   },
 
   // en 模式把计划文案换成 *_en（缺省回退原值）
