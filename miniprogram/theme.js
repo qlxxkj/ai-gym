@@ -25,36 +25,43 @@ function win() {
 // 已知坑：安卓真机上 getWindowInfo().theme 经常 undefined（拿不到系统主题），
 // 但 wx.onThemeChange 回调里能拿到主题值（res.theme），所以用 storage 缓存兜底。
 function sysTheme() {
+  const dbg = [];
   // 1. 缓存值（onThemeChange 触发时写入）
   try {
     const cached = wx.getStorageSync(SYSKEY);
-    if (cached === "dark" || cached === "light") return cached;
+    dbg.push("cache=" + JSON.stringify(cached));
+    if (cached === "dark" || cached === "light") { console.log("[theme.sysTheme]", dbg.join(" ")); return cached; }
   } catch (e) {
     /* 忽略 */
   }
   // 2. 实时探测
   try {
     const w = win();
-    if (w && w.theme === "dark") return "dark";
-    if (w && w.theme === "light") return "light";
+    dbg.push("win.theme=" + JSON.stringify(w && w.theme));
+    if (w && w.theme === "dark") { console.log("[theme.sysTheme]", dbg.join(" ")); return "dark"; }
+    if (w && w.theme === "light") { console.log("[theme.sysTheme]", dbg.join(" ")); return "light"; }
   } catch (e) {
     /* 忽略 */
   }
   try {
     const s = wx.getSystemInfoSync();
-    if (s && s.theme === "dark") return "dark";
-    if (s && s.theme === "light") return "light";
+    dbg.push("sys.theme=" + JSON.stringify(s && s.theme));
+    if (s && s.theme === "dark") { console.log("[theme.sysTheme]", dbg.join(" ")); return "dark"; }
+    if (s && s.theme === "light") { console.log("[theme.sysTheme]", dbg.join(" ")); return "light"; }
   } catch (e) {
     /* 忽略 */
   }
   // 3. preferredTheme（开发者工具）
   try {
     const w = win();
-    if (w && w.preferredTheme === "dark") return "dark";
-    if (w && w.preferredTheme === "light") return "light";
+    dbg.push("preferredTheme=" + JSON.stringify(w && w.preferredTheme));
+    if (w && w.preferredTheme === "dark") { console.log("[theme.sysTheme]", dbg.join(" ")); return "dark"; }
+    if (w && w.preferredTheme === "light") { console.log("[theme.sysTheme]", dbg.join(" ")); return "light"; }
   } catch (e) {
     /* 忽略 */
   }
+  dbg.push("pref=" + pref());
+  console.log("[theme.sysTheme]", dbg.join(" "), "→ all miss, fallback");
   // 全部 miss → 回退到用户手动选择（pref()）；若也是 auto 则 fallback light（白天居多）
   const p = pref();
   return p === "dark" ? "dark" : p === "light" ? "light" : "light";
