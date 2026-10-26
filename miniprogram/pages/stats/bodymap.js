@@ -35,8 +35,8 @@ const SVG_TEMPLATE = [
 
 const THEMES = {
   ai:     { ac: "#00E08A", op: "#1E2128", line: "#262A33" },
-  dark:   { ac: "#E78F73", op: "#302B2A", line: "#373230" },
-  light:  { ac: "#A5492B", op: "#F6F0EF", line: "#EAE5E3" },
+  dark:   { ac: "#00E08A", op: "#302B2A", line: "#373230" },
+  light:  { ac: "#059E58", op: "#F6F0EF", line: "#EAE5E3" },
 };
 
 function buildBodyMap(radar, theme) {

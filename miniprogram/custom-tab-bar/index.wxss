@@ -3,7 +3,7 @@
     --card: #FEFCFC;
     --line: #EAE5E3;
     --ink-3: #766D6A;
-    --accent: #A5492B;
+    --accent: #059E58;
 
     position: fixed;
     left: 0;
@@ -17,7 +17,7 @@
     --card: #211D1C;
     --line: #373230;
     --ink-3: #B2AAA8;
-    --accent: #E78F73;
+    --accent: #00E08A;
 }
 .tb--ai {
     --card: #17191F;
