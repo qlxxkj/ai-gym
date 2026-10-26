@@ -452,7 +452,7 @@ app.get("/stats/1rm", reqOpenid, async (req, res) => {
      JOIN exercises e ON e.id = sr.exercise_id
      WHERE s.user_id = $1 AND sr.done AND sr.weight IS NOT NULL AND sr.reps IS NOT NULL
        AND s.session_date >= CURRENT_DATE - INTERVAL '180 days'
-     GROUP BY 1, 2, 3, e.name, e.name_zh
+     GROUP BY 1, 2, e.name, e.name_zh
      ORDER BY 1, 2`,
     [u]
   );
