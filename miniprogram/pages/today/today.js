@@ -159,8 +159,13 @@ Page({
         console.error("sessions:", e);
       }
 
+      // 本周进度 + 近 7 天组数（后台拉，失败降级）；先拉统计再渲动作，供「上次重量」预填
+      let stats = null;
+      try {
+        stats = await api.stats().catch(() => null);
+      } catch (e) { /* 降级 */ }
+
       const en = this.data.lang === "en";
-      const T0 = this.data.T || {};
       const exName = (x) =>
         en ? exdict.nameEn(x.id) || x.name : exdict.nameZh(x.id) || x.name;
       const exercises = ((day.exercises) || []).map((ex) => ({
@@ -177,12 +182,6 @@ Page({
       // 预计时长：组数 × 平均组耗（含间歇）；动作多时加 10% 换动作时间
       const restAvg = ((lp.plan_data || {}).rest_seconds) || 90;
       const estMin = Math.round((totalSets * (40 + restAvg)) / 60 + totalSets * 0.2);
-
-      // 本周进度 + 近 7 天组数（后台拉，失败降级）
-      let stats = null;
-      try {
-        stats = await api.stats().catch(() => null);
-      } catch (e) { /* 降级 */ }
       const weekGoal = stats && stats.goal ? stats.goal.per_week : 0;
       const weekDone = stats && stats.goal ? stats.goal.this_week : 0;
       const sets7 = (stats && stats.week7 || []).reduce((n, x) => n + Number(x.sets || 0), 0);
