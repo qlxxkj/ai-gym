@@ -381,9 +381,6 @@ Page({
     this.setData({ playVid: Object.assign({}, this.data.playVid, { [id]: true }) });
   },
 
-  // 快捷入口
+  // 快捷入口（quick 区已删，留 goPlan 给空态按钮）
   goPlan() { wx.switchTab({ url: "/pages/plan/plan" }); },
-  goDaily() { wx.switchTab({ url: "/pages/daily/daily" }); },
-  goExercises() { wx.switchTab({ url: "/pages/exercises/exercises" }); },
-  goStats() { wx.switchTab({ url: "/pages/stats/stats" }); }, // stats 是 tab 页
 });

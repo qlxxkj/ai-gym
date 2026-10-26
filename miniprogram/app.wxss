@@ -121,6 +121,8 @@ page {
     box-shadow: var(--shadow);
     overflow-wrap: anywhere;
     min-width: 0;
+    /* 原生 text 在卡片内不继承页面 color，会落回框架默认近黑；显式补继承 */
+    color: var(--ink);
 }
 
 .hr { height: 1rpx; background: var(--line); }

@@ -131,20 +131,5 @@
       </view>
     </view>
 
-    <!-- 快捷入口 -->
-    <view class="quick">
-      <view class="quick__item" bindtap="goDaily">
-        <view class="ic ic-calendar quick__ic"></view>
-        <text>{{T.today_q_daily}}</text>
-      </view>
-      <view class="quick__item" bindtap="goExercises">
-        <view class="ic ic-dumbbell quick__ic"></view>
-        <text>{{T.today_q_ex}}</text>
-      </view>
-      <view class="quick__item" bindtap="goStats">
-        <view class="ic ic-list quick__ic"></view>
-        <text>{{T.today_q_stats}}</text>
-      </view>
-    </view>
   </block>
 </view>

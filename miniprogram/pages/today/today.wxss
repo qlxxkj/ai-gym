@@ -29,8 +29,8 @@
   margin-bottom: var(--s-3);
 }
 .today__est-cell { display: flex; flex-direction: column; gap: 2rpx; }
-.today__est-num { font-size: 48rpx; font-weight: 700; font-variant-numeric: tabular-nums; }
-.today__est-lb { font-size: var(--t-cap); color: var(--ink-3); }
+.today__est-num { font-size: 48rpx; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); }
+.today__est-lb { font-size: var(--t-cap); color: var(--ink-2); }
 .today__recov { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: var(--s-1); }
 .recov-ring {
   width: 96rpx;
@@ -52,8 +52,9 @@
   font-size: var(--t-sm);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  color: var(--ink);
 }
-.recov-lb { font-size: var(--t-cap); color: var(--ink-3); text-align: right; }
+.recov-lb { font-size: var(--t-cap); color: var(--ink-2); text-align: right; }
 .recov-lb--good { color: var(--ok); }
 .recov-lb--low { color: var(--warn); }
 
@@ -169,7 +170,7 @@
   border-top: 1rpx solid var(--line);
 }
 .set:first-of-type { border-top: none; }
-.set__lb { font-size: var(--t-sm); font-weight: 500; min-width: 110rpx; }
+.set__lb { font-size: var(--t-sm); font-weight: 500; min-width: 110rpx; color: var(--ink); }
 .set__detail { font-size: var(--t-cap); color: var(--ink-2); flex: 1; }
 .set__check {
   width: 56rpx;

@@ -8,6 +8,7 @@
 //   2. 状态栏/导航栏颜色
 
 const KEY = "gym_theme"; // dark | auto | light（老值 ai 按 dark 兼容）
+const SYSKEY = "gym_sys_theme"; // 缓存 wx.onThemeChange 拿到的真实系统主题
 
 function win() {
   try {
@@ -18,11 +19,20 @@ function win() {
 }
 
 // 系统暗色探测。按序取第一个 "dark"，全 miss → light：
-//   1. 真机系统深色（getWindowInfo().theme / getSystemInfoSync().theme）
-//   2. window.preferredTheme（开发者工具/模拟器的偏好主题）
-// 注意：微信的"系统主题"在开发者工具里是「详情 → 本地设置 → 模拟器主题」，
-// 不是系统外观；在真机上跟随系统外观。
+//   1. wx.onThemeChange 拿到的缓存值（最可靠，真机系统深色时一定有）
+//   2. 实时探测 getWindowInfo().theme / getSystemInfoSync().theme
+//   3. window.preferredTheme（开发者工具/模拟器的偏好主题）
+// 已知坑：安卓真机上 getWindowInfo().theme 经常 undefined（拿不到系统深色），
+// 但 wx.onThemeChange 回调里能拿到主题值（res.theme），所以用 storage 缓存兜底。
 function sysTheme() {
+  // 1. 缓存值（onThemeChange 触发时写入）
+  try {
+    const cached = wx.getStorageSync(SYSKEY);
+    if (cached === "dark" || cached === "light") return cached;
+  } catch (e) {
+    /* 忽略 */
+  }
+  // 2. 实时探测
   try {
     const w = win();
     if (w && w.theme === "dark") return "dark";
@@ -35,6 +45,7 @@ function sysTheme() {
   } catch (e) {
     /* 忽略 */
   }
+  // 3. preferredTheme（开发者工具）
   try {
     const w = win();
     if (w && w.preferredTheme === "dark") return "dark";
@@ -42,6 +53,15 @@ function sysTheme() {
     /* 忽略 */
   }
   return "light";
+}
+
+// 把 onThemeChange 拿到的主题持久化，跨会话保留
+function cacheSysTheme(t) {
+  try {
+    if (t === "dark" || t === "light") wx.setStorageSync(SYSKEY, t);
+  } catch (e) {
+    /* 忽略 */
+  }
 }
 
 function pref() {
@@ -84,7 +104,10 @@ function fire() {
 }
 
 if (wx.onThemeChange) {
-  wx.onThemeChange(() => fire());
+  wx.onThemeChange((res) => {
+    cacheSysTheme(res && res.theme);
+    fire();
+  });
 }
 
 // 回前台时重新探测一次系统主题（auto 档兜底，因为 wx.onThemeChange 在安卓/
@@ -146,5 +169,5 @@ const LABEL = { dark: "暗色", auto: "跟随系统", light: "浅色" };
 
 module.exports = {
   KEY, pref, set, resolve, current, sync, paintChrome,
-  onThemeChange, LABEL, sysTheme, hookAppLifecycle,
+  onThemeChange, LABEL, sysTheme, cacheSysTheme, hookAppLifecycle,
 };
