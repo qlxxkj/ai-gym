@@ -6,6 +6,10 @@
   </block>
 
   <block wx:elif="{{!planRaw}}">
+    <!-- 加载失败/无计划：给诊断条 + 下拉重试，不让用户卡在转圈 -->
+    <view wx:if="{{planErr}}" class="card rise">
+      <view class="err-box">{{T.today_plan_err}}</view>
+    </view>
     <view class="hero">
       <view class="hero__title">{{T.today_hi}}</view>
       <view class="hero__desc">{{T.today_no_plan}}</view>
@@ -16,6 +20,7 @@
   <block wx:else>
     <view class="hero hero--lead">
       <view class="hero__title" style="font-size:var(--t-title);letter-spacing:2rpx">{{restDay ? T.today_q_daily : dayLabel}}</view>
+      <view class="card rise today__restday" wx:if="{{restDay}}">{{T.today_rest_day}}</view>
       <view class="hero__desc">{{today}} · {{T.today_from}} {{planTitle}}</view>
     </view>
 

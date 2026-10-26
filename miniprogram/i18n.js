@@ -148,6 +148,8 @@ const DICT = {
     today_q_daily: "今天页",
     today_q_ex: "动作库",
     today_q_stats: "数据分析",
+    today_plan_err: "计划加载失败，请下拉重试",
+    today_rest_day: "今天是休息日 · 建议散步 20 分钟 + 泡沫轴放松，明天再练。",
 
     // 今日页 AI 教练卡（规则可解释，非模型输出）
     today_est: "预计",
@@ -332,6 +334,8 @@ const DICT = {
     today_q_daily: "Today tab",
     today_q_ex: "Moves",
     today_q_stats: "Analytics",
+    today_plan_err: "Failed to load plan. Pull to retry",
+    today_rest_day: "Rest day today. Try a 20-min walk and some foam rolling, train tomorrow.",
 
     today_est: "Est.",
     today_est_min: "min",

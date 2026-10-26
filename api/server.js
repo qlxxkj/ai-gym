@@ -6,6 +6,18 @@ const { translateZh } = require("./name-zh.js");
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
+// 全局兜底：未捕获异常/SQL 语法错只返回 500，不打崩 node 进程（防崩循环）
+process.on("uncaughtException", (e) => {
+  console.error("uncaughtException:", e);
+});
+process.on("unhandledRejection", (e) => {
+  console.error("unhandledRejection:", e);
+});
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  console.error("route error:", req.url, err && err.message);
+  res.status(500).json({ error: "internal" });
+});
 
 // 动作图片/动画：openGym media 通过 volume 挂到容器内 /media（still/*.webp + clip/*.mp4）。
 // edge 把 /media/* 反代到 :4010，由这里伺服。
@@ -250,7 +262,8 @@ app.get("/sessions/:planId", reqOpenid, async (req, res) => {
     `SELECT s.*, count(sr.id) AS set_count
      FROM sessions s LEFT JOIN set_records sr ON sr.session_id = s.id
      WHERE s.plan_id = $1 AND s.user_id = $2
-     GROUP BY s.id ORDER BY s.session_date DESC`,
+     GROUP BY s.id, s.plan_id, s.user_id, s.session_date, s.notes, s.done, s.created_at
+     ORDER BY s.session_date DESC`,
     [req.params.planId, req.openid]
   );
   res.json(r.rows);

@@ -39,6 +39,7 @@ Page({
   data: {
     today: todayStr(),
     loading: true,
+    planErr: false, // 加载出错诊断条
     dayLabel: "",
     planTitle: "",
     planGoal: "",
@@ -80,6 +81,11 @@ Page({
 
   onUnload() {
     if (this.timer) clearInterval(this.timer);
+  },
+
+  // 加载失败/无计划时：下拉重拉
+  onPullDownRefresh() {
+    this.load().then(() => wx.stopPullDownRefresh());
   },
 
   // 后台字典到位后按当前语言补动作名
@@ -134,7 +140,10 @@ Page({
       }
     }
     if (!plan) {
-      this.setData({ loading: false, planRaw: null });
+      // 有旧缓存但取不到有效计划：清掉，下开重拉
+      wx.removeStorageSync("cachedPlan");
+      wx.removeStorageSync("currentPlanId");
+      this.setData({ loading: false, planRaw: null, planErr: true });
       return;
     }
     try {
@@ -221,6 +230,7 @@ Page({
 
       this.setData({
         planRaw: lp,
+        planErr: false,
         dayLabel: day.label || "",
         planTitle: lp.title || "",
         planGoal: (lp.plan_data || {}).goal || "",
@@ -245,7 +255,7 @@ Page({
       });
     } catch (e) {
       console.error(e);
-      this.setData({ loading: false });
+      this.setData({ loading: false, planErr: true });
     }
   },
 

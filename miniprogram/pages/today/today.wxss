@@ -1,5 +1,8 @@
 /* .hero/.card/.row/.state/.btn 已在 app.wxss，本页只写差异 */
 
+/* 休息日建议卡（.card 默认无 margin，手动补） */
+.today__restday { margin: var(--s-2) 0 var(--s-3); }
+
 /* 预计量 / 恢复环 */
 .today__est {
   display: flex;
