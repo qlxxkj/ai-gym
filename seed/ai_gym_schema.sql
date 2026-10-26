@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id, session_date);
 
 -- 每个组记录：exercise_id + 组序号 + 次数/重量/完成
+-- UNIQUE(session_id, exercise_id, set_no)：同一组只保留一行，POST /sets 做 upsert
 CREATE TABLE IF NOT EXISTS set_records (
   id BIGSERIAL PRIMARY KEY,
   session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
@@ -55,6 +56,8 @@ CREATE TABLE IF NOT EXISTS set_records (
   reps INT,
   weight FLOAT,
   done BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  rpe SMALLINT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (session_id, exercise_id, set_no)
 );
 CREATE INDEX IF NOT EXISTS idx_sets_session ON set_records(session_id);

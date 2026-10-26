@@ -269,7 +269,7 @@ app.get("/sessions/:planId", reqOpenid, async (req, res) => {
   res.json(r.rows);
 });
 
-// 打卡 / 组记录
+// 打卡 / 组记录（upsert：同一 session+exercise+set_no 只保留一行，done 可翻转）
 app.post("/sessions/:id/sets", reqOpenid, async (req, res) => {
   await ensureUser(req.openid);
   const { exercise_id, set_no, reps, weight, done = true, rpe } = req.body;
@@ -280,7 +280,13 @@ app.post("/sessions/:id/sets", reqOpenid, async (req, res) => {
   if (!r.rows.length) return res.status(404).json({ error: "session not found" });
   const out = await pool.query(
     `INSERT INTO set_records (session_id, exercise_id, set_no, reps, weight, done, rpe)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (session_id, exercise_id, set_no) DO UPDATE
+       SET done = EXCLUDED.done,
+           reps = COALESCE(EXCLUDED.reps, set_records.reps),
+           weight = COALESCE(EXCLUDED.weight, set_records.weight),
+           rpe = COALESCE(EXCLUDED.rpe, set_records.rpe)
+     RETURNING *`,
     [req.params.id, exercise_id, set_no, reps ?? null, weight ?? null, done, rpe ?? null]
   );
   res.json(out.rows[0]);

@@ -298,11 +298,13 @@ Page({
     const sno = Number(setidx) + 1;
     const key = ex.id + ":" + sno;
     const done = { ...this.data.doneSets };
+    const sid = this.data.session;
     if (done[key]) {
       delete done[key];
+      // 取消打勾也要上报，后端 upsert 保留一行 done=false，切页/重启回来状态一致
+      if (sid) api.recordSet(sid, { exercise_id: ex.id, set_no: sno, done: false }).catch(() => {});
     } else {
       done[key] = true;
-      const sid = this.data.session;
       if (sid) api.recordSet(sid, { exercise_id: ex.id, set_no: sno, done: true }).catch(() => {});
       // 组间休息：同页内显示倒计时
       if (sno < ex.sets.length) {
