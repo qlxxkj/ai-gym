@@ -11,6 +11,8 @@ services:
       CLAUDE_API_KEY: ${CLAUDE_API_KEY}
       CLAUDE_API_BASE: ${CLAUDE_API_BASE:-https://api.anthropic.com}
       CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-sonnet-4-6}
+      WX_APPID: ${WX_APPID:-}
+      WX_SECRET: ${WX_SECRET:-}
       TZ: Asia/Shanghai
     networks: [ai-gym]
     depends_on:

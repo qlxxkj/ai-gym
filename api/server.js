@@ -47,14 +47,45 @@ const pool = new Pool({
   max: 10,
 });
 
-// ---------- 鉴权：测试期 X-Openid 头直接放行 ----------
-// 小程序端固定写死 dev-default。正式接微信登录时再换成 code2session 校验。
+// ---------- 鉴权：X-Openid 头直接放行 ----------
+// 小程序端通过 /auth/login 换到真实 openid，写进 globalData.openid，每次请求携带 X-Openid。
+// 未配置 WX_APPID/WX_SECRET 时 /auth/login 返回 503，前端回退到缓存或 dev-default。
 function reqOpenid(req, res, next) {
   const openid = req.get("X-Openid");
   if (!openid) return res.status(401).json({ error: "missing X-Openid" });
   req.openid = openid;
   next();
 }
+
+// ---------- 微信登录：code2session ----------
+const WX_APPID  = process.env.WX_APPID  || "";
+const WX_SECRET = process.env.WX_SECRET || "";
+
+app.post("/auth/login", async (req, res) => {
+  const { code } = req.body || {};
+  if (!code) return res.status(400).json({ error: "missing code" });
+  if (!WX_APPID || !WX_SECRET) {
+    return res.status(503).json({ error: "wx login not configured" });
+  }
+  try {
+    const url =
+      "https://api.weixin.qq.com/sns/jscode2session?appid=" +
+      encodeURIComponent(WX_APPID) +
+      "&secret=" + encodeURIComponent(WX_SECRET) +
+      "&js_code=" + encodeURIComponent(code) +
+      "&grant_type=authorization_code";
+    const r = await fetch(url);
+    const data = await r.json();
+    if (data.errcode) return res.status(401).json(data);
+    await pool.query(
+      `INSERT INTO users (id) VALUES ($1) ON CONFLICT (id) DO NOTHING`,
+      [data.openid]
+    );
+    res.json({ openid: data.openid });
+  } catch (e) {
+    res.status(500).json({ error: "code2session failed" });
+  }
+});
 
 async function ensureUser(openid) {
   await pool.query(

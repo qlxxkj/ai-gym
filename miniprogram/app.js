@@ -6,10 +6,30 @@ App({
     base: config.BASE,
     openid: "",
   },
-  // 测试期固定写死 openid，同一部手机永远同一个人，历史计划归属稳定。
-  // 微信里 App.onLaunch 才会自动执行（原先写成 init() 没人调，openid 一直是空 → 全 401）。
   onLaunch() {
-    this.globalData.openid = "dev-default";
-    theme.hookAppLifecycle(); // 回前台时重新探测系统主题（跟随系统兜底）
+    theme.hookAppLifecycle();
+    this.login();
+  },
+  // 真实登录：wx.login → /auth/login 换 openid；失败回退本地缓存或 dev-default
+  login() {
+    const that = this;
+    // 先用本地缓存顶上（上次成功登录的 openid），避免首个请求发 dev-default
+    that.globalData.openid = wx.getStorageSync("openid") || "dev-default";
+    wx.login({
+      success(res) {
+        if (!res.code) return;
+        wx.request({
+          url: that.globalData.base + "/auth/login",
+          method: "POST",
+          data: { code: res.code },
+          success(r) {
+            if (r.data && r.data.openid) {
+              that.globalData.openid = r.data.openid;
+              wx.setStorageSync("openid", r.data.openid);
+            }
+          },
+        });
+      },
+    });
   },
 });
