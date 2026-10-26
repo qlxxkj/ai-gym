@@ -39,7 +39,6 @@ Page({
     const T = this.data.T || {};
     const themeOpts = [
       { v: "dark", label: T.theme_dark },
-      { v: "auto", label: T.theme_auto },
       { v: "light", label: T.theme_light },
     ];
     const langOpts = [
@@ -47,7 +46,7 @@ Page({
       { v: "en", label: T.lang_en },
     ];
     const p = theme.pref();
-    const themePref = ["dark", "auto", "light"].indexOf(p) > -1 ? p : "dark";
+    const themePref = p === "light" ? "light" : "dark";
     const langPref = this.data.lang === "en" ? "en" : "zh";
     this.setData({
       themePref,
