@@ -188,6 +188,14 @@ const DICT = {
     st_heat_note: "深绿 = 组数多",
     st_weight_target: "目标体重",
     st_weight_target_ph: "目标 kg",
+    st_height: "身高",
+    st_height_ph: "身高 cm",
+    st_bmi: "BMI",
+    st_bmi_thin: "偏瘦",
+    st_bmi_normal: "正常",
+    st_bmi_over: "偏重",
+    st_bmi_obese: "超重",
+    st_bmi_na: "填身高后计算",
   },
 
   en: {
@@ -362,6 +370,14 @@ const DICT = {
     st_heat_note: "Darker = more sets",
     st_weight_target: "Target weight",
     st_weight_target_ph: "Target kg",
+    st_height: "Height",
+    st_height_ph: "Height in cm",
+    st_bmi: "BMI",
+    st_bmi_thin: "Underweight",
+    st_bmi_normal: "Normal",
+    st_bmi_over: "Overweight",
+    st_bmi_obese: "Obese",
+    st_bmi_na: "Enter height to compute",
   },
 };
 

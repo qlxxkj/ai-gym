@@ -54,6 +54,9 @@ async function ensureUser(openid) {
 // ---------- 动作库 ----------
 // 启动：幂等补 name_zh 列，并灌离线生成的中文（中文搜索靠它匹配）
 pool.query(`ALTER TABLE exercises ADD COLUMN IF NOT EXISTS name_zh text DEFAULT ''`).catch((e) => console.error("migrate name_zh:", e));
+// users 补身高 / 目标体重（幂等）
+pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS height numeric(5,1)`).catch((e) => console.error("migrate users height:", e));
+pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS weight_target numeric(5,1)`).catch((e) => console.error("migrate users weight_target:", e));
 // 离线中文名（gen-zh.js 生成）灌库：Postgres 单条 SQL 占位符上限 65535，但每块参数数也别太大，200 条/块稳妥
 {
   const zhRows = require("./exercises-zh.js");
@@ -349,6 +352,34 @@ app.post("/weight", reqOpenid, async (req, res) => {
     [req.openid, d, weight, note || ""]
   );
   res.json(r.rows[0]);
+});
+
+// ---------- 个人资料：身高 / 目标体重（数据页 BMI 用） ----------
+app.get("/profile", reqOpenid, async (req, res) => {
+  await ensureUser(req.openid);
+  const r = await pool.query(
+    `SELECT height, weight_target FROM users WHERE id = $1`,
+    [req.openid]
+  );
+  const row = r.rows[0] || {};
+  res.json({ height: row.height ? Number(row.height) : null, weightTarget: row.weight_target ? Number(row.weight_target) : null });
+});
+
+app.post("/profile", reqOpenid, async (req, res) => {
+  await ensureUser(req.openid);
+  const { height, weightTarget } = req.body || {};
+  const h = height == null ? null : Number(height);
+  const t = weightTarget == null ? null : Number(weightTarget);
+  if (h != null && (h <= 0 || h > 280)) return res.status(400).json({ error: "bad height" });
+  if (t != null && (t <= 0 || t > 400)) return res.status(400).json({ error: "bad target" });
+  await pool.query(
+    `UPDATE users SET
+       height = COALESCE($2, height),
+       weight_target = COALESCE($3, weight_target)
+     WHERE id = $1`,
+    [req.openid, h, t]
+  );
+  res.json({ ok: true });
 });
 
 // ---------- 数据统计（数据分析页） ----------

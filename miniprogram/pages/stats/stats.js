@@ -64,10 +64,13 @@ Page({
     weightDeltaPct: "",
     weightInput: "",
     saving: false,
-    // 体重目标
+    // 体重目标 + 身高（BMI）
     weightTarget: "",
     weightTargetDiff: "",
     weightTargetDiffPct: "",
+    height: "",
+    bmi: "",
+    bmiLabel: "",
     // 1RM：[{id, name, pts: [{x, y}]}]
     oneRm: [],
     rmMaxY: 1,
@@ -95,13 +98,15 @@ Page({
   async load() {
     this.setData({ loading: true });
     try {
-      const [s, weights, oneRmRaw, radarRaw, heatRaw] = await Promise.all([
+      const [s, weights, oneRmRaw, radarRaw, heatRaw, prof] = await Promise.all([
         api.stats().catch(() => null),
         api.weight().catch(() => []),
         api.stats1rm().catch(() => []),
         api.statsRadar().catch(() => []),
         api.statsHeat().catch(() => []),
+        api.profile().catch(() => ({})),
       ]);
+      if (prof) this.renderProfile(prof);
       if (s) this.renderStats(s);
       this.renderWeights(Array.isArray(weights) ? weights : []);
       this.render1RM(oneRmRaw);
@@ -254,7 +259,56 @@ Page({
 
   saveWeightTarget() {
     const t = parseFloat(this.data.weightTarget);
-    if (t && t > 0 && this.data.weightLatest) {
+    if (!t || t <= 0) return;
+    if (this.data.weightLatest) {
+      const diff = Math.round((t - Number(this.data.weightLatest)) * 100) / 100;
+      const pct = Math.round((diff / Number(this.data.weightLatest)) * 1000) / 10;
+      this.setData({
+        weightTargetDiff: (diff > 0 ? "+" : "") + diff + " kg",
+        weightTargetDiffPct: pct + "%",
+      });
+    }
+    // 目标体重入库（与身高同走 /profile）；只由用户输入触发，回填不调用
+    api.profileSet({ weightTarget: t }).catch(() => {});
+  },
+
+  onHeightInput(e) {
+    const v = e.detail.value;
+    this.setData({ height: v }, () => this.renderBmi());
+  },
+
+  saveHeight() {
+    const h = parseFloat(this.data.height);
+    if (!h || h <= 0) return;
+    this.renderBmi();
+    api.profileSet({ height: h }).catch(() => {});
+  },
+
+  // BMI = kg / m²。中国标准：<18.5 偏瘦 18.5-24 正常 24-28 偏重 ≥28 超重
+  renderBmi() {
+    const w = parseFloat(this.data.weightLatest);
+    const h = parseFloat(this.data.height);
+    const T = this.data.T || {};
+    if (!w || !h || h < 100 || h > 250) {
+      this.setData({ bmi: "", bmiLabel: "" });
+      return;
+    }
+    const bmi = Math.round((w / (h / 100) / (h / 100)) * 10) / 10;
+    const bmiLabel = bmi < 18.5 ? T.st_bmi_thin : bmi < 24 ? T.st_bmi_normal : bmi < 28 ? T.st_bmi_over : T.st_bmi_obese;
+    this.setData({ bmi: String(bmi), bmiLabel });
+  },
+
+  // 从 /profile 回填身高 / 目标体重（体重最新值仍来自 weight_log）
+  renderProfile(p) {
+    const wt = p.weightTarget ? String(p.weightTarget) : this.data.weightTarget;
+    this.setData({
+      height: p.height ? String(p.height) : "",
+      weightTarget: wt,
+    });
+    this.renderBmi();
+    // 目标体重回填后刷新差值（不触发入库）
+    if (wt && this.data.weightLatest) {
+      const t = parseFloat(wt);
       const diff = Math.round((t - Number(this.data.weightLatest)) * 100) / 100;
       const pct = Math.round((diff / Number(this.data.weightLatest)) * 1000) / 10;
       this.setData({

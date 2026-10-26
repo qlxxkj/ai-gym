@@ -148,17 +148,28 @@
           {{saving ? T.st_weight_saving : T.st_weight_save}}
         </button>
       </view>
-      <!-- 目标体重 -->
+      <!-- 目标体重 + 身高（同区，都进 /profile） -->
       <view class="wt__target">
         <view class="wt__target__row">
           <text class="wt__target__lb">{{T.st_weight_target}}</text>
           <input class="wt__input wt__target__input" type="digit" placeholder="{{T.st_weight_target_ph}}" placeholder-class="wt__ph"
             value="{{weightTarget}}" bindinput="onWeightTargetInput" bindblur="saveWeightTarget" />
         </view>
+        <view class="wt__target__row">
+          <text class="wt__target__lb">{{T.st_height}}</text>
+          <input class="wt__input wt__target__input" type="digit" placeholder="{{T.st_height_ph}}" placeholder-class="wt__ph"
+            value="{{height}}" bindinput="onHeightInput" bindblur="saveHeight" />
+        </view>
         <view class="wt__target__diff" wx:if="{{weightTargetDiff}}">
           <text class="wt__delta {{weightTargetDiff.indexOf('+') === 0 ? 'wt__delta--up' : 'wt__delta--dn'}}">{{weightTargetDiff}}</text>
           <text class="wt__target__pct">({{weightTargetDiffPct}})</text>
         </view>
+      </view>
+      <!-- BMI -->
+      <view class="bmi rise" wx:if="{{bmi}}">
+        <text class="bmi__lb">{{T.st_bmi}}</text>
+        <text class="bmi__val">{{bmi}}</text>
+        <text class="bmi__tag">{{bmiLabel}}</text>
       </view>
       <view class="wt__note" wx:if="{{!weights.length}}">{{T.st_weight_empty}}</view>
     </view>

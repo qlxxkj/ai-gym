@@ -46,6 +46,9 @@ module.exports = {
   // 体重
   weight: () => req("GET", "/weight").then((r) => r.data),
   weightAdd: (body) => req("POST", "/weight", body).then((r) => r.data),
+  // 个人资料（身高 / 目标体重，BMI 用）
+  profile: () => req("GET", "/profile").then((r) => r.data),
+  profileSet: (body) => req("POST", "/profile", body).then((r) => r.data),
   // 数据统计
   stats: () => req("GET", "/stats").then((r) => r.data),
   stats1rm: () => req("GET", "/stats/1rm").then((r) => r.data),
