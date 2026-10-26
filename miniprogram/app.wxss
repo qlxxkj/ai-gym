@@ -107,6 +107,9 @@ page {
     padding: var(--s-4) var(--s-4) calc(var(--s-6) + env(safe-area-inset-bottom));
     background: var(--bg); /* 挂在可见层，否则深色露出 page 浅色底 */
     min-height: 100vh;
+    /* 显式设继承色，覆盖小程序框架原生组件默认的近黑；
+       .t-dark 作用域里 var(--ink)=#F5F6F7，浅色=墨色，各取所需 */
+    color: var(--ink);
 }
 .page--tab {
     padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
