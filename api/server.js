@@ -258,8 +258,11 @@ app.post("/sessions", reqOpenid, async (req, res) => {
 
 app.get("/sessions/:planId", reqOpenid, async (req, res) => {
   await ensureUser(req.openid);
+  // session_date::text 保证返回 "YYYY-MM-DD" 而不是 node-pg 默认的 ISO 时间戳，
+  // 前端 load() 用 s.session_date === todayStr() 精确比较，格式不一致就永远 miss
   const r = await pool.query(
-    `SELECT s.*, count(sr.id) AS set_count
+    `SELECT s.id, s.plan_id, s.user_id, s.session_date::text AS session_date,
+            s.done, s.notes, s.created_at, count(sr.id) AS set_count
      FROM sessions s LEFT JOIN set_records sr ON sr.session_id = s.id
      WHERE s.plan_id = $1 AND s.user_id = $2
      GROUP BY s.id, s.plan_id, s.user_id, s.session_date, s.notes, s.done, s.created_at
@@ -435,9 +438,9 @@ app.get("/stats", reqOpenid, async (req, res) => {
        GROUP BY sr.exercise_id, e.name, e.name_zh
        ORDER BY sets DESC LIMIT 5`, [u]
     ),
-    // 近 7 天每日完成组数（趋势）
+    // 近 7 天每日完成组数（趋势）：session_date::text 保证 "YYYY-MM-DD" 格式
     pool.query(
-      `SELECT s.session_date, count(*)::int AS sets
+      `SELECT s.session_date::text AS session_date, count(*)::int AS sets
        FROM set_records sr JOIN sessions s ON s.id = sr.session_id
        WHERE s.user_id = $1 AND sr.done AND s.session_date >= CURRENT_DATE - 6
        GROUP BY 1 ORDER BY 1`, [u]
