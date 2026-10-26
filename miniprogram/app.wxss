@@ -82,8 +82,8 @@ page {
     --line: #262A33;
 
     --ink: #F5F6F7;
-    --ink-2: #9AA0A8;
-    --ink-3: #6B7280;
+    --ink-2: #B0B7C0;
+    --ink-3: #7E8794;
 
     --accent: #00E08A;
     --accent-bg: #0D3527;

@@ -40,7 +40,6 @@ Page({
     today: todayStr(),
     loading: true,
     planErr: false, // 加载出错诊断条
-    diag: "", // 主题诊断行（临时排障用）
     dayLabel: "",
     planTitle: "",
     planGoal: "",
@@ -73,25 +72,8 @@ Page({
     if (typeof this.getTabBar === "function") this.getTabBar().setData({ selected: 0 });
     theme.sync(this);
     i18n.sync(this);
-    // 临时诊断：确认 data.theme / themePref / 系统探测值，定位"暗色文字看不清"
-    this.setData({
-      diag:
-        "theme=" + this.data.theme +
-        " pref=" + this.data.themePref +
-        " sys=" + theme.sysTheme() +
-        " (t-dark=" + (this.data.theme === "dark") + ")",
-    });
     // 跟随系统：系统主题翻转时重跑 sync，页面 class 立即跟上
-    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => {
-      theme.sync(this);
-      this.setData({
-        diag:
-          "theme=" + this.data.theme +
-          " pref=" + this.data.themePref +
-          " sys=" + theme.sysTheme() +
-          " (t-dark=" + (this.data.theme === "dark") + ")",
-      });
-    });
+    if (!this._offTheme) this._offTheme = theme.onThemeChange(() => theme.sync(this));
     if (!this._offLang) this._offLang = i18n.onChange(() => { i18n.sync(this); this.reload(); });
     exdict.load(() => this.reloadNames());
     this.load();

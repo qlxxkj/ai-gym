@@ -1,17 +1,5 @@
 /* .hero/.card/.row/.state/.btn 已在 app.wxss，本页只写差异 */
 
-/* 临时诊断行：排"暗色文字看不清" */
-.today__diag {
-  font-size: 20rpx;
-  color: var(--ink-3);
-  background: var(--fill);
-  border-radius: 8rpx;
-  padding: 8rpx 12rpx;
-  margin-bottom: var(--s-2);
-  font-family: monospace;
-  word-break: break-all;
-}
-
 /* 休息日建议卡（.card 默认无 margin，手动补） */
 .today__restday { margin: var(--s-2) 0 var(--s-3); }
 

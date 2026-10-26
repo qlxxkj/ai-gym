@@ -1,6 +1,5 @@
 <view class="page page--tab {{theme === 'dark' ? 't-dark' : ''}}">
   <topbar tkey="tab_today" />
-  <view wx:if="{{diag}}" class="today__diag">{{diag}}</view>
 
   <!-- 懒加载骨架：先出当天动作，统计/打卡后到，不再整页转圈 -->
   <block wx:if="{{loading}}">
