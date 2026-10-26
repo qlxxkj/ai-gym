@@ -19,11 +19,9 @@ function win() {
 
 // 系统暗色探测。按序取第一个 "dark"，全 miss → light：
 //   1. 真机系统深色（getWindowInfo().theme / getSystemInfoSync().theme）
-//   2. wx.setPreferredTheme 设的值（开发者工具的模拟器主题、或宿主 App 的偏好）
-//   3. window.preferredTheme（部分基础库字段）
+//   2. window.preferredTheme（开发者工具/模拟器的偏好主题）
 // 注意：微信的"系统主题"在开发者工具里是「详情 → 本地设置 → 模拟器主题」，
 // 不是系统外观；在真机上跟随系统外观。
-let preferred = "";
 function sysTheme() {
   try {
     const w = win();
@@ -37,7 +35,6 @@ function sysTheme() {
   } catch (e) {
     /* 忽略 */
   }
-  if (preferred === "dark") return "dark";
   try {
     const w = win();
     if (w && w.preferredTheme === "dark") return "dark";
@@ -45,17 +42,6 @@ function sysTheme() {
     /* 忽略 */
   }
   return "light";
-}
-
-// 在 auto 档下调用：把宿主主题写进 preferred，再广播让各页重新解析
-function setPreferred(t) {
-  preferred = t;
-  try {
-    if (wx.setPreferredTheme) wx.setPreferredTheme({ theme: t });
-  } catch (e) {
-    /* 忽略 */
-  }
-  fire();
 }
 
 function pref() {
