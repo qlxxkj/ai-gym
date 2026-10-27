@@ -306,8 +306,11 @@ Page({
     } else {
       done[key] = true;
       if (sid) api.recordSet(sid, { exercise_id: ex.id, set_no: sno, done: true }).catch(() => {});
-      // 组间休息：同页内显示倒计时
-      if (sno < ex.sets.length) {
+      // 组间休息：本动作还有下一组，或本动作最后一组但后面还有下一个动作（动作间休息）
+      // 只有「最后一个动作的最后一组」做完 = 全场结束，不倒计时
+      const isLastSetOfEx = sno >= ex.sets.length;
+      const isLastEx = exidx >= exList.length - 1;
+      if (!isLastSetOfEx || !isLastEx) {
         const rest = (ex.sets[setidx] && ex.sets[setidx].rest_seconds) || 90;
         this.startRest(rest);
       }
