@@ -190,6 +190,6 @@ Page({
 
   onShareAppMessage() {
     const T = this.data.T || {};
-    return { title: T.about_brand || "AI 健身教练", path: "/pages/plan/plan" };
+    return { title: T.about_brand || "健身教练", path: "/pages/plan/plan" };
   },
 });

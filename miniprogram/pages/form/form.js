@@ -111,7 +111,7 @@ Page({
       .map((m) => (en ? FOCUS_KEY_EN[m] : MUSCLE_EN[m]) || m);
     const equip = EQUIP_EN[EQUIPS[d.equipIndex]] || EQUIPS[d.equipIndex];
     this.setData({ generating: true });
-    wx.showLoading({ title: en ? "AI is building your plan..." : "AI 制定计划中..." });
+    wx.showLoading({ title: en ? "Building your plan..." : "制定计划中..." });
     try {
       const r = await api.generate({
         goal: GOALS[d.goalIndex],

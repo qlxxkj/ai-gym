@@ -9,7 +9,7 @@
     "pages/form/form"
   ],
   "window": {
-    "navigationBarTitleText": "AI 健身教练",
+    "navigationBarTitleText": "健身教练",
     "navigationStyle": "custom",
     "backgroundColor": "#F9F6F5",
     "backgroundColorTop": "#F9F6F5",

@@ -203,7 +203,7 @@ Page({
   async doReview() {
     const en = this.data.lang === "en";
     this.setData({ reviewing: true });
-    wx.showLoading({ title: en ? "AI reviewing..." : "AI 复盘中..." });
+    wx.showLoading({ title: en ? "Reviewing..." : "复盘中..." });
     try {
       const r = await api.review(this.data.current.id, {});
       this.setData({
@@ -245,7 +245,7 @@ Page({
     const en = this.data.lang === "en";
     return new Promise((resolve) => {
       wx.showModal({
-        title: en ? "Tell the AI how to adjust" : "告诉 AI 想怎么调整",
+        title: en ? "Tell us how to adjust" : "告诉我想怎么调整",
         editable: true,
         placeholderText: en ? "e.g. switch push day to dumbbells, drop to 3 sets" : "例如：推日换成哑铃动作，组数减到3组",
         success: (r) => resolve(r.confirm ? r.content : null),
